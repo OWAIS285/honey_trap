@@ -4,6 +4,7 @@ import argparse
 import asyncio
 import os
 import time
+import wave
 
 from dotenv import load_dotenv
 from google import genai
@@ -40,7 +41,7 @@ RECORD_DETAIL = types.FunctionDeclaration(
 OUTPUT_PCM_BYTES_PER_SECOND = 24000 * 2
 
 
-async def run_once(model: str, with_text: bool) -> None:
+async def run_once(model: str, with_text: bool, save_path: str | None = None) -> None:
     client = genai.Client()
     config = types.LiveConnectConfig(
         response_modalities=["AUDIO", "TEXT"] if with_text else ["AUDIO"],
@@ -52,6 +53,7 @@ async def run_once(model: str, with_text: bool) -> None:
 
     first_audio: float | None = None
     audio_bytes = 0
+    audio_chunks: list[bytes] = []
     spoken: list[str] = []
     tool_calls: list[tuple[str, dict]] = []
     turns_done = 0
@@ -71,6 +73,7 @@ async def run_once(model: str, with_text: bool) -> None:
                         for part in content.model_turn.parts or []:
                             if part.inline_data and part.inline_data.data:
                                 audio_bytes += len(part.inline_data.data)
+                                audio_chunks.append(part.inline_data.data)
                                 if first_audio is None:
                                     first_audio = time.perf_counter() - started
                     if content and content.output_transcription and content.output_transcription.text:
@@ -96,6 +99,14 @@ async def run_once(model: str, with_text: bool) -> None:
     print(f"  audio length        : {audio_bytes / OUTPUT_PCM_BYTES_PER_SECOND:.1f}s")
     print(f"  persona said        : {''.join(spoken)!r}")
     print(f"  tool calls          : {tool_calls}")
+    if save_path and audio_chunks:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        with wave.open(save_path, "wb") as wav:
+            wav.setnchannels(1)
+            wav.setsampwidth(2)
+            wav.setframerate(24000)
+            wav.writeframes(b"".join(audio_chunks))
+        print(f"  saved reply         : {save_path}")
 
 
 async def main() -> None:
@@ -103,13 +114,15 @@ async def main() -> None:
     parser.add_argument("--model", default=os.getenv("LIVE_MODEL", "gemini-3.8-live"))
     parser.add_argument("--locations", default=os.getenv("GOOGLE_CLOUD_LOCATION", "global"))
     parser.add_argument("--with-text", action="store_true", help="also request TEXT modality")
+    parser.add_argument("--save-audio", action="store_true", help="write the reply to out/kamala_<location>.wav")
     args = parser.parse_args()
 
     for location in args.locations.split(","):
         os.environ["GOOGLE_CLOUD_LOCATION"] = location.strip()
         print(f"[{args.model} @ {location.strip()}]")
+        save_path = f"out/kamala_{location.strip()}.wav" if args.save_audio else None
         try:
-            await run_once(args.model, args.with_text)
+            await run_once(args.model, args.with_text, save_path)
         except Exception as exc:  # noqa: BLE001 - the spike must report every failure and keep going
             print(f"  FAILED: {type(exc).__name__}: {exc}")
 
