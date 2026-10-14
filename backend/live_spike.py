@@ -63,30 +63,34 @@ async def run_once(model: str, with_text: bool) -> None:
             turns=types.Content(role="user", parts=[types.Part(text=PROMPT)]),
             turn_complete=True,
         )
-        async with asyncio.timeout(30):
-            async for msg in session.receive():
-                content = msg.server_content
-                if content and content.model_turn:
-                    for part in content.model_turn.parts or []:
-                        if part.inline_data and part.inline_data.data:
-                            audio_bytes += len(part.inline_data.data)
-                            if first_audio is None:
-                                first_audio = time.perf_counter() - started
-                if content and content.output_transcription and content.output_transcription.text:
-                    spoken.append(content.output_transcription.text)
-                if msg.tool_call:
-                    for call in msg.tool_call.function_calls or []:
-                        tool_calls.append((call.name, dict(call.args or {})))
-                        await session.send_tool_response(
-                            function_responses=[
-                                types.FunctionResponse(id=call.id, name=call.name, response={"result": "recorded"})
-                            ]
-                        )
-                    turns_expected = 2
-                if content and content.turn_complete:
-                    turns_done += 1
-                    if turns_done >= turns_expected:
-                        break
+        async with asyncio.timeout(40):
+            while turns_done < turns_expected:
+                async for msg in session.receive():
+                    content = msg.server_content
+                    if content and content.model_turn:
+                        for part in content.model_turn.parts or []:
+                            if part.inline_data and part.inline_data.data:
+                                audio_bytes += len(part.inline_data.data)
+                                if first_audio is None:
+                                    first_audio = time.perf_counter() - started
+                    if content and content.output_transcription and content.output_transcription.text:
+                        spoken.append(content.output_transcription.text)
+                    if msg.tool_call:
+                        for call in msg.tool_call.function_calls or []:
+                            tool_calls.append((call.name, dict(call.args or {})))
+                            await session.send_tool_response(
+                                function_responses=[
+                                    types.FunctionResponse(
+                                        id=call.id,
+                                        name=call.name,
+                                        response={"result": "recorded"},
+                                        scheduling=types.FunctionResponseScheduling.INTERRUPT,
+                                    )
+                                ]
+                            )
+                        turns_expected = 2
+                    if content and content.turn_complete:
+                        turns_done += 1
 
     print(f"  time to first audio : {first_audio:.2f}s" if first_audio else "  no audio received")
     print(f"  audio length        : {audio_bytes / OUTPUT_PCM_BYTES_PER_SECOND:.1f}s")

@@ -1,11 +1,12 @@
 param(
     [Parameter(Mandatory)][string]$ProjectId,
     [string]$Region = "asia-south1",
-    [string]$LiveLocation = "global",
+    [string]$LiveLocation = "us-central1",
+    [string]$TextLocation = "global",
     [string]$AllowedOrigins = ""
 )
 
-$envVars = "^|^GOOGLE_GENAI_USE_VERTEXAI=true|GOOGLE_CLOUD_PROJECT=$ProjectId|GOOGLE_CLOUD_LOCATION=$LiveLocation|ALLOWED_ORIGINS=$AllowedOrigins"
+$envVars = "^|^GOOGLE_GENAI_USE_VERTEXAI=true|GOOGLE_CLOUD_PROJECT=$ProjectId|LIVE_LOCATION=$LiveLocation|TEXT_LOCATION=$TextLocation|ALLOWED_ORIGINS=$AllowedOrigins"
 
 gcloud run deploy honeytrap-api `
     --project $ProjectId `
