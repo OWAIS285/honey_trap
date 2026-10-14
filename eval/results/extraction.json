@@ -1,0 +1,36 @@
+{
+ "core": {
+  "tests": 100,
+  "correct": 100,
+  "accuracy": 1.0,
+  "by_type": {
+   "bank_account": "30/30",
+   "phone_number": "25/25",
+   "upi_id": "25/25",
+   "ifsc": "20/20"
+  },
+  "by_style": {
+   "english": "35/35",
+   "hinglish": "33/33",
+   "devanagari": "32/32"
+  }
+ },
+ "hard": {
+  "tests": 25,
+  "correct": 25,
+  "accuracy": 1.0,
+  "by_type": {
+   "ifsc": "5/5",
+   "upi_id": "10/10",
+   "phone_number": "10/10"
+  },
+  "by_style": {
+   "devanagari-letters": "5/5",
+   "symbol-words": "10/10",
+   "triple-forms": "10/10"
+  }
+ },
+ "hard_failures": [],
+ "core_failures": [],
+ "note": "Deterministic normalisation after speech-to-text; the recogniser itself is not measured. Core cases are the forms the normaliser was designed for; the hard set lists known limits."
+}

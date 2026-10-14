@@ -1,0 +1,297 @@
+{
+ "summary": {
+  "dataset": "ICFD-31k test split, shard 0 (synthetic; evaluation only)",
+  "sample": {
+   "static": 22,
+   "legitimate_calls": 12,
+   "streaming": 5
+  },
+  "keyword_baseline": {
+   "n": 22,
+   "tp": 6,
+   "fp": 8,
+   "tn": 4,
+   "fn": 4,
+   "accuracy": 0.455,
+   "precision": 0.429,
+   "recall": 0.6,
+   "f1": 0.5,
+   "specificity": 0.333
+  },
+  "classifier_runs": [
+   {
+    "n": 22,
+    "tp": 7,
+    "fp": 6,
+    "tn": 6,
+    "fn": 3,
+    "accuracy": 0.591,
+    "precision": 0.538,
+    "recall": 0.7,
+    "f1": 0.609,
+    "specificity": 0.5,
+    "errors": 0,
+    "plausible_type_rate": 0.857
+   }
+  ],
+  "classifier_f1_mean": 0.609,
+  "classifier_recall_mean": 0.7,
+  "streaming": {
+   "n": 5,
+   "ours_detected": 5,
+   "keyword_detected": 3,
+   "ours_median_seconds": 17.5,
+   "keyword_median_seconds": 32.1,
+   "dataset_first_yes_median_seconds": 30.4,
+   "call_length_median_seconds": 90.7
+  },
+  "classifier_latency_seconds": {
+   "p50": 6.9649869999993825,
+   "p90": 24.561525500001153,
+   "calls": 31
+  },
+  "caveats": [
+   "ICFD-31k is synthetic; numbers say nothing about real-world accuracy.",
+   "The test split has only 12 legitimate calls in this shard, so specificity is very uncertain.",
+   "The domain to scam-type mapping used for plausible_type_rate is our own judgement."
+  ]
+ },
+ "runs": [
+  {
+   "metrics": {
+    "n": 22,
+    "tp": 7,
+    "fp": 6,
+    "tn": 6,
+    "fn": 3,
+    "accuracy": 0.591,
+    "precision": 0.538,
+    "recall": 0.7,
+    "f1": 0.609,
+    "specificity": 0.5,
+    "errors": 0,
+    "plausible_type_rate": 0.857
+   },
+   "predictions": [
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_5_Clear_Fraud_0484_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_5_Clear_Fraud_0489_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.4
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0516_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0526_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0566_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0590_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.6
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0599_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0802_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0805_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0806_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0828_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0876_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_9_Clear_Fraud_0853_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "investment_trading",
+     "confidence": 0.98
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_8_Clear_Fraud_0779_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_8_Clear_Fraud_0793_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "bank_kyc_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_6_Clear_Fraud_0566_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "electricity_bill",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_6_Clear_Fraud_0565_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_9_Clear_Fraud_0891_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_8_Clear_Fraud_0786_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_5_Clear_Fraud_0488_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0803_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0563_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.85
+    }
+   ]
+  }
+ ],
+ "streaming": [
+  {
+   "id": "batch_2025-10-11_21-42-13/SCENARIO_9_Clear_Fraud_0802_r1",
+   "domain": "bank_payment_fraud",
+   "call_end": 142.0,
+   "ours": 15.0,
+   "keyword": 35.0,
+   "dataset_first_yes": 25.0
+  },
+  {
+   "id": "batch_2025-10-12_22-36-40/SCENARIO_5_Clear_Fraud_0455_r1",
+   "domain": "utility_bill_service",
+   "call_end": 100.1,
+   "ours": 18.1,
+   "keyword": null,
+   "dataset_first_yes": 30.0
+  },
+  {
+   "id": "batch_2025-10-12_23-39-07/SCENARIO_8_Clear_Fraud_0732_r1",
+   "domain": "job_employment",
+   "call_end": 79.2,
+   "ours": 24.5,
+   "keyword": null,
+   "dataset_first_yes": 40.0
+  },
+  {
+   "id": "batch_2025-10-13_00-20-15/SCENARIO_7_Clear_Fraud_0634_r1",
+   "domain": "loan_shark_harassment",
+   "call_end": 90.7,
+   "ours": 17.5,
+   "keyword": 32.1,
+   "dataset_first_yes": 40
+  },
+  {
+   "id": "batch_2025-10-12_19-54-00/SCENARIO_8_Clear_Fraud_0709_r1",
+   "domain": "ecommerce_marketplace",
+   "call_end": 78.5,
+   "ours": 5.2,
+   "keyword": 30.4,
+   "dataset_first_yes": 30.4
+  }
+ ]
+}

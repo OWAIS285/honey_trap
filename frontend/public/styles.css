@@ -267,7 +267,7 @@ select.input option { background: #14172b; color: var(--text); }
 .mock-chip small { display: block; font-size: 11px; color: var(--faint); }
 .mock-chip b { font-size: 13.5px; }
 .mock-chip.c1 { right: -6px; bottom: 6px; }
-.mock-chip.c2 { left: -4px; top: 150px; }
+.mock-chip.c2 { right: 26px; top: 122px; }
 .mock-chip.c2 svg { color: var(--red); }
 .mock-chip.c3 { right: 0; top: 0; }
 .mock-chip.c3 svg { color: var(--honey); }
@@ -587,7 +587,7 @@ select.input option { background: #14172b; color: var(--text); }
   .hero-mock { padding: 24px 0; }
   .hero .cta-row .btn { flex: 1 1 100%; }
   .mock-chip.c1 { right: 0; }
-  .mock-chip.c2 { left: 0; top: 130px; }
+  .mock-chip.c2 { right: 14px; top: 118px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }

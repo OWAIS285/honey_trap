@@ -4,6 +4,8 @@
 > Deadline: **prototype submission Sunday 18 Oct 2026** (the organisers publish no timezone → **submit by Sunday MORNING IST**; have everything uploaded and link-tested by Saturday night). Today is Wed 14 Oct 2026.
 > Event: **Google Cloud AI Builder Cup JAPAC 2026** (Hack2skill × Google Cloud). Theme: **BFSI: Intelligent Risk, Fraud & Financial Experiences**.
 > §0 and the model/API facts in §4 were checked against the official site, T&C, RBI and Google docs on 14 Oct 2026. Items marked **VERIFY** are not confirmed yet.
+>
+> **Status 15 Oct 2026:** backend (live voice, text chat, two-layer extraction, classification, strain, drills, recordings), the animated web app, the recorded replay and the evaluation harness are built and deployed (https://honeytrap-aibc-2026.web.app). Still open: final eval numbers in the README, deck from the official template, 3-minute video, public repo, real-device mic test, roster/Discord confirmation, 50+ redacted real scam messages.
 
 ---
 
@@ -32,7 +34,7 @@ Known site inconsistencies (ask on Discord, don't block on them): the Challenges
 
 ## 1. What we are building (one paragraph)
 
-An AI **scam-call decoy for India**. A Gemini-powered voice persona ("Kamala aunty", 68; persona gender/name under review, see §5) answers scam calls in **English, Hindi or Hinglish, matching the caller**, keeps scammers talking, and **extracts the mule bank accounts, UPI IDs, phone numbers, links and impersonated agency** in real time. Every captured scam is turned into a **"scam strain"** (the script, red flags, payment method) which powers two outputs:
+An AI **scam-call decoy for India**. A Gemini-powered voice persona ("Ramesh Sharma", 68, retired schoolteacher from Lucknow, male voice Achird; this replaces the earlier "Kamala aunty" idea) answers scam calls in **English, Hindi or Hinglish, matching the caller**, keeps scammers talking, and **extracts the mule bank accounts, UPI IDs, phone numbers, links and impersonated agency** in real time. Every captured scam is turned into a **"scam strain"** (the script, red flags, payment method) which powers two outputs:
 1. **Bank-ready evidence pack** — extracted accounts/UPI IDs with transcript evidence, timestamps and confidence, so a bank fraud team can act *before* a real victim pays.
 2. **Scam vaccine drill** — a harmless, opt-in drill call to an elderly family member built from *that day's real scam script*; the AI breaks character before any real detail is shared and teaches the 3 red flags of that exact script.
 
@@ -81,19 +83,24 @@ Side prizes to target (USD 2k each): Best Use of Google Cloud AI Tools (show bre
 ## 4. Architecture
 
 ```
-[Browser: mic + speaker + dashboard  (static site on Firebase Hosting)]
-      │  WSS straight to the Cloud Run *.run.app URL (NOT via a Hosting rewrite: 60 s request limit)
-      │  16 kHz PCM up / 24 kHz PCM down;  Firestore reads via Firebase Web SDK (anonymous Auth)
+**As built (15 Oct 2026).** The browser talks only to the Cloud Run backend; Firestore rules deny every client, so there is no
+Firebase Auth and no client-side Firestore. The browser identifies itself with a random id kept in localStorage (X-Client-Id).
+
+[Browser: mic + speaker + dashboard  (static site on Firebase Hosting, plain ES modules, CSP + no-cache headers)]
+      │  WSS /ws/call (voice), /ws/text (chat), /ws/drill (parent)  → straight to the Cloud Run *.run.app URL
+      │  16 kHz PCM up / 24 kHz PCM down; JSON events down (transcript, detail, classification, stage, latency, ended)
+      │  REST /api/calls, /api/strains, /api/drills (X-Client-Id); recording via /api/calls/{id}/recording?t=<playToken>
       ▼
-[Cloud Run: FastAPI backend  (Python, google-genai SDK, own service account, asia-south1)]
-      ├── Gemini Live session (gemini-3.8-live)  ── persona "Kamala aunty"
+[Cloud Run: FastAPI backend  (Python, google-genai SDK, own service account, asia-south1, max-instances 3)]
+      ├── Gemini Live session (gemini-3.8-live, us-central1, voice Achird)  ── persona "Ramesh Sharma"
       │       └── function calls: record_detail / flag_scam_stage / end_call
-      ├── Verifier + classifier: gemini-3.8-flash (structured JSON), async, off the audio path
-      ├── Validators + number normalizer (pure Python, deterministic)
-      ├── Strain builder (gemini-3.8-flash, structured JSON)
-      ├── Drill generator + drill persona (gemini-3.8-live, separate session)
-      └── Writes to Firestore  ──►  dashboard updates in realtime
-[Vertex AI / Agent Platform: model access via ADC]  [Secret Manager: any non-ADC secrets]  [Cloud Logging/Monitoring: latency, errors, budget alerts]  [optional: BigQuery export]
+      ├── Verifier + classifier: gemini-3.8-flash (global, structured JSON, retries with backoff), off the audio path
+      ├── Validators + number normaliser (pure Python, deterministic: Hindi / Hinglish / Devanagari spoken forms)
+      ├── Strain builder (gemini-3.8-flash, structured JSON, identifiers redacted)
+      ├── Family drill: actor + coach (gemini-3.8-live), stops at the first shared detail or the payment step
+      ├── Per-IP limits, concurrency cap, 300 s call cap, KILL_SWITCH env
+      └── Firestore (calls, turns, details, strains, drills; TTL on expiresAt) + private GCS bucket (stereo WAV recordings, 14-day lifecycle)
+[Vertex AI: model access via ADC]  [Cloud Logging: structured JSON logs]  [Billing budgets + stop_billing.ps1 panic button]
 ```
 
 ### Model & API facts (verified 14 Oct 2026 against Google docs; re-check at M0, docs move fast)

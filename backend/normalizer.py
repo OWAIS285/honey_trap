@@ -18,6 +18,12 @@ _WORD_DIGITS: dict[str, str] = {
 }
 _MULTIPLIERS = {"double": 2, "dabal": 2, "triple": 3, "tripal": 3, "डबल": 2, "ट्रिपल": 3}
 _SYMBOL_WORDS = {"dot": ".", "period": ".", "at": "@", "underscore": "_", "dash": "-", "hyphen": "-"}
+# How Hindi speakers name the letters of the alphabet, used when a code is spelled out in Devanagari.
+_LETTER_NAMES = {
+    "ए": "A", "बी": "B", "सी": "C", "डी": "D", "ई": "E", "एफ": "F", "जी": "G", "एच": "H", "आई": "I", "जे": "J", "के": "K",
+    "एल": "L", "एम": "M", "एन": "N", "ओ": "O", "पी": "P", "क्यू": "Q", "आर": "R", "एस": "S", "टी": "T", "यू": "U",
+    "वी": "V", "डब्ल्यू": "W", "एक्स": "X", "वाई": "Y", "जेड": "Z", "ज़ेड": "Z",
+}
 
 _AT_THE_RATE = re.compile(r"\bat[\s-]+the[\s-]+rate(?:[\s-]+of)?\b", re.IGNORECASE)
 _TOKEN = re.compile(r"[A-Za-z]+|[\u0900-\u097F]+|[0-9]+|\S")
@@ -69,6 +75,8 @@ def normalize_identifier(text: str) -> str:
             out.append(_WORD_DIGITS[word] * repeat)
         elif word in _SYMBOL_WORDS:
             out.append(_SYMBOL_WORDS[word])
+        elif tok in _LETTER_NAMES:
+            out.append(_LETTER_NAMES[tok])
         else:
             out.append(tok)
         repeat = 1

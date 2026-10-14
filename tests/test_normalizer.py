@@ -32,6 +32,8 @@ def test_normalize_digits(spoken: str, expected: str) -> None:
         ("rahul underscore double seven at ybl", "rahul_77@ybl"),
         ("rahul.sharma@okaxis", "rahul.sharma@okaxis"),
         ("one.piece@okaxis", "one.piece@okaxis"),
+        ("एस बी आई एन शून्य शून्य शून्य एक दो तीन चार", "SBIN0001234"),
+        ("एच डी एफ सी शून्य एक दो तीन चार पाँच छह", "HDFC0123456"),
     ],
 )
 def test_normalize_identifier(spoken: str, expected: str) -> None:
