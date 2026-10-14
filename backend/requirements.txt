@@ -2,3 +2,6 @@ fastapi
 uvicorn[standard]
 google-genai
 python-dotenv
+google-cloud-firestore
+google-cloud-storage
+numpy

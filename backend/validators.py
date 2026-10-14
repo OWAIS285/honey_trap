@@ -55,4 +55,10 @@ def validate_detail(detail_type: str, raw: str) -> ValidationResult:
         return ValidationResult(bool(MOBILE_RE.match(value)), value)
     if detail_type == "url":
         return _validate_url(raw)
+    if detail_type == "amount_demanded":
+        bare = re.sub(r"(?i)\b(rs|inr|rupees?|rupaye|rupay|only)\b|\u20b9", " ", raw)
+        if re.search(r"[A-Za-z\u0900-\u097F]", bare):
+            return ValidationResult(True, raw.strip())
+        digits = normalize_digits(bare)
+        return ValidationResult(True, digits or raw.strip())
     return ValidationResult(True, raw.strip())

@@ -1,31 +1,10 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    function canRead(data) {
-      return data.public == true
-        || (request.auth != null && data.ownerUid == request.auth.uid);
-    }
-
-    // All writes go through the backend (Admin SDK bypasses these rules).
-    match /calls/{callId} {
-      allow read: if canRead(resource.data);
-      allow write: if false;
-
-      match /{sub=**} {
-        allow read: if canRead(get(/databases/$(database)/documents/calls/$(callId)).data);
-        allow write: if false;
-      }
-    }
-
-    match /strains/{strainId} {
-      allow read: if canRead(resource.data);
-      allow write: if false;
-    }
-
-    match /drills/{drillId} {
-      allow read: if canRead(resource.data);
-      allow write: if false;
+    // All reads and writes go through the backend service account, which bypasses these rules.
+    // No browser client can read or write anything directly.
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

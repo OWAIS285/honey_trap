@@ -18,6 +18,8 @@ from validators import validate_detail
         ("phone_number", "0 98765 43210", True, "9876543210"),
         ("phone_number", "5876543210", False, "5876543210"),
         ("person_name", "  Inspector Verma ", True, "Inspector Verma"),
+        ("amount_demanded", "Rs 50,000 rupees", True, "50000"),
+        ("amount_demanded", "pachaas hazaar", True, "pachaas hazaar"),
     ],
 )
 def test_validate_detail(detail_type: str, raw: str, valid: bool, normalized: str) -> None:
