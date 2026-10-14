@@ -52,6 +52,7 @@ class CallHandler:
         self.end_reason: str | None = None
         self._verify_task: asyncio.Task | None = None
         self._verify_dirty = False
+        self._verified_turns = 0
         self._bg: set[asyncio.Task] = set()
         self._finished = False
 
@@ -243,17 +244,21 @@ class CallHandler:
     async def _verify_loop(self) -> None:
         while self._verify_dirty:
             self._verify_dirty = False
-            result = await analysis.verify(text_client(), list(self.turns))
+            snapshot = list(self.turns)
+            result = await analysis.verify(text_client(), snapshot)
             if result:
                 await self._apply_verifier(result)
+                self._verified_turns = len(snapshot)
 
     async def _apply_verifier(self, result: analysis.VerifierResult) -> None:
         for item in result.details:
             await self._upsert(item.type, item.value, "verifier", quote=item.raw_utterance,
                                turn=self._find_turn(item.raw_utterance or item.value))
+        # A call that first looked harmless may turn into a scam once the caller actually speaks.
         current = self.classification
         stable = current["scamType"] == result.scam_type
-        if current["scamType"] is None or stable or result.confidence > current["confidence"] + 0.02:
+        turned_scam = current["scamType"] == "not_scam" and result.scam_type != "not_scam"
+        if current["scamType"] is None or stable or turned_scam or result.confidence > current["confidence"] + 0.02:
             current.update(
                 scamType=result.scam_type,
                 confidence=round(result.confidence, 2),
@@ -280,12 +285,23 @@ class CallHandler:
         self._finished = True
         await self._flush_caller()
         await self._flush_persona()
+        duration = round(time.monotonic() - self.t0, 1)
+
+        # The strain card only needs the transcript, so build it while the verifier finishes.
+        strain_task = asyncio.create_task(analysis.build_strain(text_client(), list(self.turns), "other_scam"))
         if self._verify_task:
             try:
                 await asyncio.wait_for(self._verify_task, 25)
             except Exception:  # noqa: BLE001
                 log.warning("verifier did not finish in time")
-        duration = round(time.monotonic() - self.t0, 1)
+        if len(self.turns) > self._verified_turns:
+            # Last word on classification: one pass over the whole call so late turns are never missed.
+            try:
+                final = await asyncio.wait_for(analysis.verify(text_client(), list(self.turns)), 20)
+                if final:
+                    await self._apply_verifier(final)
+            except Exception:  # noqa: BLE001
+                log.warning("final verification failed")
 
         recording = None
         if self.recorder and self.recorder.has_audio():
@@ -295,7 +311,11 @@ class CallHandler:
                 recording = {"path": path, "bytes": len(wav), "durationSec": round(self.recorder.duration_sec(), 1)}
 
         strain = None
-        card = await analysis.build_strain(text_client(), self.turns, self.classification["scamType"] or "other_scam")
+        try:
+            card = await asyncio.wait_for(strain_task, 50)
+        except Exception:  # noqa: BLE001
+            log.warning("strain card was not ready in time")
+            card = None
         if card:
             card["scamType"] = self.classification["scamType"] or card["scamType"]
             strain = {**card, "strainId": f"s{secrets.token_hex(5)}", "sourceCallId": self.call_id,

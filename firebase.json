@@ -1,7 +1,25 @@
 {
   "hosting": {
     "public": "frontend/public",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          {
+            "key": "Content-Security-Policy",
+            "value": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self' blob:; connect-src 'self' https://honeytrap-api-378992821239.asia-south1.run.app wss://honeytrap-api-378992821239.asia-south1.run.app; worker-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
+          },
+          { "key": "X-Content-Type-Options", "value": "nosniff" },
+          { "key": "Referrer-Policy", "value": "no-referrer" },
+          { "key": "Permissions-Policy", "value": "microphone=(self), camera=(), geolocation=()" }
+        ]
+      },
+      {
+        "source": "**/*.@(js|css|html|json|wav)",
+        "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+      }
+    ]
   },
   "firestore": {
     "rules": "firestore.rules",

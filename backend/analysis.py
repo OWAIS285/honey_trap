@@ -11,6 +11,7 @@ from google.genai import types
 from pydantic import BaseModel, Field
 
 import config
+from clients import flash
 from normalizer import normalize_digits
 from persona import DETAIL_TYPES, STAGES
 from validators import validate_detail
@@ -238,14 +239,15 @@ async def verify(client, turns: list[dict]) -> VerifierResult | None:
     if not any(t["speaker"] == "caller" for t in turns):
         return None
     try:
-        response = await client.aio.models.generate_content(
-            model=config.FLASH_MODEL,
+        response = await flash(
+            client,
             contents=VERIFIER_PROMPT + "\n\nTRANSCRIPT:\n" + _transcript(turns, 10),
-            config=types.GenerateContentConfig(
+            cfg=types.GenerateContentConfig(
                 response_mime_type="application/json",
                 response_schema=VerifierResult,
                 thinking_config=_thinking(),
             ),
+            attempts=3,
         )
         result = VerifierResult.model_validate_json(response.text)
     except Exception:  # noqa: BLE001 - the call must continue if the verifier fails
@@ -269,14 +271,15 @@ async def build_strain(client, turns: list[dict], scam_type: str) -> dict | None
     if not any(t["speaker"] == "caller" for t in turns):
         return None
     try:
-        response = await client.aio.models.generate_content(
-            model=config.FLASH_MODEL,
+        response = await flash(
+            client,
             contents=STRAIN_PROMPT.format(taxonomy=", ".join(TAXONOMY)) + "\n\nTRANSCRIPT:\n" + _transcript(turns, 40),
-            config=types.GenerateContentConfig(
+            cfg=types.GenerateContentConfig(
                 response_mime_type="application/json",
                 response_schema=StrainCard,
                 thinking_config=_thinking(),
             ),
+            attempts=3,
         )
         card = StrainCard.model_validate_json(response.text)
     except Exception:  # noqa: BLE001

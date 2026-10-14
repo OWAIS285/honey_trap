@@ -1,3 +1,4 @@
 -r requirements.txt
 pytest
 httpx
+lameenc  # scripts/compress_replay.py only

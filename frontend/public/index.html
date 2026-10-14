@@ -2,38 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Kamala Aunty - scam decoy</title>
-  <style>
-    body { font-family: system-ui, sans-serif; margin: 0; padding: 1.5rem; max-width: 40rem; margin-inline: auto; }
-    button { font-size: 1rem; padding: .75rem 1.25rem; border-radius: .5rem; border: 0; background: #1a73e8; color: #fff; }
-    pre { background: #f1f3f4; padding: 1rem; border-radius: .5rem; white-space: pre-wrap; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Honey Trap: the AI decoy that wastes scammers' time</title>
+  <meta name="description" content="Honey Trap is an AI decoy that answers scam calls in English, Hindi and Hinglish, wastes the scammer's time, catches their UPI and bank details and keeps the call as evidence.">
+  <meta name="theme-color" content="#060812">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Kamala Aunty</h1>
-  <p>Backend connectivity check (placeholder until the call UI lands).</p>
-  <button id="check">Check backend</button>
-  <pre id="out">Not checked yet.</pre>
+  <div class="bg" aria-hidden="true">
+    <i class="orb o1"></i><i class="orb o2"></i><i class="orb o3"></i>
+    <div class="hex"></div>
+  </div>
+  <a class="skip" href="#view">Skip to content</a>
+  <header id="topbar" class="topbar"></header>
+  <main id="view" tabindex="-1">
+    <noscript><p class="noscript">Honey Trap needs JavaScript to run.</p></noscript>
+  </main>
+  <footer class="footer">
+    <p><b>Honey Trap</b> is a prototype built for the AI Builder Cup 2026. All demo names, numbers and IDs are fictional. Evidence packs are a lead for investigators, not a verdict. Recordings are private and deleted after 14 days.</p>
+  </footer>
+  <nav id="tabbar" class="tabbar" aria-label="Main"></nav>
+  <div id="toasts" class="toasts" aria-live="polite"></div>
   <script src="config.js"></script>
-  <script>
-    const out = document.getElementById("out");
-    document.getElementById("check").addEventListener("click", async () => {
-      const base = window.HT_CONFIG.backendUrl;
-      out.textContent = "Checking...";
-      try {
-        const health = await (await fetch(`${base}/health`)).json();
-        const ws = new WebSocket(base.replace(/^http/, "ws") + "/ws/echo");
-        ws.onopen = () => ws.send("namaste");
-        ws.onmessage = (e) => {
-          out.textContent = `health: ${JSON.stringify(health)}\nwebsocket echo: ${e.data}`;
-          ws.close();
-        };
-        ws.onerror = () => { out.textContent = "WebSocket failed"; };
-      } catch (err) {
-        out.textContent = `Failed: ${err}`;
-      }
-    });
-  </script>
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>

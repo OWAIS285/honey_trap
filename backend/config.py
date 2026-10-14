@@ -20,6 +20,8 @@ FLASH_MODEL = os.getenv("FLASH_MODEL", "gemini-3.8-flash").strip()
 PERSONA_VOICE = os.getenv("PERSONA_VOICE", "Achird").strip()
 DRILL_VOICE = os.getenv("DRILL_VOICE", "Orus").strip()
 LANGUAGE_CODE = os.getenv("LANGUAGE_CODE", "en-IN").strip()
+# How long the caller must stay silent before the decoy answers. Lower = quicker replies, higher = fewer interruptions.
+END_OF_SPEECH_MS = int(os.getenv("END_OF_SPEECH_MS", "450"))
 
 ALLOWED_ORIGINS = [o.strip() for o in os.getenv("ALLOWED_ORIGINS", "").split(",") if o.strip()]
 KILL_SWITCH = _flag("KILL_SWITCH")

@@ -82,6 +82,13 @@ class LiveSession:
             input_audio_transcription=types.AudioTranscriptionConfig(),
             output_audio_transcription=types.AudioTranscriptionConfig(),
             tools=self.tools,
+            realtime_input_config=types.RealtimeInputConfig(
+                automatic_activity_detection=types.AutomaticActivityDetection(
+                    end_of_speech_sensitivity=types.EndSensitivity.END_SENSITIVITY_HIGH,
+                    silence_duration_ms=config.END_OF_SPEECH_MS,
+                    prefix_padding_ms=120,
+                )
+            ),
             context_window_compression=types.ContextWindowCompressionConfig(
                 trigger_tokens=20000, sliding_window=types.SlidingWindow(target_tokens=10000)
             ),

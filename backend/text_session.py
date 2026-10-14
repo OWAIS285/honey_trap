@@ -10,7 +10,7 @@ from google.genai import types
 
 import analysis
 import config
-from clients import text_client
+from clients import flash, text_client
 from persona import OPENING_CUE, PERSONA_TEXT, PERSONA_TOOLS
 
 log = logging.getLogger("honeytrap.text")
@@ -31,16 +31,22 @@ class TextSession:
             except Exception:  # noqa: BLE001
                 self.client_gone = True
 
+    async def _generate(self, contents: list[types.Content], cfg: types.GenerateContentConfig):
+        """One persona request (3 attempts); None means the persona stalls this turn."""
+        try:
+            return await flash(text_client(), contents=contents, cfg=cfg, attempts=3)
+        except Exception:  # noqa: BLE001
+            log.exception("text model request failed")
+            return None
+
     async def _reply(self, contents: list[types.Content]) -> None:
         cfg = types.GenerateContentConfig(
             system_instruction=PERSONA_TEXT, tools=PERSONA_TOOLS, thinking_config=analysis._thinking()
         )
         text = ""
         for _ in range(4):
-            response = await text_client().aio.models.generate_content(
-                model=config.FLASH_MODEL, contents=contents, config=cfg
-            )
-            if not response.candidates:
+            response = await self._generate(contents, cfg)
+            if response is None or not response.candidates:
                 break
             contents.append(response.candidates[0].content)
             usage = response.usage_metadata
