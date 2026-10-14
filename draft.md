@@ -235,7 +235,7 @@ Classifier returns: label, confidence, and **the exact trigger phrases** (explai
    (audio + transcript) so the dashboard lights up even if a judge never speaks.
 3. **Text mode fallback:** WhatsApp-style chat with the same persona + extraction (in case mic/audio fails).
 4. No login. Works on a phone over mobile data (HTTPS is required for the mic; test iOS Safari and Android Chrome). Loads in < 3 s (static frontend, lazy-load audio code).
-5. **Cost/abuse guardrails** (public URL + paid Live API): Cloud Run `--max-instances` cap, per-IP and per-day session limits, ~5-min cap per live call, Cloud Billing budget alerts, and a `KILL_SWITCH` env flag that forces replay/text mode.
+5. **Cost/abuse guardrails** (public URL + paid Live API): Cloud Run `--max-instances` cap, per-IP and per-day session limits, ~5-min cap per live call, two Cloud Billing budgets (INR 1,000, counting gross spend and ignoring credits, so alerts fire before the free-trial credit is used up), a `KILL_SWITCH` env flag that forces replay/text mode, and `scripts/stop_billing.ps1` as a one-command panic button. Budgets only email, they never stop spending by themselves. Never click 'Activate/Upgrade full account' on the free-trial billing account.
 6. **Firestore rules:** see §4. Anonymous Auth; visitors see only their own calls plus the seeded public replay.
 7. The Replay call is recorded by teammates with fictional details — no real scammer audio or data.
 
