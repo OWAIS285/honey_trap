@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kamala Aunty - scam decoy</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 1.5rem; max-width: 40rem; margin-inline: auto; }
+    button { font-size: 1rem; padding: .75rem 1.25rem; border-radius: .5rem; border: 0; background: #1a73e8; color: #fff; }
+    pre { background: #f1f3f4; padding: 1rem; border-radius: .5rem; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>Kamala Aunty</h1>
+  <p>Backend connectivity check (placeholder until the call UI lands).</p>
+  <button id="check">Check backend</button>
+  <pre id="out">Not checked yet.</pre>
+  <script src="config.js"></script>
+  <script>
+    const out = document.getElementById("out");
+    document.getElementById("check").addEventListener("click", async () => {
+      const base = window.HT_CONFIG.backendUrl;
+      out.textContent = "Checking...";
+      try {
+        const health = await (await fetch(`${base}/healthz`)).json();
+        const ws = new WebSocket(base.replace(/^http/, "ws") + "/ws/echo");
+        ws.onopen = () => ws.send("namaste");
+        ws.onmessage = (e) => {
+          out.textContent = `healthz: ${JSON.stringify(health)}\nwebsocket echo: ${e.data}`;
+          ws.close();
+        };
+        ws.onerror = () => { out.textContent = "WebSocket failed"; };
+      } catch (err) {
+        out.textContent = `Failed: ${err}`;
+      }
+    });
+  </script>
+</body>
+</html>
