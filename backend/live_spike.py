@@ -3,6 +3,7 @@
 import argparse
 import asyncio
 import os
+import sys
 import time
 import wave
 
@@ -12,27 +13,44 @@ from google.genai import types
 
 load_dotenv()
 
-PERSONA = """You are Kamala Sharma, a 68-year-old retired Hindi schoolteacher from Lucknow who lives alone.
+PERSONA = """You are Ramesh Sharma, a 68-year-old retired schoolteacher from Lucknow who lives alone.
 You are on a phone call with a stranger.
 
 HOW YOU SOUND (very important):
-- You are an elderly Indian woman: a soft, slightly breathy and shaky voice, a slow warm pace, small natural pauses.
-- Speak Hindi-English mixed (Hinglish) the way elderly north Indian women do, mostly Hindi words: 'arre', 'haan',
-  'achha', 'hain?', 'beta', 'ji', 'ek minute'.
-- Use authentic Indian pronunciation for both Hindi and English words. Never an American or British accent.
-- Sound like a real person on a phone, not an assistant or announcer: hesitate, repeat yourself, sigh, trail off
-  with '...' when worried. Never sound cheerful or scripted.
+- You are an elderly Indian man: a slightly raspy, tired and gentle voice, a slow pace, natural pauses and sighs.
+- Use authentic Indian pronunciation for both Hindi and English. Never an American or British accent.
+- Sound like a real person on a phone, not an assistant or announcer: hesitate, repeat yourself, clear your throat,
+  trail off with '...' when worried. Never sound cheerful or scripted.
 - Keep each reply to one or two short sentences.
+
+LANGUAGE (very important, follow it exactly):
+- Match the caller's language in every reply. YOU MUST RESPOND UNMISTAKABLY IN THE CALLER'S LANGUAGE.
+- If the caller speaks English, reply ONLY in simple Indian English, with no Hindi sentences
+  (an occasional 'arre' or 'beta' is fine). Example: 'Arre... what parcel, sir? I did not order anything.'
+- If the caller speaks Hindi, reply ONLY in Hindi.
+- If the caller mixes Hindi and English, reply in natural Hinglish.
+- Switch language only when the caller switches.
 
 WHAT YOU DO:
 - You are polite and a little scared. Ask him to repeat things.
 - When the caller states a UPI ID, account number, IFSC or phone number, call record_detail, then read it back
   slowly to confirm.
 """
-PROMPT = (
-    "Hello aunty, main CBI officer bol raha hoon. Aapke Aadhaar se ek parcel pakda gaya hai. "
-    "Aapko abhi Rs 50,000 bhejne honge. UPI ID hai rahul dot sharma at okaxis."
-)
+CALLERS = {
+    "english": (
+        "Hello sir, I am calling from the CBI cyber crime department. A parcel in your name was caught with "
+        "illegal items. To clear your name you must transfer 50,000 rupees right now. "
+        "The UPI ID is rahul dot sharma at okaxis."
+    ),
+    "hindi": (
+        "नमस्ते अंकल, मैं सीबीआई साइबर क्राइम विभाग से बोल रहा हूँ। आपके नाम से एक पार्सल पकड़ा गया है। "
+        "आपको अभी पचास हज़ार रुपये भेजने होंगे। यूपीआई आईडी है राहुल डॉट शर्मा एट ओके एक्सिस।"
+    ),
+    "hinglish": (
+        "Hello uncle, main CBI officer bol raha hoon. Aapke Aadhaar se ek parcel pakda gaya hai. "
+        "Aapko abhi Rs 50,000 bhejne honge. UPI ID hai rahul dot sharma at okaxis."
+    ),
+}
 
 RECORD_DETAIL = types.FunctionDeclaration(
     name="record_detail",
@@ -60,7 +78,8 @@ async def run_once(
     save_path: str | None = None,
     voice: str | None = None,
     language: str | None = None,
-) -> None:
+    caller: str = "hinglish",
+) -> tuple[int, int]:
     client = genai.Client()
     speech = None
     if voice or language:
@@ -84,17 +103,22 @@ async def run_once(
     tool_calls: list[tuple[str, dict]] = []
     turns_done = 0
     turns_expected = 1
+    prompt_tokens = 0
+    response_tokens = 0
 
     async with client.aio.live.connect(model=model, config=config) as session:
         started = time.perf_counter()
         await session.send_client_content(
-            turns=types.Content(role="user", parts=[types.Part(text=PROMPT)]),
+            turns=types.Content(role="user", parts=[types.Part(text=CALLERS[caller])]),
             turn_complete=True,
         )
         async with asyncio.timeout(40):
             while turns_done < turns_expected:
                 async for msg in session.receive():
                     content = msg.server_content
+                    if msg.usage_metadata:
+                        prompt_tokens = msg.usage_metadata.prompt_token_count or prompt_tokens
+                        response_tokens = msg.usage_metadata.response_token_count or response_tokens
                     if content and content.model_turn:
                         for part in content.model_turn.parts or []:
                             if part.inline_data and part.inline_data.data:
@@ -125,6 +149,7 @@ async def run_once(
     print(f"  audio length        : {audio_bytes / OUTPUT_PCM_BYTES_PER_SECOND:.1f}s")
     print(f"  persona said        : {''.join(spoken)!r}")
     print(f"  tool calls          : {tool_calls}")
+    print(f"  tokens              : prompt={prompt_tokens} response={response_tokens}")
     if save_path and audio_chunks:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
         with wave.open(save_path, "wb") as wav:
@@ -133,29 +158,43 @@ async def run_once(
             wav.setframerate(24000)
             wav.writeframes(b"".join(audio_chunks))
         print(f"  saved reply         : {save_path}")
+    return prompt_tokens, response_tokens
 
 
 async def main() -> None:
+    sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", default=os.getenv("LIVE_MODEL", "gemini-3.8-live"))
     parser.add_argument("--locations", default=os.getenv("GOOGLE_CLOUD_LOCATION", "global"))
     parser.add_argument("--with-text", action="store_true", help="also request TEXT modality")
-    parser.add_argument("--save-audio", action="store_true", help="write replies to out/kamala_<location>_<voice>.wav")
-    parser.add_argument("--voices", default="", help="comma-separated prebuilt voice names, e.g. Gacrux,Sulafat")
-    parser.add_argument("--language", default=None, help="optional language code such as hi-IN")
+    parser.add_argument("--save-audio", action="store_true", help="write replies to out/persona_<location>_<voice>_<caller>.wav")
+    parser.add_argument("--voices", default="", help="comma-separated prebuilt voice names, e.g. Charon,Orus")
+    parser.add_argument("--language", default=None, help="optional language code such as en-IN (English + Hindi bundle)")
+    parser.add_argument("--callers", default="hinglish", help="comma-separated: english,hindi,hinglish")
     args = parser.parse_args()
 
     voices = [v.strip() for v in args.voices.split(',') if v.strip()] or [None]
+    callers = [c.strip() for c in args.callers.split(',') if c.strip()]
+    total_prompt = total_response = 0
     for location in args.locations.split(','):
         os.environ["GOOGLE_CLOUD_LOCATION"] = location.strip()
         for voice in voices:
-            label = voice or "default"
-            print(f"[{args.model} @ {location.strip()} voice={label}]")
-            save_path = f"out/kamala_{location.strip()}_{label}.wav" if args.save_audio else None
-            try:
-                await run_once(args.model, args.with_text, save_path, voice, args.language)
-            except Exception as exc:  # noqa: BLE001 - the spike must report every failure and keep going
-                print(f"  FAILED: {type(exc).__name__}: {exc}")
+            for caller in callers:
+                label = voice or "default"
+                print(f"[{args.model} @ {location.strip()} voice={label} caller={caller}]")
+                save_path = f"out/persona_{location.strip()}_{label}_{caller}.wav" if args.save_audio else None
+                try:
+                    prompt_tokens, response_tokens = await run_once(
+                        args.model, args.with_text, save_path, voice, args.language, caller
+                    )
+                    total_prompt += prompt_tokens
+                    total_response += response_tokens
+                except Exception as exc:  # noqa: BLE001 - the spike must report every failure and keep going
+                    print(f"  FAILED: {type(exc).__name__}: {exc}")
+
+    # Rough: Gemini Developer API list prices, text input $0.75 and audio output $12.00 per 1M tokens.
+    estimate = total_prompt * 0.75 / 1e6 + total_response * 12.0 / 1e6
+    print(f"\nTOTAL tokens: prompt={total_prompt} response={total_response}  ~ ${estimate:.4f} (rough list-price estimate)")
 
 
 if __name__ == "__main__":

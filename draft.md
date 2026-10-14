@@ -32,7 +32,7 @@ Known site inconsistencies (ask on Discord, don't block on them): the Challenges
 
 ## 1. What we are building (one paragraph)
 
-An AI **scam-call decoy for India**. A Gemini-powered voice persona ("Kamala aunty", 68, speaks Hindi–English) answers scam calls, keeps scammers talking, and **extracts the mule bank accounts, UPI IDs, phone numbers, links and impersonated agency** in real time. Every captured scam is turned into a **"scam strain"** (the script, red flags, payment method) which powers two outputs:
+An AI **scam-call decoy for India**. A Gemini-powered voice persona ("Kamala aunty", 68; persona gender/name under review, see §5) answers scam calls in **English, Hindi or Hinglish, matching the caller**, keeps scammers talking, and **extracts the mule bank accounts, UPI IDs, phone numbers, links and impersonated agency** in real time. Every captured scam is turned into a **"scam strain"** (the script, red flags, payment method) which powers two outputs:
 1. **Bank-ready evidence pack** — extracted accounts/UPI IDs with transcript evidence, timestamps and confidence, so a bank fraud team can act *before* a real victim pays.
 2. **Scam vaccine drill** — a harmless, opt-in drill call to an elderly family member built from *that day's real scam script*; the AI breaks character before any real detail is shared and teaches the 3 red flags of that exact script.
 
@@ -139,6 +139,11 @@ Rules: anonymous Firebase Auth; a visitor reads only calls with their own `owner
 ## 5. Persona — "Kamala aunty" (system prompt for the Live session)
 
 Use this as the starting system instruction; iterate on it.
+
+**Decisions of 14 Oct (override the female persona text below until updated):**
+- **Bilingual is a hard requirement:** the persona and the whole extraction pipeline must work in **English, Hindi and Hinglish**, replying in the language the caller uses and switching only when the caller does. Verified with `gemini-3.8-live` using `language_code=en-IN` (Google lists it as the English + Hindi bundle): an English caller gets English, a Devanagari Hindi caller gets Hindi, Hinglish gets Hinglish, and `record_detail` returns clean values in all three. Tests and eval must include English-only and Devanagari-Hindi cases.
+- **Voice pivot under review:** female prebuilt voices (Gacrux, Vindemiatrix, Sulafat, Achernar, Kore) sounded too synthetic, so we are auditioning male voices (Charon, Algenib, Orus, Iapetus, Schedar, Achird, Rasalgethi, Enceladus). The Live API only offers the 30 prebuilt voices; the Extended Voice Library (regional Indian voices) is for TTS models and can be used for Replay-mode recordings only. If a male voice is chosen, rename the persona (placeholder in `backend/live_spike.py`: Ramesh Sharma, 68).
+- Sample files: `.\.venv\Scripts\python backend\live_spike.py --voices Charon,Orus --callers english,hindi --language en-IN --save-audio` writes `out/persona_*.wav`.
 
 ```
 You are Kamala Sharma, a 68-year-old retired Hindi schoolteacher who lives alone. Your son lives in another city.
