@@ -2,53 +2,81 @@
  "summary": {
   "dataset": "ICFD-31k test split, shard 0 (synthetic; evaluation only)",
   "sample": {
-   "static": 22,
+   "static": 152,
    "legitimate_calls": 12,
-   "streaming": 5
+   "streaming": 40
   },
   "keyword_baseline": {
-   "n": 22,
-   "tp": 6,
+   "n": 152,
+   "tp": 96,
    "fp": 8,
    "tn": 4,
-   "fn": 4,
-   "accuracy": 0.455,
-   "precision": 0.429,
-   "recall": 0.6,
-   "f1": 0.5,
+   "fn": 44,
+   "accuracy": 0.658,
+   "precision": 0.923,
+   "recall": 0.686,
+   "f1": 0.787,
    "specificity": 0.333
   },
   "classifier_runs": [
    {
-    "n": 22,
-    "tp": 7,
+    "n": 142,
+    "tp": 115,
     "fp": 6,
-    "tn": 6,
-    "fn": 3,
-    "accuracy": 0.591,
-    "precision": 0.538,
-    "recall": 0.7,
-    "f1": 0.609,
-    "specificity": 0.5,
-    "errors": 0,
-    "plausible_type_rate": 0.857
+    "tn": 5,
+    "fn": 16,
+    "accuracy": 0.845,
+    "precision": 0.95,
+    "recall": 0.878,
+    "f1": 0.913,
+    "specificity": 0.455,
+    "errors": 10,
+    "plausible_type_rate": 0.896
+   },
+   {
+    "n": 135,
+    "tp": 105,
+    "fp": 5,
+    "tn": 7,
+    "fn": 18,
+    "accuracy": 0.83,
+    "precision": 0.955,
+    "recall": 0.854,
+    "f1": 0.901,
+    "specificity": 0.583,
+    "errors": 17,
+    "plausible_type_rate": 0.924
+   },
+   {
+    "n": 131,
+    "tp": 109,
+    "fp": 1,
+    "tn": 4,
+    "fn": 17,
+    "accuracy": 0.863,
+    "precision": 0.991,
+    "recall": 0.865,
+    "f1": 0.924,
+    "specificity": 0.8,
+    "errors": 21,
+    "plausible_type_rate": 0.917
    }
   ],
-  "classifier_f1_mean": 0.609,
-  "classifier_recall_mean": 0.7,
+  "classifier_f1_mean": 0.913,
+  "classifier_recall_mean": 0.866,
   "streaming": {
-   "n": 5,
-   "ours_detected": 5,
-   "keyword_detected": 3,
-   "ours_median_seconds": 17.5,
-   "keyword_median_seconds": 32.1,
-   "dataset_first_yes_median_seconds": 30.4,
-   "call_length_median_seconds": 90.7
+   "n": 40,
+   "ours_detected": 37,
+   "keyword_detected": 31,
+   "ours_median_seconds": 17.3,
+   "keyword_median_seconds": 40.3,
+   "dataset_first_yes_median_seconds": 42.0,
+   "call_length_median_seconds": 121.0
   },
   "classifier_latency_seconds": {
-   "p50": 6.9649869999993825,
-   "p90": 24.561525500001153,
-   "calls": 31
+   "p50": 7.874141400003282,
+   "p90": 36.918911699998716,
+   "calls": 504
   },
   "caveats": [
    "ICFD-31k is synthetic; numbers say nothing about real-world accuracy.",
@@ -59,27 +87,27 @@
  "runs": [
   {
    "metrics": {
-    "n": 22,
-    "tp": 7,
+    "n": 142,
+    "tp": 115,
     "fp": 6,
-    "tn": 6,
-    "fn": 3,
-    "accuracy": 0.591,
-    "precision": 0.538,
-    "recall": 0.7,
-    "f1": 0.609,
-    "specificity": 0.5,
-    "errors": 0,
-    "plausible_type_rate": 0.857
+    "tn": 5,
+    "fn": 16,
+    "accuracy": 0.845,
+    "precision": 0.95,
+    "recall": 0.878,
+    "f1": 0.913,
+    "specificity": 0.455,
+    "errors": 10,
+    "plausible_type_rate": 0.896
    },
    "predictions": [
     {
      "id": "batch_2025-10-12_19-54-00/SCENARIO_5_Clear_Fraud_0484_r1",
      "domain": "ecommerce_marketplace",
      "fraud": false,
-     "error": false,
-     "type": "not_scam",
-     "confidence": 0.95
+     "error": true,
+     "type": null,
+     "confidence": null
     },
     {
      "id": "batch_2025-10-12_19-54-00/SCENARIO_5_Clear_Fraud_0489_r1",
@@ -111,7 +139,7 @@
      "fraud": false,
      "error": false,
      "type": "fake_customer_care",
-     "confidence": 0.85
+     "confidence": 0.75
     },
     {
      "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0590_r1",
@@ -119,7 +147,7 @@
      "fraud": false,
      "error": false,
      "type": "fake_customer_care",
-     "confidence": 0.6
+     "confidence": 0.65
     },
     {
      "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0599_r1",
@@ -128,6 +156,1240 @@
      "error": false,
      "type": "not_scam",
      "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0802_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0805_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0806_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0828_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0876_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_9_Clear_Fraud_0853_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "investment_trading",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_8_Clear_Fraud_0779_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_9_Clear_Fraud_0802_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_7_Clear_Fraud_0657_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_8_Clear_Fraud_0712_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "bank_kyc_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_9_Clear_Fraud_0828_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_6_Clear_Fraud_0585_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_6_Clear_Fraud_0580_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_8_Clear_Fraud_0784_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "bank_kyc_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_7_Clear_Fraud_0661_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "digital_arrest",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_8_Clear_Fraud_0782_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.0
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_8_Clear_Fraud_0701_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_6_Clear_Fraud_0527_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_8_Clear_Fraud_0723_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "bank_kyc_block",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_6_Clear_Fraud_0513_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_8_Clear_Fraud_0708_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "bank_kyc_block",
+     "confidence": 0.7
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_7_Clear_Fraud_0615_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_6_Clear_Fraud_0588_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_6_Clear_Fraud_0539_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_8_Clear_Fraud_0762_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.5
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_7_Clear_Fraud_0667_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.4
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_9_Clear_Fraud_0834_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "investment_trading",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_7_Clear_Fraud_0617_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "bank_kyc_block",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_5_Clear_Fraud_0482_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_9_Clear_Fraud_0839_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "investment_trading",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_6_Clear_Fraud_0595_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_6_Clear_Fraud_0587_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_7_Clear_Fraud_0684_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_8_Clear_Fraud_0793_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "bank_kyc_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_6_Clear_Fraud_0566_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "electricity_bill",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_5_Clear_Fraud_0455_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_6_Clear_Fraud_0529_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0627_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0655_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_6_Clear_Fraud_0541_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_5_Clear_Fraud_0486_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_9_Clear_Fraud_0855_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0692_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0636_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "bank_kyc_block",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0689_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_9_Clear_Fraud_0836_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0611_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_9_Clear_Fraud_0806_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0602_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0629_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "bank_kyc_block",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0654_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_9_Clear_Fraud_0859_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0609_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_6_Clear_Fraud_0508_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_9_Clear_Fraud_0866_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_5_Clear_Fraud_0464_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0688_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0672_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "lottery_prize",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_5_Clear_Fraud_0451_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_8_Clear_Fraud_0777_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0607_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_6_Clear_Fraud_0565_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_9_Clear_Fraud_0891_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_8_Clear_Fraud_0732_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_6_Clear_Fraud_0539_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_8_Clear_Fraud_0747_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_9_Clear_Fraud_0858_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_6_Clear_Fraud_0518_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_9_Clear_Fraud_0873_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_6_Clear_Fraud_0537_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_9_Clear_Fraud_0821_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_5_Clear_Fraud_0487_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_6_Clear_Fraud_0568_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_9_Clear_Fraud_0826_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_8_Clear_Fraud_0791_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_8_Clear_Fraud_0762_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_7_Clear_Fraud_0658_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_8_Clear_Fraud_0767_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_5_Clear_Fraud_0458_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 1.0
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_6_Clear_Fraud_0515_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_9_Clear_Fraud_0825_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.98
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_9_Clear_Fraud_0855_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_9_Clear_Fraud_0875_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_8_Clear_Fraud_0738_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_7_Clear_Fraud_0642_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_8_Clear_Fraud_0735_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_7_Clear_Fraud_0698_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_7_Clear_Fraud_0670_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_7_Clear_Fraud_0695_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_8_Clear_Fraud_0786_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_5_Clear_Fraud_0488_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_7_Clear_Fraud_0634_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_8_Clear_Fraud_0749_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_5_Clear_Fraud_0475_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_8_Clear_Fraud_0727_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_6_Clear_Fraud_0572_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0833_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0810_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_7_Clear_Fraud_0698_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_6_Clear_Fraud_0542_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0887_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_6_Clear_Fraud_0592_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_5_Clear_Fraud_0500_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0849_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_8_Clear_Fraud_0711_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0900_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_7_Clear_Fraud_0606_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_7_Clear_Fraud_0664_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0812_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0842_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_8_Clear_Fraud_0712_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0817_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_7_Clear_Fraud_0605_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0836_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_6_Clear_Fraud_0544_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_7_Clear_Fraud_0686_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_8_Clear_Fraud_0743_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0803_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0563_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_8_Clear_Fraud_0709_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.98
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0877_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_5_Clear_Fraud_0458_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_8_Clear_Fraud_0728_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_7_Clear_Fraud_0652_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_8_Clear_Fraud_0730_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0539_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.65
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_5_Clear_Fraud_0497_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0845_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0872_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_5_Clear_Fraud_0452_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.75
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_7_Clear_Fraud_0650_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.6
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_7_Clear_Fraud_0687_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.0
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_5_Clear_Fraud_0465_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_8_Clear_Fraud_0744_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_5_Clear_Fraud_0474_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0892_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_7_Clear_Fraud_0692_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_8_Clear_Fraud_0759_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.98
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0507_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0554_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_8_Clear_Fraud_0704_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0900_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_5_Clear_Fraud_0482_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0546_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.75
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0568_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.85
+    }
+   ]
+  },
+  {
+   "metrics": {
+    "n": 135,
+    "tp": 105,
+    "fp": 5,
+    "tn": 7,
+    "fn": 18,
+    "accuracy": 0.83,
+    "precision": 0.955,
+    "recall": 0.854,
+    "f1": 0.901,
+    "specificity": 0.583,
+    "errors": 17,
+    "plausible_type_rate": 0.924
+   },
+   "predictions": [
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_5_Clear_Fraud_0484_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_5_Clear_Fraud_0489_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0516_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0526_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0566_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.75
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0590_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.65
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0599_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.98
     },
     {
      "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0802_r1",
@@ -186,20 +1448,436 @@
      "confidence": 0.95
     },
     {
-     "id": "batch_2025-10-12_22-36-40/SCENARIO_8_Clear_Fraud_0793_r1",
-     "domain": "utility_bill_service",
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_9_Clear_Fraud_0802_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_7_Clear_Fraud_0657_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_8_Clear_Fraud_0712_r1",
+     "domain": "bank_payment_fraud",
      "fraud": true,
      "error": false,
      "type": "bank_kyc_block",
      "confidence": 0.95
     },
     {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_9_Clear_Fraud_0828_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_6_Clear_Fraud_0585_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_6_Clear_Fraud_0580_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_8_Clear_Fraud_0784_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_7_Clear_Fraud_0661_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_8_Clear_Fraud_0782_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.2
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_8_Clear_Fraud_0701_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "bank_kyc_block",
+     "confidence": 0.98
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_6_Clear_Fraud_0527_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_8_Clear_Fraud_0723_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "bank_kyc_block",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_6_Clear_Fraud_0513_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_8_Clear_Fraud_0708_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "bank_kyc_block",
+     "confidence": 0.7
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_7_Clear_Fraud_0615_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_6_Clear_Fraud_0588_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_6_Clear_Fraud_0539_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_8_Clear_Fraud_0762_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.5
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_7_Clear_Fraud_0667_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_9_Clear_Fraud_0834_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "investment_trading",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_7_Clear_Fraud_0617_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "bank_kyc_block",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_5_Clear_Fraud_0482_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_9_Clear_Fraud_0839_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "investment_trading",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_6_Clear_Fraud_0595_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_6_Clear_Fraud_0587_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_7_Clear_Fraud_0684_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_8_Clear_Fraud_0793_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
      "id": "batch_2025-10-12_22-36-40/SCENARIO_6_Clear_Fraud_0566_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_5_Clear_Fraud_0455_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_6_Clear_Fraud_0529_r1",
      "domain": "utility_bill_service",
      "fraud": true,
      "error": false,
      "type": "electricity_bill",
      "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0627_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0655_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_6_Clear_Fraud_0541_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_5_Clear_Fraud_0486_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_9_Clear_Fraud_0855_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.92
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0692_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0636_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "bank_kyc_block",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0689_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_9_Clear_Fraud_0836_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0611_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_9_Clear_Fraud_0806_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0602_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0629_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0654_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_9_Clear_Fraud_0859_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0609_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_6_Clear_Fraud_0508_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_9_Clear_Fraud_0866_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_5_Clear_Fraud_0464_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0688_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0672_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_5_Clear_Fraud_0451_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_8_Clear_Fraud_0777_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0607_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
     },
     {
      "id": "batch_2025-10-12_23-39-07/SCENARIO_6_Clear_Fraud_0565_r1",
@@ -218,6 +1896,214 @@
      "confidence": 0.85
     },
     {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_8_Clear_Fraud_0732_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_6_Clear_Fraud_0539_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_8_Clear_Fraud_0747_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_9_Clear_Fraud_0858_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_6_Clear_Fraud_0518_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_9_Clear_Fraud_0873_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_6_Clear_Fraud_0537_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_9_Clear_Fraud_0821_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_5_Clear_Fraud_0487_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_6_Clear_Fraud_0568_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_9_Clear_Fraud_0826_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_8_Clear_Fraud_0791_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_8_Clear_Fraud_0762_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_7_Clear_Fraud_0658_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.98
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_8_Clear_Fraud_0767_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_5_Clear_Fraud_0458_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_6_Clear_Fraud_0515_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_9_Clear_Fraud_0825_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_9_Clear_Fraud_0855_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_9_Clear_Fraud_0875_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_8_Clear_Fraud_0738_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_7_Clear_Fraud_0642_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_8_Clear_Fraud_0735_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_7_Clear_Fraud_0698_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_7_Clear_Fraud_0670_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_7_Clear_Fraud_0695_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
      "id": "batch_2025-10-13_00-20-15/SCENARIO_8_Clear_Fraud_0786_r1",
      "domain": "loan_shark_harassment",
      "fraud": true,
@@ -227,6 +2113,214 @@
     },
     {
      "id": "batch_2025-10-13_00-20-15/SCENARIO_5_Clear_Fraud_0488_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_7_Clear_Fraud_0634_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_8_Clear_Fraud_0749_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_5_Clear_Fraud_0475_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_8_Clear_Fraud_0727_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_6_Clear_Fraud_0572_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0833_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.98
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0810_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_7_Clear_Fraud_0698_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_6_Clear_Fraud_0542_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0887_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_6_Clear_Fraud_0592_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_5_Clear_Fraud_0500_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0849_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_8_Clear_Fraud_0711_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0900_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_7_Clear_Fraud_0606_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_7_Clear_Fraud_0664_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0812_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0842_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_8_Clear_Fraud_0712_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0817_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_7_Clear_Fraud_0605_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0836_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_6_Clear_Fraud_0544_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_7_Clear_Fraud_0686_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_8_Clear_Fraud_0743_r1",
      "domain": "loan_shark_harassment",
      "fraud": true,
      "error": false,
@@ -248,50 +2342,1772 @@
      "error": false,
      "type": "not_scam",
      "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_8_Clear_Fraud_0709_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0877_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_5_Clear_Fraud_0458_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_8_Clear_Fraud_0728_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_7_Clear_Fraud_0652_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.98
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_8_Clear_Fraud_0730_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0539_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.7
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_5_Clear_Fraud_0497_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0845_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0872_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_5_Clear_Fraud_0452_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.65
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_7_Clear_Fraud_0650_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.6
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_7_Clear_Fraud_0687_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.0
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_5_Clear_Fraud_0465_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_8_Clear_Fraud_0744_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_5_Clear_Fraud_0474_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0892_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_7_Clear_Fraud_0692_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_8_Clear_Fraud_0759_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0507_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0554_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_8_Clear_Fraud_0704_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0900_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_5_Clear_Fraud_0482_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0546_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.75
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0568_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.85
+    }
+   ]
+  },
+  {
+   "metrics": {
+    "n": 131,
+    "tp": 109,
+    "fp": 1,
+    "tn": 4,
+    "fn": 17,
+    "accuracy": 0.863,
+    "precision": 0.991,
+    "recall": 0.865,
+    "f1": 0.924,
+    "specificity": 0.8,
+    "errors": 21,
+    "plausible_type_rate": 0.917
+   },
+   "predictions": [
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_5_Clear_Fraud_0484_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_5_Clear_Fraud_0489_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0516_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0526_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0566_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0590_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0599_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0802_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0805_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0806_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0828_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0876_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": false,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_9_Clear_Fraud_0853_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "investment_trading",
+     "confidence": 0.98
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_8_Clear_Fraud_0779_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_9_Clear_Fraud_0802_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_7_Clear_Fraud_0657_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_8_Clear_Fraud_0712_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "bank_kyc_block",
+     "confidence": 0.98
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_9_Clear_Fraud_0828_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_6_Clear_Fraud_0585_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_6_Clear_Fraud_0580_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_8_Clear_Fraud_0784_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "bank_kyc_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_7_Clear_Fraud_0661_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_8_Clear_Fraud_0782_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.0
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_8_Clear_Fraud_0701_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "bank_kyc_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_6_Clear_Fraud_0527_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_8_Clear_Fraud_0723_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "bank_kyc_block",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_6_Clear_Fraud_0513_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_8_Clear_Fraud_0708_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "bank_kyc_block",
+     "confidence": 0.7
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_7_Clear_Fraud_0615_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_6_Clear_Fraud_0588_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_6_Clear_Fraud_0539_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_8_Clear_Fraud_0762_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_7_Clear_Fraud_0667_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.4
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_9_Clear_Fraud_0834_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_7_Clear_Fraud_0617_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_5_Clear_Fraud_0482_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_9_Clear_Fraud_0839_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "investment_trading",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_6_Clear_Fraud_0595_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_6_Clear_Fraud_0587_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-11_21-42-13/SCENARIO_7_Clear_Fraud_0684_r1",
+     "domain": "bank_payment_fraud",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_8_Clear_Fraud_0793_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_6_Clear_Fraud_0566_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_5_Clear_Fraud_0455_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_6_Clear_Fraud_0529_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0627_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0655_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_6_Clear_Fraud_0541_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_5_Clear_Fraud_0486_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_9_Clear_Fraud_0855_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0692_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0636_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "bank_kyc_block",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0689_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_9_Clear_Fraud_0836_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0611_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_9_Clear_Fraud_0806_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0602_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0629_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "bank_kyc_block",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0654_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_9_Clear_Fraud_0859_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0609_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_6_Clear_Fraud_0508_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_9_Clear_Fraud_0866_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_5_Clear_Fraud_0464_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0688_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0672_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_5_Clear_Fraud_0451_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "telecom_trai_sim_block",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_8_Clear_Fraud_0777_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0607_r1",
+     "domain": "utility_bill_service",
+     "fraud": true,
+     "error": true,
+     "type": null,
+     "confidence": null
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_6_Clear_Fraud_0565_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_9_Clear_Fraud_0891_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_8_Clear_Fraud_0732_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_6_Clear_Fraud_0539_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_8_Clear_Fraud_0747_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_9_Clear_Fraud_0858_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_6_Clear_Fraud_0518_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_9_Clear_Fraud_0873_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_6_Clear_Fraud_0537_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_9_Clear_Fraud_0821_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_5_Clear_Fraud_0487_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.98
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_6_Clear_Fraud_0568_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_9_Clear_Fraud_0826_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_8_Clear_Fraud_0791_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_8_Clear_Fraud_0762_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_7_Clear_Fraud_0658_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.98
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_8_Clear_Fraud_0767_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_5_Clear_Fraud_0458_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.98
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_6_Clear_Fraud_0515_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_9_Clear_Fraud_0825_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_9_Clear_Fraud_0855_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_9_Clear_Fraud_0875_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_8_Clear_Fraud_0738_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_7_Clear_Fraud_0642_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.98
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_8_Clear_Fraud_0735_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_7_Clear_Fraud_0698_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_7_Clear_Fraud_0670_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_23-39-07/SCENARIO_7_Clear_Fraud_0695_r1",
+     "domain": "job_employment",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_8_Clear_Fraud_0786_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_5_Clear_Fraud_0488_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_7_Clear_Fraud_0634_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_8_Clear_Fraud_0749_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_5_Clear_Fraud_0475_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_8_Clear_Fraud_0727_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_6_Clear_Fraud_0572_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.7
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0833_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0810_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_7_Clear_Fraud_0698_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_6_Clear_Fraud_0542_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0887_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_6_Clear_Fraud_0592_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_5_Clear_Fraud_0500_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0849_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_8_Clear_Fraud_0711_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0900_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_7_Clear_Fraud_0606_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_7_Clear_Fraud_0664_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0812_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0842_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_8_Clear_Fraud_0712_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0817_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_7_Clear_Fraud_0605_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_9_Clear_Fraud_0836_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_6_Clear_Fraud_0544_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_7_Clear_Fraud_0686_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-13_00-20-15/SCENARIO_8_Clear_Fraud_0743_r1",
+     "domain": "loan_shark_harassment",
+     "fraud": true,
+     "error": false,
+     "type": "loan_app",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0803_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0563_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_8_Clear_Fraud_0709_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0877_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_5_Clear_Fraud_0458_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_8_Clear_Fraud_0728_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_7_Clear_Fraud_0652_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 1.0
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_8_Clear_Fraud_0730_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0539_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.7
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_5_Clear_Fraud_0497_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.99
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0845_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0872_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_5_Clear_Fraud_0452_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.7
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_7_Clear_Fraud_0650_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.6
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_7_Clear_Fraud_0687_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.0
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_5_Clear_Fraud_0465_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_8_Clear_Fraud_0744_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_5_Clear_Fraud_0474_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0892_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_7_Clear_Fraud_0692_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "task_job",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_8_Clear_Fraud_0759_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0507_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0554_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.9
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_8_Clear_Fraud_0704_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0900_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "other_scam",
+     "confidence": 0.85
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_5_Clear_Fraud_0482_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "not_scam",
+     "confidence": 0.95
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0546_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.75
+    },
+    {
+     "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0568_r1",
+     "domain": "ecommerce_marketplace",
+     "fraud": true,
+     "error": false,
+     "type": "fake_customer_care",
+     "confidence": 0.85
     }
    ]
   }
  ],
  "streaming": [
   {
-   "id": "batch_2025-10-11_21-42-13/SCENARIO_9_Clear_Fraud_0802_r1",
+   "id": "batch_2025-10-11_21-42-13/SCENARIO_9_Clear_Fraud_0876_r1",
    "domain": "bank_payment_fraud",
-   "call_end": 142.0,
+   "call_end": 141.0,
    "ours": 15.0,
+   "keyword": 25.0,
+   "dataset_first_yes": 15.0
+  },
+  {
+   "id": "batch_2025-10-11_21-42-13/SCENARIO_7_Clear_Fraud_0624_r1",
+   "domain": "bank_payment_fraud",
+   "call_end": 336.0,
+   "ours": 25.0,
+   "keyword": 50.0,
+   "dataset_first_yes": 50.0
+  },
+  {
+   "id": "batch_2025-10-11_21-42-13/SCENARIO_7_Clear_Fraud_0632_r1",
+   "domain": "bank_payment_fraud",
+   "call_end": 200.0,
+   "ours": 30.0,
+   "keyword": 30.0,
+   "dataset_first_yes": 30.0
+  },
+  {
+   "id": "batch_2025-10-11_21-42-13/SCENARIO_9_Clear_Fraud_0811_r1",
+   "domain": "bank_payment_fraud",
+   "call_end": 342.0,
+   "ours": 20.0,
    "keyword": 35.0,
+   "dataset_first_yes": 35.0
+  },
+  {
+   "id": "batch_2025-10-11_21-42-13/SCENARIO_9_Clear_Fraud_0835_r1",
+   "domain": "bank_payment_fraud",
+   "call_end": 85.0,
+   "ours": 30.0,
+   "keyword": 55.0,
+   "dataset_first_yes": 30.0
+  },
+  {
+   "id": "batch_2025-10-11_21-42-13/SCENARIO_7_Clear_Fraud_0633_r1",
+   "domain": "bank_payment_fraud",
+   "call_end": 182.0,
+   "ours": 20.0,
+   "keyword": 20.0,
+   "dataset_first_yes": 20.0
+  },
+  {
+   "id": "batch_2025-10-11_21-42-13/SCENARIO_7_Clear_Fraud_0625_r1",
+   "domain": "bank_payment_fraud",
+   "call_end": 296.0,
+   "ours": 17.0,
+   "keyword": 17.0,
    "dataset_first_yes": 25.0
   },
   {
-   "id": "batch_2025-10-12_22-36-40/SCENARIO_5_Clear_Fraud_0455_r1",
+   "id": "batch_2025-10-11_21-42-13/SCENARIO_8_Clear_Fraud_0722_r1",
+   "domain": "bank_payment_fraud",
+   "call_end": 323.0,
+   "ours": 10.0,
+   "keyword": 10.0,
+   "dataset_first_yes": 10.0
+  },
+  {
+   "id": "batch_2025-10-12_22-36-40/SCENARIO_6_Clear_Fraud_0559_r1",
    "domain": "utility_bill_service",
+   "call_end": 160.8,
+   "ours": 30.1,
+   "keyword": 52.5,
+   "dataset_first_yes": 52.5
+  },
+  {
+   "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0682_r1",
+   "domain": "utility_bill_service",
+   "call_end": 61.1,
+   "ours": 15.1,
+   "keyword": 41.4,
+   "dataset_first_yes": 26.3
+  },
+  {
+   "id": "batch_2025-10-12_22-36-40/SCENARIO_6_Clear_Fraud_0540_r1",
+   "domain": "utility_bill_service",
+   "call_end": 94.2,
+   "ours": 20.1,
+   "keyword": 40.3,
+   "dataset_first_yes": 40
+  },
+  {
+   "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0616_r1",
+   "domain": "utility_bill_service",
+   "call_end": 122.1,
+   "ours": 10.2,
+   "keyword": 84.2,
+   "dataset_first_yes": 40
+  },
+  {
+   "id": "batch_2025-10-12_22-36-40/SCENARIO_8_Clear_Fraud_0772_r1",
+   "domain": "utility_bill_service",
+   "call_end": 156.69,
+   "ours": 10.15,
+   "keyword": null,
+   "dataset_first_yes": 62.75
+  },
+  {
+   "id": "batch_2025-10-12_22-36-40/SCENARIO_7_Clear_Fraud_0696_r1",
+   "domain": "utility_bill_service",
+   "call_end": 95.5,
+   "ours": 10.2,
+   "keyword": 54.7,
+   "dataset_first_yes": 38.2
+  },
+  {
+   "id": "batch_2025-10-12_22-36-40/SCENARIO_6_Clear_Fraud_0514_r1",
+   "domain": "utility_bill_service",
+   "call_end": 68.8,
+   "ours": 17.1,
+   "keyword": 48.2,
+   "dataset_first_yes": 40.0
+  },
+  {
+   "id": "batch_2025-10-12_22-36-40/SCENARIO_9_Clear_Fraud_0895_r1",
+   "domain": "utility_bill_service",
+   "call_end": 125.0,
+   "ours": 30.0,
+   "keyword": null,
+   "dataset_first_yes": 50.0
+  },
+  {
+   "id": "batch_2025-10-12_23-39-07/SCENARIO_5_Clear_Fraud_0461_r1",
+   "domain": "job_employment",
+   "call_end": 90.0,
+   "ours": 17.0,
+   "keyword": 65.0,
+   "dataset_first_yes": 55.0
+  },
+  {
+   "id": "batch_2025-10-12_23-39-07/SCENARIO_6_Clear_Fraud_0513_r1",
+   "domain": "job_employment",
    "call_end": 100.1,
-   "ours": 18.1,
+   "ours": 30.1,
+   "keyword": null,
+   "dataset_first_yes": 45.0
+  },
+  {
+   "id": "batch_2025-10-12_23-39-07/SCENARIO_9_Clear_Fraud_0894_r1",
+   "domain": "job_employment",
+   "call_end": 134.7,
+   "ours": 17.1,
+   "keyword": 96.4,
+   "dataset_first_yes": 30.9
+  },
+  {
+   "id": "batch_2025-10-12_23-39-07/SCENARIO_7_Clear_Fraud_0605_r1",
+   "domain": "job_employment",
+   "call_end": 118.5,
+   "ours": 10.2,
+   "keyword": 81.9,
+   "dataset_first_yes": 81.9
+  },
+  {
+   "id": "batch_2025-10-12_23-39-07/SCENARIO_5_Clear_Fraud_0457_r1",
+   "domain": "job_employment",
+   "call_end": 130.0,
+   "ours": 10.0,
+   "keyword": 30.0,
+   "dataset_first_yes": 50.0
+  },
+  {
+   "id": "batch_2025-10-12_23-39-07/SCENARIO_5_Clear_Fraud_0479_r1",
+   "domain": "job_employment",
+   "call_end": 152.8,
+   "ours": 28.1,
+   "keyword": 46.3,
+   "dataset_first_yes": 75.0
+  },
+  {
+   "id": "batch_2025-10-12_23-39-07/SCENARIO_6_Clear_Fraud_0582_r1",
+   "domain": "job_employment",
+   "call_end": 202.0,
+   "ours": 10.0,
+   "keyword": null,
+   "dataset_first_yes": 70.0
+  },
+  {
+   "id": "batch_2025-10-12_23-39-07/SCENARIO_7_Clear_Fraud_0646_r1",
+   "domain": "job_employment",
+   "call_end": 120.0,
+   "ours": 10.0,
+   "keyword": 35.0,
+   "dataset_first_yes": 45.0
+  },
+  {
+   "id": "batch_2025-10-13_00-20-15/SCENARIO_6_Clear_Fraud_0589_r1",
+   "domain": "loan_shark_harassment",
+   "call_end": 137.2,
+   "ours": 44.1,
+   "keyword": 25.8,
+   "dataset_first_yes": 44.1
+  },
+  {
+   "id": "batch_2025-10-13_00-20-15/SCENARIO_7_Clear_Fraud_0631_r1",
+   "domain": "loan_shark_harassment",
+   "call_end": 110.1,
+   "ours": 17.3,
    "keyword": null,
    "dataset_first_yes": 30.0
   },
   {
-   "id": "batch_2025-10-12_23-39-07/SCENARIO_8_Clear_Fraud_0732_r1",
-   "domain": "job_employment",
-   "call_end": 79.2,
-   "ours": 24.5,
+   "id": "batch_2025-10-13_00-20-15/SCENARIO_8_Clear_Fraud_0773_r1",
+   "domain": "loan_shark_harassment",
+   "call_end": 95.5,
+   "ours": 33.4,
+   "keyword": null,
+   "dataset_first_yes": 45.0
+  },
+  {
+   "id": "batch_2025-10-13_00-20-15/SCENARIO_8_Clear_Fraud_0755_r1",
+   "domain": "loan_shark_harassment",
+   "call_end": 109.2,
+   "ours": 10.2,
+   "keyword": 29.1,
+   "dataset_first_yes": 55.2
+  },
+  {
+   "id": "batch_2025-10-13_00-20-15/SCENARIO_6_Clear_Fraud_0506_r1",
+   "domain": "loan_shark_harassment",
+   "call_end": 194.8,
+   "ours": 30.1,
+   "keyword": 30.1,
+   "dataset_first_yes": 54.8
+  },
+  {
+   "id": "batch_2025-10-13_00-20-15/SCENARIO_8_Clear_Fraud_0724_r1",
+   "domain": "loan_shark_harassment",
+   "call_end": 88.2,
+   "ours": 16.1,
+   "keyword": 78.1,
+   "dataset_first_yes": 31.4
+  },
+  {
+   "id": "batch_2025-10-13_00-20-15/SCENARIO_5_Clear_Fraud_0492_r1",
+   "domain": "loan_shark_harassment",
+   "call_end": 88.5,
+   "ours": 18.1,
+   "keyword": 53.2,
+   "dataset_first_yes": 55
+  },
+  {
+   "id": "batch_2025-10-13_00-20-15/SCENARIO_5_Clear_Fraud_0454_r1",
+   "domain": "loan_shark_harassment",
+   "call_end": 56.0,
+   "ours": 5.0,
+   "keyword": 5.0,
+   "dataset_first_yes": 35.0
+  },
+  {
+   "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0573_r1",
+   "domain": "ecommerce_marketplace",
+   "call_end": 94.0,
+   "ours": 38.2,
    "keyword": null,
    "dataset_first_yes": 40.0
   },
   {
-   "id": "batch_2025-10-13_00-20-15/SCENARIO_7_Clear_Fraud_0634_r1",
-   "domain": "loan_shark_harassment",
-   "call_end": 90.7,
-   "ours": 17.5,
-   "keyword": 32.1,
-   "dataset_first_yes": 40
+   "id": "batch_2025-10-12_19-54-00/SCENARIO_7_Clear_Fraud_0681_r1",
+   "domain": "ecommerce_marketplace",
+   "call_end": 119.0,
+   "ours": 25.0,
+   "keyword": 119.0,
+   "dataset_first_yes": 30.0
   },
   {
-   "id": "batch_2025-10-12_19-54-00/SCENARIO_8_Clear_Fraud_0709_r1",
+   "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0544_r1",
    "domain": "ecommerce_marketplace",
-   "call_end": 78.5,
-   "ours": 5.2,
-   "keyword": 30.4,
-   "dataset_first_yes": 30.4
+   "call_end": 195.0,
+   "ours": null,
+   "keyword": 22.0,
+   "dataset_first_yes": 37.0
+  },
+  {
+   "id": "batch_2025-10-12_19-54-00/SCENARIO_7_Clear_Fraud_0662_r1",
+   "domain": "ecommerce_marketplace",
+   "call_end": 147.0,
+   "ours": 25.0,
+   "keyword": null,
+   "dataset_first_yes": 120.0
+  },
+  {
+   "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0825_r1",
+   "domain": "ecommerce_marketplace",
+   "call_end": 114.0,
+   "ours": null,
+   "keyword": null,
+   "dataset_first_yes": 60.0
+  },
+  {
+   "id": "batch_2025-10-12_19-54-00/SCENARIO_6_Clear_Fraud_0537_r1",
+   "domain": "ecommerce_marketplace",
+   "call_end": 155.0,
+   "ours": 60.0,
+   "keyword": 40.0,
+   "dataset_first_yes": 70.0
+  },
+  {
+   "id": "batch_2025-10-12_19-54-00/SCENARIO_9_Clear_Fraud_0871_r1",
+   "domain": "ecommerce_marketplace",
+   "call_end": 114.5,
+   "ours": null,
+   "keyword": 97.8,
+   "dataset_first_yes": 45.0
+  },
+  {
+   "id": "batch_2025-10-12_19-54-00/SCENARIO_7_Clear_Fraud_0604_r1",
+   "domain": "ecommerce_marketplace",
+   "call_end": 106.0,
+   "ours": 10.0,
+   "keyword": 28.0,
+   "dataset_first_yes": 28.0
   }
  ]
 }
