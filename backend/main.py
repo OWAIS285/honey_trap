@@ -22,8 +22,8 @@ def origin_allowed(origin: str | None) -> bool:
     return not ALLOWED_ORIGINS or origin in ALLOWED_ORIGINS
 
 
-@app.get("/healthz")
-def healthz() -> dict:
+@app.get("/health")
+def health() -> dict:
     return {"status": "ok", "killSwitch": KILL_SWITCH}
 
 

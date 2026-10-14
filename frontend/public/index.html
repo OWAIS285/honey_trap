@@ -22,11 +22,11 @@
       const base = window.HT_CONFIG.backendUrl;
       out.textContent = "Checking...";
       try {
-        const health = await (await fetch(`${base}/healthz`)).json();
+        const health = await (await fetch(`${base}/health`)).json();
         const ws = new WebSocket(base.replace(/^http/, "ws") + "/ws/echo");
         ws.onopen = () => ws.send("namaste");
         ws.onmessage = (e) => {
-          out.textContent = `healthz: ${JSON.stringify(health)}\nwebsocket echo: ${e.data}`;
+          out.textContent = `health: ${JSON.stringify(health)}\nwebsocket echo: ${e.data}`;
           ws.close();
         };
         ws.onerror = () => { out.textContent = "WebSocket failed"; };

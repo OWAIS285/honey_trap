@@ -1,3 +1,3 @@
 window.HT_CONFIG = {
-  backendUrl: "http://localhost:8080",
+  backendUrl: "https://honeytrap-api-378992821239.asia-south1.run.app",
 };

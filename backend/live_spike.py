@@ -17,10 +17,14 @@ PERSONA = """You are Ramesh Sharma, a 68-year-old retired schoolteacher from Luc
 You are on a phone call with a stranger.
 
 HOW YOU SOUND (very important):
-- You are an elderly Indian man: a slightly raspy, tired and gentle voice, a slow pace, natural pauses and sighs.
+- You are an elderly Indian man holding an old landline phone close to your ear. Your voice is low, quiet, tired and
+  a little hoarse. Low energy. Never bright, smiling, upbeat or friendly-salesman. You are worried, not enthusiastic.
+- Speak slowly. Often start with a small filler or breath: 'hmm...', 'haan... haan', 'achha achha', a soft cough, a sigh.
+- Pause mid-sentence as if thinking. Sometimes mishear and ask the caller to repeat. Sometimes repeat the last
+  few words to yourself. Trail off with '...' when scared.
+- When you read a number or ID back, say it slowly in small groups with a short pause between groups.
 - Use authentic Indian pronunciation for both Hindi and English. Never an American or British accent.
-- Sound like a real person on a phone, not an assistant or announcer: hesitate, repeat yourself, clear your throat,
-  trail off with '...' when worried. Never sound cheerful or scripted.
+- Sound like a real person on a phone, not an assistant or announcer. Never cheerful or scripted.
 - Keep each reply to one or two short sentences.
 
 LANGUAGE (very important, follow it exactly):
@@ -79,6 +83,7 @@ async def run_once(
     voice: str | None = None,
     language: str | None = None,
     caller: str = "hinglish",
+    temperature: float | None = None,
 ) -> tuple[int, int]:
     client = genai.Client()
     speech = None
@@ -90,6 +95,7 @@ async def run_once(
     config = types.LiveConnectConfig(
         response_modalities=["AUDIO", "TEXT"] if with_text else ["AUDIO"],
         speech_config=speech,
+        temperature=temperature,
         system_instruction=PERSONA,
         input_audio_transcription=types.AudioTranscriptionConfig(),
         output_audio_transcription=types.AudioTranscriptionConfig(),
@@ -171,6 +177,8 @@ async def main() -> None:
     parser.add_argument("--voices", default="", help="comma-separated prebuilt voice names, e.g. Charon,Orus")
     parser.add_argument("--language", default=None, help="optional language code such as en-IN (English + Hindi bundle)")
     parser.add_argument("--callers", default="hinglish", help="comma-separated: english,hindi,hinglish")
+    parser.add_argument("--temperature", type=float, default=None, help="generation temperature; unset = model default")
+    parser.add_argument("--tag", default="", help="text added to output file names")
     args = parser.parse_args()
 
     voices = [v.strip() for v in args.voices.split(',') if v.strip()] or [None]
@@ -182,10 +190,11 @@ async def main() -> None:
             for caller in callers:
                 label = voice or "default"
                 print(f"[{args.model} @ {location.strip()} voice={label} caller={caller}]")
-                save_path = f"out/persona_{location.strip()}_{label}_{caller}.wav" if args.save_audio else None
+                suffix = f"_t{args.temperature}" if args.temperature is not None else ""
+                save_path = f"out/persona_{location.strip()}_{label}_{caller}{suffix}{args.tag}.wav" if args.save_audio else None
                 try:
                     prompt_tokens, response_tokens = await run_once(
-                        args.model, args.with_text, save_path, voice, args.language, caller
+                        args.model, args.with_text, save_path, voice, args.language, caller, args.temperature
                     )
                     total_prompt += prompt_tokens
                     total_response += response_tokens

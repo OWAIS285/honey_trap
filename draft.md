@@ -142,7 +142,8 @@ Use this as the starting system instruction; iterate on it.
 
 **Decisions of 14 Oct (override the female persona text below until updated):**
 - **Bilingual is a hard requirement:** the persona and the whole extraction pipeline must work in **English, Hindi and Hinglish**, replying in the language the caller uses and switching only when the caller does. Verified with `gemini-3.8-live` using `language_code=en-IN` (Google lists it as the English + Hindi bundle): an English caller gets English, a Devanagari Hindi caller gets Hindi, Hinglish gets Hinglish, and `record_detail` returns clean values in all three. Tests and eval must include English-only and Devanagari-Hindi cases.
-- **Voice pivot under review:** female prebuilt voices (Gacrux, Vindemiatrix, Sulafat, Achernar, Kore) sounded too synthetic, so we are auditioning male voices (Charon, Algenib, Orus, Iapetus, Schedar, Achird, Rasalgethi, Enceladus). The Live API only offers the 30 prebuilt voices; the Extended Voice Library (regional Indian voices) is for TTS models and can be used for Replay-mode recordings only. If a male voice is chosen, rename the persona (placeholder in `backend/live_spike.py`: Ramesh Sharma, 68).
+- **Voice decided (14 Oct): Achird** (male, listed as "Friendly"), persona "Ramesh Sharma", 68, retired schoolteacher from Lucknow; prompt tuned for a low-energy, tired, slightly hoarse, landline-phone delivery with fillers, mid-sentence pauses and slow digit read-backs. Female prebuilt voices (Gacrux, Vindemiatrix, Sulafat, Achernar, Kore) sounded too synthetic. The Live API only offers the 30 prebuilt voices; the Extended Voice Library (regional Indian voices) is for TTS models and can be used for Replay-mode recordings only. Add a phone-line band-pass filter in the browser player to hide studio polish.
+- **Temperature:** not set, so the model default applies. Google's Gemini 3 guidance is to keep temperature at the default 1.0 (lower values can cause looping or degraded behaviour). `--temperature` in `backend/live_spike.py` is only for audible A/B tests; ship the default.
 - Sample files: `.\.venv\Scripts\python backend\live_spike.py --voices Charon,Orus --callers english,hindi --language en-IN --save-audio` writes `out/persona_*.wav`.
 
 ```
@@ -301,7 +302,7 @@ If a dataset is unavailable: use the others plus a clearly-labelled synthetic In
 4. Cloud Run service account with `roles/aiplatform.user`, `roles/datastore.user`, `roles/logging.logWriter` (add `roles/secretmanager.secretAccessor` only if a secret is needed).
 5. Firebase on the same project: Firestore (Native mode, `asia-south1`), Authentication → Anonymous, Hosting site.
 6. Repo `OWAIS285/honey_trap` (origin already set): make it **public**; add LICENSE (MIT or Apache-2.0), `.gitignore` (`.env`, key/service-account JSON, `eval/datasets/`), `.env.example`, README skeleton.
-7. Hello-world: FastAPI `/healthz` + WebSocket echo, then `gcloud run deploy honeytrap-api --source backend --region asia-south1 --allow-unauthenticated --max-instances 3 --timeout 900`; static page via `firebase deploy --only hosting`.
+7. Hello-world: FastAPI `/health` (Cloud Run reserves `/healthz`) + WebSocket echo, then `gcloud run deploy honeytrap-api --source backend --region asia-south1 --allow-unauthenticated --max-instances 3 --timeout 900`; static page via `firebase deploy --only hosting`.
 8. Live API spike (~45 min): `genai.Client(vertexai=True, ...)` → `gemini-3.8-live`; check working locations, latency from India, Hinglish quality, digit read-back, transcription config, one function-call round-trip; keep the API-key path as fallback.
 9. Write the results of every VERIFY item back into §4.
 
