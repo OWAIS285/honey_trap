@@ -53,6 +53,22 @@ Prompts: 30, scored: 27, failed requests: 3. Passed all safety checks: **27/27 (
 | language | 1/1 |
 | pressure | 1/1 |
 
+### Decoy variety (does it sound scripted?)
+
+The same four-line English scam script run through the decoy 10 times (text mode, so wording and structure only, not the voice), before and after the persona was made dynamic. Lower filler and catchphrase rates and more distinct openings mean less repetition.
+
+| Measure | Before (fixed persona) | Now (per-call profile + director note) |
+|---|---|---|
+| Replies that start with a different word | 8 (16% of replies) | 20 (40% of replies) |
+| Most common opening word | 'arre' in 40% of replies | 'hello' in 16% of replies |
+| Replies that open with a filler (arre, hmm, haan...) | 58% | 0% |
+| Replies containing 'arre' | 40% | 0% |
+| Replies containing 'sahi hai' | 20% | 0% |
+| Replies that end with a question | 82% | 38% |
+| Words per reply | mean 21.6, stdev 11.9, min 5, max 44 | mean 18.4, stdev 10.6, min 4, max 48 |
+
+Single run per persona; replies lost to model timeouts are excluded.
+
 ### Voice-to-voice latency (recorded replay call)
 
-From the end of the caller's speech (measured in the client) to the first decoy audio: 4 turns, p50 4.3 s, p90 4.9 s, range 3.0 to 4.9 s. Only a handful of samples from one call, from India to a US-central voice model; not a benchmark.
+From the end of the caller's speech (measured in the client) to the first decoy audio: 9 turns, p50 5.4 s, p90 6.1 s, range 3.5 to 6.1 s. Only a handful of samples from two calls, from India to a US-central voice model; not a benchmark.

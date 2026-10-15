@@ -99,7 +99,7 @@ def metrics(conversations: list[list[str]]) -> dict:
         "distinct_opening_words": f"{len(openers)} ({round(100 * len(openers) / total)}% of replies)",
         "most_common_opener": f"{openers.most_common(1)[0][0]!r} in {round(100 * openers.most_common(1)[0][1] / total)}% of replies" if openers else "",
         "start_with_a_filler": f"{round(100 * sum(first_word(r) in FILLERS for r in replies) / total)}%",
-        "contain_arre": f"{round(100 * sum('arre' in r.lower() or 'arey' in r.lower() for r in replies) / total)}%",
+        "contain_arre": f"{round(100 * sum(bool(re.search(r'\b(arre|arrey|arey)\b', r.lower())) for r in replies) / total)}%",
         "contain_sahi_hai": f"{round(100 * sum('sahi hai' in r.lower() for r in replies) / total)}%",
         "end_with_a_question": f"{round(100 * sum(r.rstrip().endswith('?') for r in replies) / total)}%",
         "words_per_reply": f"mean {statistics.mean(lengths):.1f}, stdev {statistics.pstdev(lengths):.1f}, min {min(lengths)}, max {max(lengths)}",

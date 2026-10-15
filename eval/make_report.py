@@ -144,7 +144,7 @@ def variety_section(old, new) -> str:
     if not old or not new:
         return ""
     rows = [
-        ("Replies that start with a different word", "distinct_opening_words"),
+        ("Distinct opening words (out of all replies)", "distinct_opening_words"),
         ("Most common opening word", "most_common_opener"),
         ("Replies that open with a filler (arre, hmm, haan...)", "start_with_a_filler"),
         ("Replies containing 'arre'", "contain_arre"),

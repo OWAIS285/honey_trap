@@ -1,0 +1,21 @@
+{
+ "persona": "legacy",
+ "calls": 10,
+ "metrics": {
+  "replies": 50,
+  "distinct_opening_words": "8 (16% of replies)",
+  "most_common_opener": "'arre' in 40% of replies",
+  "start_with_a_filler": "58%",
+  "contain_arre": "40%",
+  "contain_sahi_hai": "20%",
+  "end_with_a_question": "82%",
+  "words_per_reply": "mean 21.6, stdev 11.9, min 5, max 44"
+ },
+ "first_call": [
+  "Hello...? Haan, kaun bol raha hai?",
+  "Arre... CBI? What parcel, sir... I did not send or order anything, who are you speaking to?",
+  "Arre baap re... arrest warrant? Sir, I am an old retired teacher... where do I have to send fifty thousand rupees, which account?",
+  "Hmm... let me write it down... r-a-h-u-l dot s-h-a-r-m-a at okaxis... is that correct, sir? And what is your good name and badge number?",
+  "Wait, let me note slowly... account is 1 2 3... 4 5 6... 7 8 9... 0 1 2, and IFSC is S B I N 0 0 0... 1 2 3 4... sahi hai, sir? Whose name is this account in?"
+ ]
+}
