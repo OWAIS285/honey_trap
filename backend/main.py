@@ -14,7 +14,7 @@ from call_handler import CallHandler, jlog
 from drill import DRILL_OPENING_CUE, DRILL_TOOLS, DrillHandler, build_drill_prompt, new_drill_doc
 from limits import limiter
 from live_session import LiveSession
-from persona import OPENING_CUE, PERSONA, PERSONA_TOOLS
+from persona import OPENING_CUE, PERSONA_TOOLS, CallProfile, build_persona
 from store import clean, owner_hash, store
 from text_session import TextSession
 
@@ -269,8 +269,11 @@ async def _run_call(ws: WebSocket, mode: str) -> None:
         handler = CallHandler(client_id=client_id, ip=ip, mode=mode)
         await store.put(f"calls/{handler.call_id}", handler.initial_doc())
         if mode == "live":
-            session = LiveSession(ws, handler, system_instruction=PERSONA, voice=config.PERSONA_VOICE,
-                                  tools=PERSONA_TOOLS, max_seconds=config.MAX_CALL_SECONDS, opening_cue=OPENING_CUE)
+            profile = CallProfile()
+            jlog("INFO", "persona_profile", callId=handler.call_id, mood=profile.mood_key)
+            session = LiveSession(ws, handler, system_instruction=build_persona(profile), voice=config.PERSONA_VOICE,
+                                  tools=PERSONA_TOOLS, max_seconds=config.MAX_CALL_SECONDS, opening_cue=OPENING_CUE,
+                                  temperature=config.PERSONA_TEMPERATURE)
         else:
             session = TextSession(ws, handler)
         handler.emit = session.send

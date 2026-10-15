@@ -3,24 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Honey Trap: the AI decoy that wastes scammers' time</title>
-  <meta name="description" content="Honey Trap is an AI decoy that answers scam calls in English, Hindi and Hinglish, wastes the scammer's time, catches their UPI and bank details and keeps the call as evidence.">
-  <meta name="theme-color" content="#060812">
+  <title>AI decoy for scam calls</title>
+  <meta name="description" content="An AI decoy that answers scam calls in English, Hindi and Hinglish, wastes the scammer's time, catches their UPI and bank details and keeps the call as evidence.">
+  <meta name="theme-color" content="#05050f">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="effects.css">
 </head>
 <body>
   <div class="bg" aria-hidden="true">
     <i class="orb o1"></i><i class="orb o2"></i><i class="orb o3"></i>
-    <div class="hex"></div>
+    <canvas id="fx"></canvas>
   </div>
   <a class="skip" href="#view">Skip to content</a>
   <header id="topbar" class="topbar"></header>
   <main id="view" tabindex="-1">
-    <noscript><p class="noscript">Honey Trap needs JavaScript to run.</p></noscript>
+    <noscript><p class="noscript">This app needs JavaScript to run.</p></noscript>
   </main>
   <footer class="footer">
-    <p><b>Honey Trap</b> is a prototype built for the AI Builder Cup 2026. All demo names, numbers and IDs are fictional. Evidence packs are a lead for investigators, not a verdict. Recordings are private and deleted after 14 days.</p>
+    <p><b id="footer-brand"></b> is a prototype built for the AI Builder Cup 2026. All demo names, numbers and IDs are fictional. Evidence packs are a lead for investigators, not a verdict. Recordings are private and deleted after 14 days. <button class="linklike" type="button" id="replay-intro">Replay the intro</button></p>
   </footer>
   <nav id="tabbar" class="tabbar" aria-label="Main"></nav>
   <div id="toasts" class="toasts" aria-live="polite"></div>

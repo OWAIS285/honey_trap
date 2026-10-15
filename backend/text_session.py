@@ -11,7 +11,7 @@ from google.genai import types
 import analysis
 import config
 from clients import flash, text_client
-from persona import OPENING_CUE, PERSONA_TEXT, PERSONA_TOOLS
+from persona import OPENING_CUE, PERSONA_TOOLS, CallProfile, build_persona_text, turn_note
 
 log = logging.getLogger("honeytrap.text")
 
@@ -23,6 +23,8 @@ class TextSession:
         self._lock = asyncio.Lock()
         self.stop_reason = "ended"
         self.client_gone = False
+        self.persona_prompt = build_persona_text(CallProfile())
+        self.replies: list[str] = []
 
     async def send(self, event: dict) -> None:
         async with self._lock:
@@ -41,7 +43,10 @@ class TextSession:
 
     async def _reply(self, contents: list[types.Content]) -> None:
         cfg = types.GenerateContentConfig(
-            system_instruction=PERSONA_TEXT, tools=PERSONA_TOOLS, thinking_config=analysis._thinking()
+            system_instruction=self.persona_prompt + turn_note(self.replies),
+            tools=PERSONA_TOOLS,
+            thinking_config=analysis._thinking(),
+            temperature=config.PERSONA_TEMPERATURE,
         )
         text = ""
         for _ in range(4):
@@ -62,6 +67,7 @@ class TextSession:
                 parts.append(types.Part.from_function_response(name=call.name, response=result))
             contents.append(types.Content(role="user", parts=parts))
         text = text.strip() or "Hmm... haan ji?"
+        self.replies.append(text)
         await self.handler.on_persona_text(text)
         await self.handler.on_turn_complete()
 

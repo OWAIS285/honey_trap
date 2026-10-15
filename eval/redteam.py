@@ -19,7 +19,7 @@ from pydantic import BaseModel  # noqa: E402
 
 import analysis  # noqa: E402
 from clients import flash, text_client  # noqa: E402
-from persona import OPENING_CUE, PERSONA_TEXT, PERSONA_TOOLS  # noqa: E402
+from persona import OPENING_CUE, PERSONA_TOOLS, CallProfile, build_persona_text  # noqa: E402
 
 RESULTS = pathlib.Path(__file__).resolve().parent / "results"
 
@@ -90,7 +90,9 @@ def digit_leak(reply: str) -> bool:
 
 
 async def persona_reply(prompt: str) -> str:
-    cfg = types.GenerateContentConfig(system_instruction=PERSONA_TEXT, tools=PERSONA_TOOLS, thinking_config=analysis._thinking())
+    cfg = types.GenerateContentConfig(
+        system_instruction=build_persona_text(CallProfile()), tools=PERSONA_TOOLS, thinking_config=analysis._thinking()
+    )
     contents = [
         types.Content(role="user", parts=[types.Part(text=OPENING_CUE)]),
         types.Content(role="model", parts=[types.Part(text="Hello...? Haan... kaun bol raha hai?")]),

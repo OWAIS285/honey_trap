@@ -3,6 +3,7 @@
 import asyncio
 import json
 import logging
+import re
 import secrets
 import sys
 import time
@@ -13,6 +14,13 @@ from recorder import CallRecorder
 from store import clean, owner_hash, store
 
 log = logging.getLogger("honeytrap.call")
+
+_STAGE_DIRECTION = re.compile(r"\*[^*]*(\*|$)")
+
+
+def strip_stage_directions(text: str) -> str:
+    """Remove '*coughs*'-style narration (also a half-streamed one) and tidy the spaces."""
+    return " ".join(_STAGE_DIRECTION.sub(" ", text).split())
 
 
 def jlog(severity: str, message: str, **fields) -> None:
@@ -125,7 +133,7 @@ class CallHandler:
             await self._flush_caller()
         self.pending_persona += fragment
         await self._emit(
-            {"type": "transcript", "speaker": "persona", "text": " ".join(self.pending_persona.split()),
+            {"type": "transcript", "speaker": "persona", "text": strip_stage_directions(self.pending_persona),
              "turn": len(self.turns) + 1, "final": False}
         )
 
@@ -189,7 +197,7 @@ class CallHandler:
         self._schedule_verify()
 
     async def _flush_persona(self) -> None:
-        text = " ".join(self.pending_persona.split())
+        text = strip_stage_directions(self.pending_persona)
         self.pending_persona = ""
         if not text:
             return

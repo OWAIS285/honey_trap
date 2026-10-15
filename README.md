@@ -1,8 +1,8 @@
-# Honey Trap
+# Mirage
 
 **An AI decoy that answers scam calls in English, Hindi and Hinglish, wastes the scammer's time, catches the UPI IDs and bank accounts they ask victims to pay, and turns every captured script into a practice call that protects the next family.**
 
-Built for the Google Cloud AI Builder Cup JAPAC 2026, BFSI theme (Intelligent Risk, Fraud and Financial Experiences).
+Built for the Google Cloud AI Builder Cup JAPAC 2026, BFSI theme (Intelligent Risk, Fraud and Financial Experiences). The product was renamed from its working title; the deployed URLs and Google Cloud resource ids keep the original `honeytrap` project id.
 
 | | |
 |---|---|
@@ -14,7 +14,7 @@ All names, numbers, UPI IDs and accounts in the demo are **fictional**. This is 
 
 ## The idea: Trap, Strain, Vaccine
 
-1. **Trap.** "Ramesh Sharma", a worried 68-year-old retired schoolteacher from Lucknow, picks up. He speaks the caller's language, stalls, repeats numbers back slowly and asks "sahi hai?" so the caller says the payee details again. Every account number, UPI ID, IFSC, link, name and amount is caught live and checked twice.
+1. **Trap.** "Ramesh Sharma", a worried 68-year-old retired schoolteacher from Lucknow, picks up. He speaks the caller's language, stalls, and gets the caller to say the payee details again by mishearing, asking for a repeat or fumbling the app, never the same way twice. Every account number, UPI ID, IFSC, link, name and amount is caught live and checked twice.
 2. **Strain.** The finished call becomes a redacted "strain" card: the scammer's script step by step, the three warning signs, how they want the money. No identifiers survive in it.
 3. **Vaccine.** A strain becomes a short, consented practice call for a parent or grandparent, built from that day's real script. The actor stops the moment the parent shares a detail or reaches the payment step, and a coach explains the three red flags.
 
@@ -26,7 +26,7 @@ For banks the by-product is an **evidence pack**: confirmed and unconfirmed paye
 |---|---|
 | **Live call** (`#/call`) | You play the scammer. Allow the microphone and read a sample line (English, Hinglish or Hindi), or press Send to type it. Ramesh answers in voice; the dashboard fills in as you talk. |
 | **Text chat** (`#/chat`) | Same persona and analysis over text. |
-| **Replay** (`#/replay`) | A recorded call (synthetic scammer voice vs. the real decoy pipeline). No microphone, no backend, click to seek, jump to key moments. |
+| **Replay** (`#/replay`, Hindi at `#/replay/hi`) | A recorded call of about two minutes, in English or in Hindi, with both sides speaking the same language. An AI scammer (Gemini script-writer, Gemini text-to-speech voice) answers what the decoy actually says; the decoy side is the real pipeline. No microphone, no backend, click to seek, jump to key moments. |
 | **Review** (`#/history`) | Every call from this browser: recording with click-to-seek transcript, evidence pack (JSON or print to PDF), strain card. |
 | **Family drill** (`#/strains`) | Create a consented drill, share the link on WhatsApp. The parent opens a big bilingual "Incoming call" page. |
 
@@ -69,6 +69,7 @@ Key choices:
 
 - **Two independent extraction layers.** The live model calls `record_detail` while it talks; a second, separate Gemini Flash pass with a strict JSON schema re-reads the transcript. A detail is *confirmed* only when both layers saw it (or the caller repeated it) **and** the deterministic validator accepts it (UPI format, 9-18 digit account, IFSC pattern, mobile number, amount).
 - **Spoken-form normaliser.** "rahul dot sharma at the rate okaxis", "double nine", Devanagari digits and letter names become `rahul.sharma@okaxis`, `99`, `SBIN0001234`.
+- **A decoy that never repeats itself.** Scammers learn a fixed script fast, so each call draws a fresh personality for Ramesh (mood, what he was doing, family and health details, tempo, habits and a different set of stalling excuses), and the prompt forbids catchphrases, filler openers and answering questions in order. Text mode adds a per-reply director note (a new move, a length, openers to avoid). `eval/variety_eval.py` measures it, see below.
 - **Voice path stays light.** Verification, classification and strain building run off the audio path; the browser sends its own measured voice-to-voice latency, which the server aggregates (p50 and p90).
 - **Barge-in.** When the caller interrupts, the server sends `interrupted` and the browser flushes its playback queue.
 - **No client access to data.** Firestore rules deny every browser; everything goes through the backend, which scopes data to a random per-browser id. Recordings are private and fetched with an unguessable per-call token.
@@ -107,7 +108,7 @@ Deploy (needs a Google Cloud project with billing; see the scripts for the exact
 firebase deploy --only hosting,firestore --project <project>
 ```
 
-Useful scripts: `scripts/sim_call.py` (typed or silent-mic simulated caller), `scripts/sim_drill.py` (drill scenarios), `scripts/make_replay.py` (records the replay with a Gemini-TTS scammer), `scripts/stop_billing.ps1`.
+Useful scripts: `scripts/sim_call.py` (typed or silent-mic simulated caller), `scripts/sim_drill.py` (drill scenarios), `scripts/make_replay.py` (records the English or Hindi replay: an AI scammer talks to the real decoy, then the audio is assembled turn by turn so voices never overlap and the length lands between 1:45 and 2:00), `eval/variety_eval.py` (how repetitive the decoy is), `scripts/stop_billing.ps1`.
 
 Environment variables are documented in [.env.example](.env.example).
 

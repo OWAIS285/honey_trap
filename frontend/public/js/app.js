@@ -1,5 +1,8 @@
 import { api } from "./api.js";
+import { BRAND, brandText, pageTitle } from "./brand.js";
 import { errorState } from "./components.js";
+import { installPointerFx, startBackground } from "./fx.js";
+import { playIntro, shouldPlayIntro } from "./intro.js";
 import { $, h, icon, installRipples, logo, observeReveal } from "./util.js";
 import { CallView } from "./views/call.js";
 import { DrillNewView, DrillReportView, DrillsView } from "./views/drills.js";
@@ -14,17 +17,17 @@ const NAV = [
   { href: "#/", label: "Home", icon: "home", match: /^#\/$/, tab: true },
   { href: "#/call", label: "Live call", icon: "phone", match: /^#\/(call|chat)$/, tab: true },
   { href: "#/chat", label: "Text chat", icon: "chat", match: /^#\/chat$/, desktopOnly: true, exact: true },
-  { href: "#/replay", label: "Replay", icon: "play", match: /^#\/replay$/, tab: true },
+  { href: "#/replay", label: "Replay", icon: "play", match: /^#\/replay(\/(en|hi))?$/, tab: true },
   { href: "#/history", label: "Calls", icon: "list", match: /^#\/(history|call\/.+)$/, tab: true },
   { href: "#/strains", label: "Strains", icon: "virus", match: /^#\/strains$/, tab: true },
   { href: "#/drills", label: "Drills", icon: "users", match: /^#\/drills?(\/.*)?$/, tab: true },
 ];
 
 const ROUTES = [
-  { re: /^#\/$/, title: "Honey Trap: the AI decoy that wastes scammers' time", view: () => HomeView() },
+  { re: /^#\/$/, title: "", view: () => HomeView() },
   { re: /^#\/call$/, title: "Live call", view: () => CallView({ mode: "voice" }) },
   { re: /^#\/chat$/, title: "Text chat", view: () => CallView({ mode: "text" }) },
-  { re: /^#\/replay$/, title: "Replay", view: () => ReplayView() },
+  { re: /^#\/replay(?:\/(en|hi))?$/, title: "Replay", view: (m) => ReplayView({ lang: m[1] }) },
   { re: /^#\/history$/, title: "Your calls", view: () => HistoryView() },
   { re: /^#\/call\/([\w-]+)$/, title: "Call review", view: (m) => ReviewView({ id: m[1] }) },
   { re: /^#\/strains$/, title: "Strain library", view: () => StrainsView() },
@@ -43,7 +46,7 @@ function buildShell() {
   const status = h("span", { class: "status-pill", id: "status", "data-state": "checking", title: "Backend status" }, statusDot, statusText);
   const header = $("#topbar");
   header.replaceChildren(
-    h("a", { class: "brand", href: "#/", "aria-label": "Honey Trap home" }, logo(), h("span", {}, "Honey", h("em", {}, "Trap"))),
+    h("a", { class: "brand", href: "#/", "aria-label": `${BRAND.name} home` }, logo(), brandText()),
     h("nav", { class: "nav", "aria-label": "Main" }, NAV.map((item) => h("a", { href: item.href, "data-href": item.href, class: item.exact ? "exact" : "" }, item.label))),
     h("span", { class: "grow" }),
     status,
@@ -102,7 +105,7 @@ function route() {
     view = { el: errorState("This page failed to load. Please refresh and try again.") };
   }
   current = view;
-  document.title = found ? `${found.title}${found.title.startsWith("Honey") ? "" : " · Honey Trap"}` : "Not found · Honey Trap";
+  document.title = pageTitle(found ? found.title : "Not found");
   main.replaceChildren(view.el);
   main.classList.remove("view-enter");
   void main.offsetWidth;
@@ -124,4 +127,13 @@ new MutationObserver(() => {
   });
 }).observe(main, { childList: true, subtree: true });
 window.addEventListener("hashchange", route);
-route();
+$("#footer-brand").textContent = BRAND.name;
+$("#replay-intro").addEventListener("click", () => {
+  location.hash = "#/";
+  playIntro();
+});
+document.title = pageTitle();
+startBackground($("#fx"));
+installPointerFx();
+if (shouldPlayIntro()) playIntro({ onReveal: route });
+else route();

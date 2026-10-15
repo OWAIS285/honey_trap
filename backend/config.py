@@ -20,6 +20,8 @@ FLASH_MODEL = os.getenv("FLASH_MODEL", "gemini-3.8-flash").strip()
 PERSONA_VOICE = os.getenv("PERSONA_VOICE", "Achird").strip()
 DRILL_VOICE = os.getenv("DRILL_VOICE", "Orus").strip()
 LANGUAGE_CODE = os.getenv("LANGUAGE_CODE", "en-IN").strip()
+# Higher = more varied wording from call to call; the persona prompt does the rest.
+PERSONA_TEMPERATURE = float(os.getenv("PERSONA_TEMPERATURE", "1.1"))
 # How long the caller must stay silent before the decoy answers. Lower = quicker replies, higher = fewer interruptions.
 END_OF_SPEECH_MS = int(os.getenv("END_OF_SPEECH_MS", "450"))
 

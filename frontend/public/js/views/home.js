@@ -1,14 +1,26 @@
+import { BRAND } from "../brand.js";
 import { scriptPanel } from "../scripts.js";
-import { countUp, h, icon, observeReveal } from "../util.js";
+import { SCAM_LABELS, countUp, h, icon, observeReveal } from "../util.js";
 
 const link = (href, cls, ...children) => h("a", { href, class: cls }, ...children);
+
+function marquee() {
+  const labels = Object.entries(SCAM_LABELS).filter(([id]) => id !== "not_scam").map(([, label]) => label);
+  const row = () => labels.map((label) => h("span", { class: "mq-item" }, h("i"), label));
+  return h(
+    "section",
+    { class: "marquee reveal" },
+    h("p", { class: "eyebrow marquee-label center" }, "Scam strains it recognises"),
+    h("div", { class: "marquee-track", "aria-hidden": "true" }, row(), row()),
+  );
+}
 
 function heroMock() {
   const bubble = (who, text, cls, delay) => h("div", { class: `mock-bubble ${cls}`, style: { "--d": `${delay}s` } }, h("small", {}, who), h("p", { lang: "en" }, text));
   const chip = (ico, label, value, delay, cls = "") => h("div", { class: `mock-chip ${cls}`, style: { "--d": `${delay}s` } }, icon(ico), h("div", {}, h("small", {}, label), h("b", {}, value)));
   return h(
     "div",
-    { class: "hero-mock", "aria-hidden": "true" },
+    { class: "hero-mock tilt", "aria-hidden": "true" },
     h(
       "div",
       { class: "mock-phone card" },
@@ -24,7 +36,7 @@ function heroMock() {
         "div",
         { class: "mock-chat" },
         bubble("Caller", "A parcel in your name has illegal items. Pay 50,000 now.", "caller", 0.4),
-        bubble("Ramesh", "Arre... which parcel, sir? Please say the UPI ID slowly.", "persona", 2.4),
+        bubble("Ramesh", "Which parcel, sir? I never ordered anything... say the UPI ID slowly.", "persona", 2.4),
         bubble("Caller", "rahul dot sharma at okaxis.", "caller", 4.6),
       ),
     ),
@@ -46,7 +58,7 @@ export function HomeView() {
       h(
         "p",
         { class: "lead reveal" },
-        "Honey Trap is an AI decoy that answers scam calls in English, हिन्दी and Hinglish. It plays a worried 68-year-old, wastes the scammer's time, quietly collects the UPI IDs and bank details they ask you to pay, and saves the call as evidence.",
+        `${BRAND.name} is an AI decoy that answers scam calls in English, हिन्दी and Hinglish. It plays a worried 68-year-old, wastes the scammer's time, quietly collects the UPI IDs and bank details they ask you to pay, and saves the call as evidence.`,
       ),
       h(
         "div",
@@ -126,7 +138,7 @@ export function HomeView() {
     h("div", { class: "cta-row center" }, link("#/replay", "btn lg", icon("play"), "Watch the replay"), link("#/call", "btn primary lg", icon("phone"), "Take a live call")),
   );
 
-  const el = h("div", { class: "home" }, hero, statsBand, pipeline, tryIt, trust, footerCta);
+  const el = h("div", { class: "home" }, hero, marquee(), statsBand, pipeline, tryIt, trust, footerCta);
   queueMicrotask(() => observeReveal(el));
   return { el, destroy: () => io?.disconnect() };
 }

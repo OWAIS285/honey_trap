@@ -1,6 +1,7 @@
 // Call review: recording with click-to-seek transcript, evidence pack (JSON / print to PDF) and the captured strain.
 
 import { api } from "../api.js";
+import { BRAND } from "../brand.js";
 import { errorState, pageHeader, skeletons, strainCard } from "../components.js";
 import { createAudioPlayer } from "../player.js";
 import { DETAIL_META, SOURCE_LABELS, downloadBlob, fmtClock, fmtDate, fmtDuration, h, humanize, icon, observeReveal, scamLabel, toast } from "../util.js";
@@ -109,7 +110,7 @@ export function ReviewView({ id }) {
     const printHead = h(
       "div",
       { class: "print-only" },
-      h("h1", {}, "Honey Trap: evidence pack"),
+      h("h1", {}, `${BRAND.name}: evidence pack`),
       h("p", {}, `Call ${call.callId} · ${fmtDate(call.startedAt)} · ${call.mode === "text" ? "text chat" : "voice call"} · ${call.durationSec != null ? fmtDuration(call.durationSec) : ""}`),
     );
 

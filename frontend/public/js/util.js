@@ -95,10 +95,9 @@ export function icon(name, size) {
 export function logo() {
   const holder = document.createElement("template");
   holder.innerHTML =
-    '<svg viewBox="0 0 40 40" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd166"/><stop offset="1" stop-color="#ff8a1f"/></linearGradient></defs>' +
-    '<path d="M20 2l15.6 9v18L20 38 4.4 29V11z" fill="url(#lg)"/>' +
-    '<path d="M20 9c3.6 4.6 6 7.6 6 11a6 6 0 0 1-12 0c0-3.4 2.4-6.4 6-11z" fill="#1b1202" opacity=".88"/>' +
-    '<circle cx="18" cy="21" r="1.6" fill="#ffd166"/></svg>';
+    '<svg viewBox="0 0 40 40" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1d4ed8"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs>' +
+    '<rect x="2" y="2" width="36" height="36" rx="12" fill="url(#lg)"/>' +
+    '<g fill="#fff"><rect x="8.4" y="16" width="3.2" height="8" rx="1.6"/><rect x="13.7" y="11" width="3.2" height="18" rx="1.6"/><rect x="19" y="7" width="3.2" height="26" rx="1.6"/><rect x="24.3" y="13" width="3.2" height="14" rx="1.6"/><rect x="29.6" y="16" width="3.2" height="8" rx="1.6"/></g></svg>';
   return holder.content.firstChild;
 }
 

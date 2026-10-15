@@ -14,7 +14,7 @@ Items marked **TEAM** need information only the team has.
 
 **3. Brief about the idea**
 - India lost ₹22,495 crore to cyber fraud in 2025 (NCRP data). Scam calls such as "digital arrest", KYC and courier scams end in a payment to a *mule account*.
-- Honey Trap is an AI decoy that answers those calls in English, Hindi and Hinglish, wastes the scammer's time and catches the UPI ID or bank account they ask for, confirmed twice.
+- Mirage is an AI decoy that answers those calls in English, Hindi and Hinglish, wastes the scammer's time and catches the UPI ID or bank account they ask for, confirmed twice.
 - **Trap**: decoy call with live extraction. **Strain**: the captured script becomes a redacted card. **Vaccine**: that script becomes a consented practice call for a parent, who is stopped before sharing anything.
 - Why now: the RBI has published a *draft* SOP for suspected mule accounts (debit holds, proposed from 1 April 2027). Banks will need evidence leads.
 
@@ -24,7 +24,7 @@ Items marked **TEAM** need information only the team has.
 - USP: a decoy that turns each scam into protection for the next family.
 
 **5. Feature list**
-Live voice call (barge-in, old-phone sound), text chat, live dashboard (scam type with confidence and trigger phrases, script stage, confirmed vs heard details, reply speed), two-layer extraction with deterministic validators, stereo call recording with click-to-seek transcript, evidence pack (JSON and print to PDF), redacted strain cards, family drills with consent, bilingual parent page, recorded replay that needs no microphone, cost and abuse guards.
+Live voice call (barge-in, old-phone sound), text chat, live dashboard (scam type with confidence and trigger phrases, script stage, confirmed vs heard details, reply speed), two-layer extraction with deterministic validators, stereo call recording with click-to-seek transcript, evidence pack (JSON and print to PDF), redacted strain cards, family drills with consent, bilingual parent page, recorded replays (English and Hindi, about two minutes each) that need no microphone, cost and abuse guards.
 
 **6. Process flow**
 Scammer calls, decoy answers, live model calls `record_detail`, Flash verifier re-reads the transcript, validator accepts or rejects, detail becomes *confirmed*, call ends, recording and evidence saved, strain built, family drill created, parent practises, coach debrief. Use the Mermaid diagram in the README as the base.
@@ -66,7 +66,7 @@ Record the screen at 1080p. Narrate in English. If any Hindi is audible, add Eng
 | Time | Shot | Say |
 |---|---|---|
 | 0:00 to 0:20 | Home page hero, then the ₹22,495 crore stat counting up | "Indians lost ₹22,495 crore to cyber fraud in 2025. Every scam ends in a mule account. We built an AI decoy that waits for the scammer, and then fights back." |
-| 0:20 to 1:30 | Live call page. A teammate reads the Hinglish script aloud. Show the orb, the transcript, the UPI ID and bank account appearing, moving from "heard" to "confirmed" after Ramesh reads them back, the gauge reaching "Digital arrest" with trigger phrases. (If the microphone misbehaves, use the Replay page instead.) | "Ramesh, a worried 68-year-old, keeps the caller talking. He repeats every number back, so the caller says it again. A second AI pass and strict validators must both agree before a detail is confirmed." |
+| 0:20 to 1:30 | Live call page. A teammate reads the English or Hindi script aloud. Show the orb, the transcript, the UPI ID and bank account appearing, moving from "heard" to "confirmed" after Ramesh reads them back, the gauge reaching "Digital arrest" with trigger phrases. (If the microphone misbehaves, use the Replay page instead.) | "Ramesh, a worried 68-year-old, keeps the caller talking. He asks the questions a frightened person would and makes the caller repeat every number, so the caller says it again. A second AI pass and strict validators must both agree before a detail is confirmed." |
 | 1:30 to 2:00 | Call review: play the recording, click a transcript line, show the evidence pack and the disclaimer. Then the strain card, then the drill invitation and the parent's phone screen. | "Each call becomes an evidence pack for the bank, and a redacted strain. The strain becomes a practice call for a parent. The coach stops the moment she shares a detail." |
 | 2:00 to 2:30 | README evaluation tables | "Honest numbers: detection on a synthetic benchmark against a keyword baseline, three runs; extraction on planted tests; thirty hostile prompts against the persona." |
 | 2:30 to 2:45 | Architecture diagram, then the live URL | "Built on Gemini Live and Flash, Cloud Run, Firebase, Firestore and Vertex AI. Trap, Strain, Vaccine. Try it at honeytrap-aibc-2026.web.app." |

@@ -54,8 +54,8 @@ export function createAudioPlayer({ blob, callerLabel = "Caller", personaLabel =
     const laneHeight = height / 2 - 3;
     const barWidth = bins ? width / bins : 0;
     const lanes = [
-      { data: peaks && peaks[0], centre: height * 0.25, bright: "#6fe3ff", dim: "rgba(111,227,255,.28)" },
-      { data: peaks && peaks[1], centre: height * 0.75, bright: "#ffb629", dim: "rgba(255,182,41,.28)" },
+      { data: peaks && peaks[0], centre: height * 0.25, bright: "#c3d0ee", dim: "rgba(195,208,238,.28)" },
+      { data: peaks && peaks[1], centre: height * 0.75, bright: "#5aa9ff", dim: "rgba(90,169,255,.3)" },
     ];
     for (const lane of lanes) {
       g.fillStyle = "rgba(255,255,255,.05)";

@@ -10,7 +10,7 @@ import statistics
 HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parent
 RESULTS = HERE / "results"
-REPLAY = ROOT / "frontend" / "public" / "replay" / "replay.json"
+REPLAYS = [ROOT / "frontend" / "public" / "replay" / name for name in ("replay-en.json", "replay-hi.json")]
 
 
 def load(name: str):
@@ -117,10 +117,13 @@ def redteam_section(data) -> str:
 
 
 def latency_section() -> str:
-    if not REPLAY.exists():
-        return ""
-    events = json.loads(REPLAY.read_text(encoding="utf-8"))["events"]
-    values = [e["ms"] for e in events if e.get("type") == "latency"]
+    values = [
+        e["ms"]
+        for path in REPLAYS
+        if path.exists()
+        for e in json.loads(path.read_text(encoding="utf-8"))["events"]
+        if e.get("type") == "latency"
+    ]
     if not values:
         return ""
     ordered = sorted(values)
@@ -131,10 +134,36 @@ def latency_section() -> str:
             "",
             f"From the end of the caller's speech (measured in the client) to the first decoy audio: {len(values)} turns, "
             f"p50 {statistics.median(values) / 1000:.1f} s, p90 {p90 / 1000:.1f} s, range {min(values) / 1000:.1f} to {max(values) / 1000:.1f} s. "
-            "Only a handful of samples from one call, from India to a US-central voice model; not a benchmark.",
+            "Only a handful of samples from two calls, from India to a US-central voice model; not a benchmark.",
             "",
         ]
     )
+
+
+def variety_section(old, new) -> str:
+    if not old or not new:
+        return ""
+    rows = [
+        ("Replies that start with a different word", "distinct_opening_words"),
+        ("Most common opening word", "most_common_opener"),
+        ("Replies that open with a filler (arre, hmm, haan...)", "start_with_a_filler"),
+        ("Replies containing 'arre'", "contain_arre"),
+        ("Replies containing 'sahi hai'", "contain_sahi_hai"),
+        ("Replies that end with a question", "end_with_a_question"),
+        ("Words per reply", "words_per_reply"),
+    ]
+    lines = [
+        "### Decoy variety (does it sound scripted?)",
+        "",
+        f"The same four-line English scam script run through the decoy {new['calls']} times (text mode, so wording and structure only, "
+        "not the voice), before and after the persona was made dynamic. Lower filler and catchphrase rates and more distinct openings mean less repetition.",
+        "",
+        "| Measure | Before (fixed persona) | Now (per-call profile + director note) |",
+        "|---|---|---|",
+    ]
+    lines += [f"| {label} | {old['metrics'][key]} | {new['metrics'][key]} |" for label, key in rows]
+    lines += ["", "Single run per persona; replies lost to model timeouts are excluded.", ""]
+    return "\n".join(lines)
 
 
 def main() -> None:
@@ -142,6 +171,7 @@ def main() -> None:
         extraction_section(load("extraction.json")),
         detection_section(load("detection.json")),
         redteam_section(load("redteam.json")),
+        variety_section(load("variety-legacy.json"), load("variety-current.json")),
         latency_section(),
     ]
     body = "\n".join(s for s in sections if s).strip() + "\n"

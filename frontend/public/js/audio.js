@@ -163,7 +163,7 @@ export class Player {
   }
 }
 
-/** Radial-free bar visualiser: amber when the persona talks, cyan when the caller talks, gentle wave when idle. */
+/** Radial-free bar visualiser: blue when the persona talks, silver when the caller talks, gentle wave when idle. */
 export class Visualizer {
   constructor(canvas, { frequency, micLevel }) {
     this.canvas = canvas;
@@ -222,11 +222,11 @@ export class Visualizer {
       const y = (height - barHeight) / 2;
       const gradient = g.createLinearGradient(0, y, 0, y + barHeight);
       if (persona >= caller && persona > idle) {
-        gradient.addColorStop(0, "#ffd166");
-        gradient.addColorStop(1, "#ff8a1f");
+        gradient.addColorStop(0, "#8ec5ff");
+        gradient.addColorStop(1, "#2563eb");
       } else if (caller > idle) {
-        gradient.addColorStop(0, "#7be9ff");
-        gradient.addColorStop(1, "#4f8bff");
+        gradient.addColorStop(0, "#e3ebfa");
+        gradient.addColorStop(1, "#8fa3c8");
       } else {
         gradient.addColorStop(0, "rgba(255,255,255,.35)");
         gradient.addColorStop(1, "rgba(255,255,255,.12)");

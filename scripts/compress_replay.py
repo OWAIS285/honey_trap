@@ -1,10 +1,11 @@
-"""Shrink the recorded replay: stereo WAV -> MP3 (64 kbps), and point replay.json at the MP3.
+"""Shrink a recorded replay: stereo WAV -> MP3 (64 kbps), and point its JSON at the MP3.
 
-    python scripts/compress_replay.py            # uses frontend/public/replay/replay.wav
+    python scripts/compress_replay.py replay-en   # uses frontend/public/replay/replay-en.wav
 """
 
 import json
 import pathlib
+import sys
 import wave
 
 import lameenc
@@ -23,17 +24,17 @@ def wav_to_mp3(wav_path: pathlib.Path, mp3_path: pathlib.Path, kbps: int = 64) -
     mp3_path.write_bytes(encoder.encode(frames) + encoder.flush())
 
 
-def main() -> None:
-    wav_path = REPLAY / "replay.wav"
-    mp3_path = REPLAY / "replay.mp3"
+def main(name: str = "replay") -> None:
+    wav_path = REPLAY / f"{name}.wav"
+    mp3_path = REPLAY / f"{name}.mp3"
     wav_to_mp3(wav_path, mp3_path)
-    meta_path = REPLAY / "replay.json"
+    meta_path = REPLAY / f"{name}.json"
     meta = json.loads(meta_path.read_text(encoding="utf-8"))
-    meta["audio"] = "replay/replay.mp3"
+    meta["audio"] = f"replay/{name}.mp3"
     meta_path.write_text(json.dumps(meta, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(f"{wav_path.stat().st_size / 1e6:.1f} MB wav -> {mp3_path.stat().st_size / 1e6:.2f} MB mp3")
     wav_path.unlink()
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1] if len(sys.argv) > 1 else "replay")

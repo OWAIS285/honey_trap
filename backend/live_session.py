@@ -28,6 +28,7 @@ class LiveSession:
         max_seconds: int,
         opening_cue: str | None = None,
         grace_seconds: int = 0,
+        temperature: float | None = None,
     ) -> None:
         self.ws = ws
         self.handler = handler
@@ -37,6 +38,7 @@ class LiveSession:
         self.max_seconds = max_seconds
         self.opening_cue = opening_cue
         self.grace_seconds = grace_seconds
+        self.temperature = temperature
         self.session = None
         self.stop_reason = "ended"
         self.started = time.monotonic()
@@ -74,6 +76,7 @@ class LiveSession:
     def _config(self) -> types.LiveConnectConfig:
         return types.LiveConnectConfig(
             response_modalities=["AUDIO"],
+            temperature=self.temperature,
             speech_config=types.SpeechConfig(
                 voice_config=types.VoiceConfig(prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=self.voice)),
                 language_code=config.LANGUAGE_CODE,
@@ -207,7 +210,7 @@ class LiveSession:
                         name=call.name,
                         response=result,
                         scheduling=(
-                            types.FunctionResponseScheduling.WHEN_IDLE
+                            types.FunctionResponseScheduling.SILENT
                             if quiet
                             else types.FunctionResponseScheduling.INTERRUPT
                         ),

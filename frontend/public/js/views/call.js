@@ -6,6 +6,7 @@ import { strainCard } from "../components.js";
 import { createDashboard } from "../dashboard.js";
 import { scriptPanel } from "../scripts.js";
 import { CallSession } from "../session.js";
+import { setEnergy } from "../fx.js";
 import { fmtClock, fmtDuration, h, icon, toast } from "../util.js";
 
 export function CallView({ mode }) {
@@ -91,6 +92,7 @@ export function CallView({ mode }) {
     const target = session ? Math.max(session.personaLevel(), session.micLevel() * 0.8) : 0;
     level += (target - level) * 0.3;
     orb.style.setProperty("--level", level.toFixed(3));
+    setEnergy(level * 1.4);
     raf = requestAnimationFrame(frame);
   };
   frame();
@@ -294,6 +296,7 @@ export function CallView({ mode }) {
     el: wrap,
     destroy() {
       cancelAnimationFrame(raf);
+      setEnergy(0);
       stopTimer();
       viz?.stop();
       dash.stopClock();

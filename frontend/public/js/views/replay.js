@@ -3,12 +3,17 @@
 import { errorState, strainCard } from "../components.js";
 import { createDashboard } from "../dashboard.js";
 import { createAudioPlayer } from "../player.js";
+import { setEnergy } from "../fx.js";
 import { DETAIL_META, fmtClock, h, icon, scamLabel } from "../util.js";
 
-const REPLAY_URL = "replay/replay.json";
+const REPLAYS = {
+  en: { url: "replay/replay-en.json", label: "English" },
+  hi: { url: "replay/replay-hi.json", label: "हिन्दी · Hinglish" },
+};
 
-export function ReplayView() {
-  const dash = createDashboard({ callerLabel: "Scammer (scripted)", personaLabel: "Ramesh (AI decoy)" });
+export function ReplayView({ lang } = {}) {
+  const which = REPLAYS[lang] ? lang : "en";
+  const dash = createDashboard({ callerLabel: "Scammer (AI actor)", personaLabel: "Ramesh (AI decoy)" });
   const strainSlot = h("div", { class: "slot" });
   const left = h("div", { class: "call-left" });
   const el = h("div", { class: "call-page replay", "data-state": "idle" }, left, dash.el);
@@ -23,7 +28,7 @@ export function ReplayView() {
   async function load() {
     let data;
     try {
-      const response = await fetch(REPLAY_URL, { cache: "no-cache" });
+      const response = await fetch(REPLAYS[which].url, { cache: "no-cache" });
       if (!response.ok) throw new Error("missing");
       data = await response.json();
     } catch {
@@ -67,6 +72,7 @@ export function ReplayView() {
       }
       lastT = t;
       dash.setClock(t);
+      setEnergy(player && !player.audio.paused ? 0.55 : 0);
     };
 
     const highlights = [];
@@ -89,7 +95,7 @@ export function ReplayView() {
       { class: "replay-head" },
       h("span", { class: "tag" }, "Recorded demo"),
       h("h2", {}, data.title || "Digital-arrest call, recorded"),
-      h("p", { class: "muted" }, data.description || "A fictional scammer reads a script. Ramesh answers live. Everything on the right was produced by the real pipeline while this call happened."),
+      h("p", { class: "muted" }, data.description || "A fictional AI scammer phones the decoy. Ramesh answers live. Everything on the right was produced by the real pipeline while this call happened."),
     );
     const chips = h(
       "div",
@@ -119,9 +125,21 @@ export function ReplayView() {
   }
 
   return {
-    el,
+    el: h(
+      "div",
+      { class: "replay-wrap" },
+      h(
+        "div",
+        { class: "seg replay-langs", role: "tablist", "aria-label": "Replay language" },
+        Object.entries(REPLAYS).map(([id, item]) =>
+          h("a", { class: `seg-item ${id === which ? "active" : ""}`, href: id === "en" ? "#/replay" : `#/replay/${id}`, role: "tab", "aria-selected": String(id === which), lang: id === "hi" ? "hi" : "en" }, icon("globe"), item.label),
+        ),
+      ),
+      el,
+    ),
     destroy() {
       destroyed = true;
+      setEnergy(0);
       player?.destroy();
     },
   };
