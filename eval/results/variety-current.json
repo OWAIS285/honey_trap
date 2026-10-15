@@ -2,20 +2,20 @@
  "persona": "current",
  "calls": 10,
  "metrics": {
-  "replies": 50,
-  "distinct_opening_words": "20 (40% of replies)",
-  "most_common_opener": "'hello' in 16% of replies",
+  "replies": 49,
+  "distinct_opening_words": "18 (37% of replies)",
+  "most_common_opener": "'illegal' in 14% of replies",
   "start_with_a_filler": "0%",
   "contain_arre": "0%",
   "contain_sahi_hai": "0%",
-  "end_with_a_question": "38%",
-  "words_per_reply": "mean 18.4, stdev 10.6, min 4, max 48"
+  "end_with_a_question": "47%",
+  "words_per_reply": "mean 15.5, stdev 9.0, min 2, max 42"
  },
  "first_call": [
-  "Hello, yes? Who is speaking, please?",
-  "CBI... I... I don't understand, what parcel could this be...",
-  "Arrest warrant... Fifty thousand? Sir, what is your name and badge number, please... where must this go...",
-  "Rahul dot sharma at... okaxis? Sir, my phone is opening the screen, but it is asking some six-digit number on a blue page that I do not know...",
-  "Wait, let me write... one two three, four five six, seven eight nine, zero one two... and IFSC S B I N zero zero zero one two three four... The passbook is kept at my son's house, sir, I am very confused how to send from the counter..."
+  "Hello? Yes, who is it?",
+  "Please wait, finding pen... illegal?",
+  "Sir, fifty thousand... arrest warrant? But which police station, officer? My pension only arrives on the first. Where would I send it?",
+  "Let me write... rahul dot sharma at... did you say okaxis or okicici, sir?",
+  "I am not sure I should do this without asking at the local station first. Still, if you insist... SBIN zero zero zero one two three four..."
  ]
 }

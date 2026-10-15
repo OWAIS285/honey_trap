@@ -8,7 +8,7 @@ import { DETAIL_META, fmtClock, h, icon, scamLabel } from "../util.js";
 
 const REPLAYS = {
   en: { url: "replay/replay-en.json", label: "English" },
-  hi: { url: "replay/replay-hi.json", label: "हिन्दी · Hinglish" },
+  hi: { url: "replay/replay-hi.json", label: "हिन्दी" },
 };
 
 export function ReplayView({ lang } = {}) {
