@@ -6,7 +6,7 @@ to build or tune the decoy persona or the family-drill scripts. Run `python eval
     python eval/detection_eval.py --runs 3 --static-per-domain 28 --stream-per-domain 8
 
 What is measured (all on the SYNTHETIC test split, which is 99.5% fraud, so specificity rests on only 12 legitimate calls):
-  1. static: is the whole call flagged as a scam (any type except not_scam)?
+  1. static: is the whole call flagged as a scam (any type except not_scam and undetermined)?
   2. plausible type: does the predicted scam type fit the call's ICFD domain (mapping below is ours)?
   3. streaming: after how many seconds of the call does the classifier flag it, compared with the dataset's own
      chunk labels?
@@ -134,7 +134,7 @@ async def streaming_run(sample: list[dict], sem: asyncio.Semaphore, latencies: l
                 kw_found = turn["t"]
             if found is None:
                 res = await classify(prefix, sem, latencies)
-                if res and res.scam_type != "not_scam" and res.confidence >= 0.7:
+                if res and res.scam_type not in analysis.NON_SCAM and res.confidence >= 0.7:
                     found = turn["t"]
             if found is not None and kw_found is not None:
                 break
@@ -179,8 +179,8 @@ async def main() -> None:
     for i in range(args.runs):
         out = await static_run(sample, sem, latencies)
         ok = [o for o in out if not o["error"]]
-        m = metrics([(o["fraud"], o["type"] != "not_scam") for o in ok])
-        plausible = [o["type"] in PLAUSIBLE[o["domain"]] for o in ok if o["fraud"] and o["type"] != "not_scam"]
+        m = metrics([(o["fraud"], o["type"] not in analysis.NON_SCAM) for o in ok])
+        plausible = [o["type"] in PLAUSIBLE[o["domain"]] for o in ok if o["fraud"] and o["type"] not in analysis.NON_SCAM]
         m["errors"] = len(out) - len(ok)
         m["plausible_type_rate"] = round(sum(plausible) / len(plausible), 3) if plausible else None
         runs.append({"metrics": m, "predictions": out})

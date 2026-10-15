@@ -32,7 +32,12 @@ TAXONOMY = [
     "loan_app",
     "other_scam",
     "not_scam",
+    "undetermined",
 ]
+NON_SCAM = ("not_scam", "undetermined")
+# Below this a scam verdict is not shown; with no quoted caller words it must be very sure.
+SCAM_CONFIDENCE_FLOOR = 0.6
+SCAM_CONFIDENCE_UNQUOTED = 0.85
 
 DISCLAIMER = (
     "Details were stated by an unverified caller during an automated decoy call and may be mis-heard or belong to "
@@ -71,14 +76,38 @@ class StrainCard(BaseModel):
     language: str = Field(description="english, hindi or hinglish")
 
 
-VERIFIER_PROMPT = f"""You analyse a phone call between a CALLER (a suspected scammer) and a PERSONA (a decoy elderly man).
+VERIFIER_PROMPT = f"""You review a phone call between a CALLER and a PERSONA (an elderly man who picked up).
+The CALLER is an unknown person. Most callers are ordinary and a few are scammers, so do not assume a scam.
 Only the CALLER's words count as evidence.
+
+A call is a SCAM only when the caller is trying to get money, credentials or control of the person's phone or
+accounts through deception or pressure. Typical behaviours:
+- fear or urgency: arrest, a blocked account or SIM, legal action, a deadline
+- pretending to be an authority (police, CBI, bank, TRAI, courier, electricity board) and demanding action
+- secrecy or isolation: 'tell nobody', 'stay on the line'
+- asking for money, a fee, a deposit, a transfer to a personal account or UPI ID, or a payment for a prize, refund,
+  job, loan or investment
+- asking for an OTP, PIN, CVV, password or full card number, or asking to install a remote-access app or APK, or
+  to click a link
+
+A call is NOT a scam (not_scam) when it is ordinary: a wrong number, a friend or family member, a genuine delivery or
+appointment, a survey, a shopkeeper or neighbour, small talk, simple questions about the person (name, area, phone
+number, bank, account number, the time, general knowledge), or a mention of a bank, account or phone number that
+carries no pressure and asks for no secret and no money. A name, city, phone number, bank name or account number is
+never a scam signal by itself, and neither is one word such as 'bank', 'UPI' or 'police'. Judge the pattern of
+behaviour over the whole call, not a single keyword.
+
+If there is too little to judge (a greeting, a few neutral lines) answer undetermined with low confidence. Never
+guess 'scam' to be safe: a false scam alert on a genuine caller is a serious error. When the call is clearly
+ordinary answer not_scam.
+
 Return JSON with:
 - scam_type: one of {', '.join(TAXONOMY)}
-- confidence: 0 to 1
-- trigger_phrases: up to 4 short phrases copied EXACTLY from the CALLER's words that show the scam type
+- confidence: 0 to 1, how sure you are of that scam_type (for not_scam, how sure you are the call is harmless)
+- trigger_phrases: for a scam only, up to 4 short phrases copied EXACTLY from the CALLER's words that show it;
+  an empty list otherwise
 - impersonated_entity: the organisation the caller claims to be, or an empty string
-- stage: the current stage, one of {', '.join(STAGES)}
+- stage: the current stage of a scam, one of {', '.join(STAGES)} (use hook when it is not a scam)
 - details: every detail the CALLER stated. type is one of {', '.join(DETAIL_TYPES)}. value is the detail written
   normally (digits as digits, UPI ID as name@handle, spoken numbers converted). raw_utterance is the caller's exact
   words containing it.
@@ -273,6 +302,30 @@ async def to_english(client, text: str) -> str | None:
     return english if english and not _DEVANAGARI.search(english) else None
 
 
+def settle_verdict(result: VerifierResult, caller_text: str) -> VerifierResult:
+    """Clean the model's verdict. A scam label has to be backed by confidence and, usually, quoted caller words."""
+    if result.scam_type not in TAXONOMY:
+        result.scam_type = "other_scam"
+    result.confidence = max(0.0, min(1.0, result.confidence))
+    haystack = re.sub(r"\s+", " ", caller_text.lower())
+    result.trigger_phrases = [
+        p.strip() for p in result.trigger_phrases if p.strip() and re.sub(r"\s+", " ", p.strip().lower()) in haystack
+    ][:4]
+    if result.scam_type not in NON_SCAM and (
+        result.confidence < SCAM_CONFIDENCE_FLOOR
+        or (not result.trigger_phrases and result.confidence < SCAM_CONFIDENCE_UNQUOTED)
+    ):
+        result.scam_type = "undetermined"
+        result.confidence = min(result.confidence, 0.4)
+    if result.scam_type in NON_SCAM:
+        result.trigger_phrases = []
+        result.impersonated_entity = ""
+        result.stage = ""
+    elif result.stage not in STAGES:
+        result.stage = "hook"
+    return result
+
+
 async def verify(client, turns: list[dict]) -> VerifierResult | None:
     """Second, independent extraction layer: Gemini Flash over the recent turns with a strict JSON schema."""
     if not any(t["speaker"] == "caller" for t in turns):
@@ -280,7 +333,7 @@ async def verify(client, turns: list[dict]) -> VerifierResult | None:
     try:
         response = await flash(
             client,
-            contents=VERIFIER_PROMPT + "\n\nTRANSCRIPT:\n" + _transcript(turns, 10),
+            contents=VERIFIER_PROMPT + "\n\nTRANSCRIPT:\n" + _transcript(turns, 16),
             cfg=types.GenerateContentConfig(
                 response_mime_type="application/json",
                 response_schema=VerifierResult,
@@ -292,17 +345,7 @@ async def verify(client, turns: list[dict]) -> VerifierResult | None:
     except Exception:  # noqa: BLE001 - the call must continue if the verifier fails
         log.exception("verifier failed")
         return None
-    if result.scam_type not in TAXONOMY:
-        result.scam_type = "other_scam"
-    if result.stage not in STAGES:
-        result.stage = "hook"
-    result.confidence = max(0.0, min(1.0, result.confidence))
-    caller_text = " ".join(t["text"] for t in turns if t["speaker"] == "caller").lower()
-    result.trigger_phrases = [
-        p.strip() for p in result.trigger_phrases if p.strip() and re.sub(r"\s+", " ", p.strip().lower()) in
-        re.sub(r"\s+", " ", caller_text)
-    ][:4]
-    return result
+    return settle_verdict(result, " ".join(t["text"] for t in turns if t["speaker"] == "caller"))
 
 
 async def build_strain(client, turns: list[dict], scam_type: str) -> dict | None:
@@ -312,7 +355,8 @@ async def build_strain(client, turns: list[dict], scam_type: str) -> dict | None
     try:
         response = await flash(
             client,
-            contents=STRAIN_PROMPT.format(taxonomy=", ".join(TAXONOMY)) + "\n\nTRANSCRIPT:\n" + _transcript(turns, 40),
+            contents=STRAIN_PROMPT.format(taxonomy=", ".join(t for t in TAXONOMY if t not in NON_SCAM))
+            + "\n\nTRANSCRIPT:\n" + _transcript(turns, 40),
             cfg=types.GenerateContentConfig(
                 response_mime_type="application/json",
                 response_schema=StrainCard,
@@ -327,7 +371,7 @@ async def build_strain(client, turns: list[dict], scam_type: str) -> dict | None
     flags = [f.strip() for f in card.red_flags if f.strip()][:3]
     flags += [f for f in DEFAULT_RED_FLAGS if f not in flags][: 3 - len(flags)]
     return {
-        "scamType": card.scam_type if card.scam_type in TAXONOMY else scam_type,
+        "scamType": card.scam_type if card.scam_type in TAXONOMY and card.scam_type not in NON_SCAM else scam_type,
         "impersonatedEntity": card.impersonated_entity,
         "steps": [s.strip() for s in card.steps if s.strip()][:6],
         "redFlags": flags,

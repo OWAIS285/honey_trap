@@ -1,7 +1,7 @@
 // Family drills: create an invitation, list drills, and read a drill report.
 
 import { api } from "../api.js";
-import { emptyState, errorState, pageHeader, skeletons, strainCard } from "../components.js";
+import { backLink, emptyState, errorState, pageHeader, skeletons, strainCard } from "../components.js";
 import { copyText, fmtDate, h, icon, observeReveal, scamLabel, toast } from "../util.js";
 
 export const inviteLink = (drillId, key) => `${location.origin}${location.pathname}#/join/${drillId}/${key}`;
@@ -142,14 +142,15 @@ export function DrillsView() {
 }
 
 export function DrillReportView({ id }) {
-  const el = h("div", { class: "page narrow" }, pageHeader("Drill report", "Loading…"), skeletons(1));
+  const back = backLink("#/drills", "All drills");
+  const el = h("div", { class: "page narrow" }, back, pageHeader("Drill report", "Loading…"), skeletons(1));
 
   async function load() {
     let data;
     try {
       data = await api.drill(id);
     } catch (err) {
-      el.replaceChildren(pageHeader("Drill report"), errorState(err.status === 404 ? "This drill was not found in this browser." : err.message, err.status === 404 ? null : load));
+      el.replaceChildren(back, pageHeader("Drill report"), errorState(err.status === 404 ? "This drill was not found in this browser." : err.message, err.status === 404 ? null : load));
       return;
     }
     const { drill, strain } = data;
@@ -168,13 +169,16 @@ export function DrillReportView({ id }) {
       ),
     );
     el.replaceChildren(
-      pageHeader(`Drill for ${drill.parentName}`, `${drill.familyName} · created ${fmtDate(drill.createdAt)}`),
-      banner,
-      !drill.outcome || drill.outcome === "aborted"
-        ? h("section", { class: "card linkcard" }, h("div", { class: "card-h" }, icon("link"), "Invitation link"), h("div", { class: "linkbox" }, h("code", {}, link)), h("button", { class: "btn primary", type: "button", onClick: () => copyText(link) }, icon("copy"), "Copy the link"))
-        : null,
-      drill.debriefText ? h("section", { class: "card" }, h("div", { class: "card-h" }, icon("heart"), "What the coach told them"), h("p", { class: "debrief" }, drill.debriefText)) : null,
-      strain ? h("div", { class: "section-gap" }, strainCard(strain, { compact: true })) : null,
+      ...[
+        back,
+        pageHeader(`Drill for ${drill.parentName}`, `${drill.familyName} · created ${fmtDate(drill.createdAt)}`),
+        banner,
+        !drill.outcome || drill.outcome === "aborted"
+          ? h("section", { class: "card linkcard" }, h("div", { class: "card-h" }, icon("link"), "Invitation link"), h("div", { class: "linkbox" }, h("code", {}, link)), h("button", { class: "btn primary", type: "button", onClick: () => copyText(link) }, icon("copy"), "Copy the link"))
+          : null,
+        drill.debriefText ? h("section", { class: "card" }, h("div", { class: "card-h" }, icon("heart"), "What the coach told them"), h("p", { class: "debrief" }, drill.debriefText)) : null,
+        strain ? h("div", { class: "section-gap" }, strainCard(strain, { compact: true })) : null,
+      ].filter(Boolean),
     );
     observeReveal(el);
   }

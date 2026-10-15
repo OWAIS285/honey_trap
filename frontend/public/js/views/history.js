@@ -3,25 +3,20 @@ import { emptyState, errorState, pageHeader, skeletons } from "../components.js"
 import { fmtDate, fmtDuration, h, icon, observeReveal, scamLabel } from "../util.js";
 
 export function HistoryView() {
-  const el = h("div", { class: "page" }, pageHeader("Your calls", "Every call from this browser. Recordings are kept privately for 14 days."), skeletons(3));
+  const el = h("div", { class: "page" }, pageHeader("History", "Every call from this browser. Recordings are kept privately for 14 days."), skeletons(3));
 
   async function load() {
     let calls;
     try {
       ({ calls } = await api.calls());
     } catch (err) {
-      el.replaceChildren(pageHeader("Your calls"), errorState(err.message, load));
+      el.replaceChildren(pageHeader("History"), errorState(err.message, load));
       return;
     }
     if (!calls.length) {
       el.replaceChildren(
-        pageHeader("Your calls", "Every call from this browser. Recordings are kept privately for 14 days."),
-        emptyState({
-          iconName: "phone",
-          title: "No calls yet",
-          text: "Take a live call or a text chat and it will show up here, with the recording, transcript and evidence pack.",
-          action: h("div", { class: "cta-row center" }, h("a", { class: "btn primary", href: "#/call" }, icon("phone"), "Take a live call"), h("a", { class: "btn", href: "#/replay" }, icon("play"), "Watch a replay")),
-        }),
+        pageHeader("History", "Every call from this browser. Recordings are kept privately for 14 days."),
+        emptyState({ iconName: "clock", title: "No calls yet", text: "Calls and text chats you take will show up here, with the recording, transcript and evidence pack." }),
       );
       observeReveal(el);
       return;
@@ -50,7 +45,7 @@ export function HistoryView() {
         ),
       );
     });
-    el.replaceChildren(pageHeader("Your calls", `${calls.length} call${calls.length === 1 ? "" : "s"} from this browser. Recordings are kept privately for 14 days.`), h("div", { class: "grid cards" }, cards));
+    el.replaceChildren(pageHeader("History", `${calls.length} call${calls.length === 1 ? "" : "s"} from this browser. Recordings are kept privately for 14 days.`), h("div", { class: "grid cards" }, cards));
     observeReveal(el);
   }
   load();

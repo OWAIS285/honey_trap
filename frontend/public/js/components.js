@@ -15,6 +15,10 @@ export function emptyState({ iconName = "shield", title, text, action }) {
   return h("div", { class: "empty card reveal" }, h("div", { class: "empty-i" }, icon(iconName)), h("h3", {}, title), h("p", { class: "muted" }, text), action || null);
 }
 
+export function backLink(href, label) {
+  return h("a", { class: "back-link no-print", href }, icon("back"), label);
+}
+
 export function skeletons(count = 3) {
   return h("div", { class: "grid skeleton-grid" }, Array.from({ length: count }, () => h("div", { class: "card skeleton" }, h("i"), h("i"), h("i"))));
 }

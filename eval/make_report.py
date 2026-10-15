@@ -41,7 +41,7 @@ def detection_section(data) -> str:
         "### Scam detection on ICFD-31k (synthetic)",
         "",
         f"Sample: {s['sample']['static']} calls from the ICFD-31k test split ({s['sample']['legitimate_calls']} legitimate, the rest fraud across 5 domains), "
-        f"{len(runs)} runs of the classifier. Flagged = predicted any scam type except `not_scam`.",
+        f"{len(runs)} runs of the classifier. Flagged = predicted any scam type except `not_scam` and `undetermined`.",
         "",
         "| Method | Recall (fraud caught) | Precision | F1 | Specificity | Range over runs (F1) |",
         "|---|---|---|---|---|---|",

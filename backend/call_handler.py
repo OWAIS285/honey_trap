@@ -282,18 +282,26 @@ class CallHandler:
         for item in result.details:
             await self._upsert(item.type, item.value, "verifier", quote=item.raw_utterance,
                                turn=self._find_turn(item.raw_utterance or item.value))
-        # A call that first looked harmless may turn into a scam once the caller actually speaks.
+        # The latest verdict sees the most of the call. A scam label is only withdrawn by a confident 'not_scam',
+        # and a quiet 'undetermined' never overrides it.
         current = self.classification
-        stable = current["scamType"] == result.scam_type
-        turned_scam = current["scamType"] == "not_scam" and result.scam_type != "not_scam"
-        if current["scamType"] is None or stable or turned_scam or result.confidence > current["confidence"] + 0.02:
+        previous = current["scamType"]
+        was_scam = previous not in (None, *analysis.NON_SCAM)
+        is_scam = result.scam_type not in analysis.NON_SCAM
+        if was_scam and not is_scam:
+            accept = result.scam_type == "not_scam" and result.confidence >= 0.85
+        elif was_scam:
+            accept = previous == result.scam_type or result.confidence > current["confidence"] + 0.02
+        else:
+            accept = True
+        if accept:
             current.update(
                 scamType=result.scam_type,
                 confidence=round(result.confidence, 2),
                 triggerPhrases=result.trigger_phrases,
                 impersonatedEntity=result.impersonated_entity,
             )
-        if result.stage:
+        if result.stage and is_scam:
             current["stage"] = result.stage
         await self._emit({"type": "classification", **current})
         self._spawn(
@@ -339,11 +347,15 @@ class CallHandler:
                 recording = {"path": path, "bytes": len(wav), "durationSec": round(self.recorder.duration_sec(), 1)}
 
         strain = None
-        try:
-            card = await asyncio.wait_for(strain_task, 50)
-        except Exception:  # noqa: BLE001
-            log.warning("strain card was not ready in time")
+        if self.classification["scamType"] in (None, *analysis.NON_SCAM):
+            strain_task.cancel()
             card = None
+        else:
+            try:
+                card = await asyncio.wait_for(strain_task, 50)
+            except Exception:  # noqa: BLE001
+                log.warning("strain card was not ready in time")
+                card = None
         if card:
             card["scamType"] = self.classification["scamType"] or card["scamType"]
             strain = {**card, "strainId": f"s{secrets.token_hex(5)}", "sourceCallId": self.call_id,
