@@ -48,6 +48,7 @@ GAP_AFTER_SCAMMER = 0.8  # the decoy's "thinking" pause (the real measured delay
 TAIL = 2.5  # room at the end for the evidence summary events
 QUIET = 3.5  # seconds without decoy audio that count as "the decoy has finished speaking"
 MIN_EXCHANGES = 4  # the payment details are all given by the fourth scammer turn
+ENGLISH_NOTE = " The spoken Hindi is shown as an English transcript."
 
 # The facts the scammer uses, in the form a person would say them aloud. The model only ever sees the {TOKENS}.
 LANGS = {
@@ -490,6 +491,33 @@ async def normalise_hindi(rec: dict) -> None:
     events[:] = [e for e in events if id(e) not in drop]
 
 
+async def english_display(events: list[dict]) -> int:
+    """Show Hindi transcript lines in English (the original stays in textOriginal); streamed partials are rebuilt from it."""
+    groups: list[tuple[list[dict], dict]] = []
+    open_partials: dict[str, list[dict]] = {}
+    for event in sorted(events, key=lambda e: e["t"]):
+        if event["type"] != "transcript":
+            continue
+        if event.get("final"):
+            groups.append((open_partials.pop(event["speaker"], []), event))
+        else:
+            open_partials.setdefault(event["speaker"], []).append(event)
+    changed = 0
+    for partials, final in groups:
+        original = final.get("textOriginal") or final["text"]
+        if not analysis.needs_translation(original):
+            continue
+        english = await analysis.to_english(text_client(), original)
+        if not english:
+            raise SystemExit(f"could not translate: {original[:60]}")
+        words = english.split()
+        for i, partial in enumerate(partials, 1):
+            partial["text"] = " ".join(words[: max(1, round(len(words) * i / len(partials)))])
+        final["textOriginal"], final["text"] = original, english
+        changed += 1
+    return changed
+
+
 async def recover_ended(rec: dict) -> None:
     """If the call's final websocket message never arrived, rebuild it from what the backend stored for the call."""
     if any(e["type"] == "ended" and e.get("strain") for e in rec["events"]):
@@ -722,11 +750,21 @@ async def main() -> None:
     parser.add_argument("--max-sec", type=float, default=120.0)
     parser.add_argument("--attempts", type=int, default=3)
     parser.add_argument("--from-raw", action="store_true", help="re-assemble the last capture instead of recording again")
+    parser.add_argument("--english-only", action="store_true", help="only add English transcripts to the existing replay file")
     parser.add_argument("--raw-dir", default="", help="folder of the capture to re-assemble (default out/replay_raw/<lang>)")
     args = parser.parse_args()
     sys.stdout.reconfigure(encoding="utf-8")
 
     cfg = LANGS[args.lang]
+    if args.english_only:
+        path = pathlib.Path(args.out) / f"replay-{cfg['name']}.json"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        count = await english_display(payload["events"])
+        if count and ENGLISH_NOTE not in payload["description"]:
+            payload["description"] = payload["description"].replace(" Transcripts are shown in Devanagari.", "") + ENGLISH_NOTE
+        path.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        print(f"translated {count} transcript lines in {path.name}")
+        return
     raw_dir = pathlib.Path(args.raw_dir) if args.raw_dir else ROOT / "out" / "replay_raw" / args.lang
     lay = rec = None
     for attempt in range(1, args.attempts + 1):
@@ -748,6 +786,8 @@ async def main() -> None:
     out = pathlib.Path(args.out)
     name = f"replay-{cfg['name']}"
     events = remap_events(rec, lay, cfg)
+    if args.lang == "hindi":
+        await english_display(events)
     for event in events:
         event.pop("playToken", None)
     write_wav(out / f"{name}.wav", lay)
@@ -758,7 +798,7 @@ async def main() -> None:
         else ""
     )
     if args.lang == "hindi":
-        note += " Transcripts are shown in Devanagari."
+        note += ENGLISH_NOTE
     payload = {
         "version": 3,
         "title": cfg["title"],

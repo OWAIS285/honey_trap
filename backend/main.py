@@ -21,7 +21,7 @@ from text_session import TextSession
 ALLOWED_ORIGINS = config.ALLOWED_ORIGINS
 KILL_SWITCH = config.KILL_SWITCH
 
-app = FastAPI(title="honey-trap-api")
+app = FastAPI(title="stallwart-api")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS or ["*"],

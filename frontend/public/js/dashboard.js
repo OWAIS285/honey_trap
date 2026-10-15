@@ -226,8 +226,9 @@ export function createDashboard({ callerLabel = "Caller", personaLabel = "Ramesh
       transcriptEmpty.hidden = true;
       if (!ev.final) liveBubbles[speaker] = bubble;
     }
-    bubble.querySelector(".b-text").textContent = ev.text;
+    bubble.querySelector(".b-text").textContent = ev.translating && !ev.final ? "Translating to English…" : ev.text;
     bubble.classList.toggle("partial", !ev.final);
+    bubble.classList.toggle("translating", Boolean(ev.translating) && !ev.final);
     if (ev.final) {
       delete liveBubbles[speaker];
       if (ev.tSec != null) bubble.querySelector("time").textContent = ` · ${fmtClock(ev.tSec)}`;

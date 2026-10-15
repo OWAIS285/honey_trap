@@ -8,7 +8,7 @@ from functools import wraps
 
 import config
 
-log = logging.getLogger("honeytrap.store")
+log = logging.getLogger("stallwart.store")
 
 
 def owner_hash(client_id: str) -> str:

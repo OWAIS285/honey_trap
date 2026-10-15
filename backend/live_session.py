@@ -11,7 +11,7 @@ from google.genai import types
 import config
 from clients import live_client
 
-log = logging.getLogger("honeytrap.live")
+log = logging.getLogger("stallwart.live")
 
 
 class LiveSession:

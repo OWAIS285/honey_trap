@@ -161,10 +161,10 @@ export class CallSession {
     if (this.player?.isPlaying()) {
       this.speechMs = 0;
     } else if (rms > MIC_THRESHOLD) {
+      // A pause of 1.5 s or more starts a new burst, so stray noises do not add up; waiting for the reply must not reset it.
+      if (performance.now() - this.lastSpeechAt > 1500) this.speechMs = 0;
       this.speechMs += 40;
       this.lastSpeechAt = performance.now();
-    } else if (performance.now() - this.lastSpeechAt > 2500) {
-      this.speechMs = 0;
     }
   }
 

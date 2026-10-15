@@ -1,14 +1,14 @@
-# Mirage
+# Stallwart
 
 **An AI decoy that answers scam calls in English, Hindi and Hinglish, wastes the scammer's time, catches the UPI IDs and bank accounts they ask victims to pay, and turns every captured script into a practice call that protects the next family.**
 
-Built for the Google Cloud AI Builder Cup JAPAC 2026, BFSI theme (Intelligent Risk, Fraud and Financial Experiences). The product was renamed from its working title; the deployed URLs and Google Cloud resource ids keep the original `honeytrap` project id.
+Built for the Google Cloud AI Builder Cup JAPAC 2026, BFSI theme (Intelligent Risk, Fraud and Financial Experiences).
 
 | | |
 |---|---|
-| Live app | https://honeytrap-aibc-2026.web.app |
-| Watch without a microphone | https://honeytrap-aibc-2026.web.app/#/replay |
-| Backend health | https://honeytrap-api-378992821239.asia-south1.run.app/health |
+| Live app | https://stallwart.web.app |
+| Watch without a microphone | https://stallwart.web.app/#/replay |
+| Backend health | https://stallwart-api-378992821239.asia-south1.run.app/health |
 
 All names, numbers, UPI IDs and accounts in the demo are **fictional**. This is a prototype: a browser stands in for a phone line (see [Limitations](#limitations)).
 
@@ -104,8 +104,9 @@ Deploy (needs a Google Cloud project with billing; see the scripts for the exact
 ```powershell
 .\scripts\setup_gcp.ps1 -ProjectId <project>
 .\scripts\setup_storage.ps1 -ProjectId <project>
-.\scripts\deploy_backend.ps1 -ProjectId <project> -AllowedOrigins https://<project>.web.app
-firebase deploy --only hosting,firestore --project <project>
+.\scripts\deploy_backend.ps1 -ProjectId <project> -AllowedOrigins https://stallwart.web.app
+firebase use <project>     # writes .firebaserc (git-ignored); hosting site id is set in firebase.json
+firebase deploy --only hosting,firestore
 ```
 
 Useful scripts: `scripts/sim_call.py` (typed or silent-mic simulated caller), `scripts/sim_drill.py` (drill scenarios), `scripts/make_replay.py` (records the English or Hindi replay: an AI scammer talks to the real decoy, then the audio is assembled turn by turn so voices never overlap and the length lands between 1:45 and 2:00), `eval/variety_eval.py` (how repetitive the decoy is), `scripts/stop_billing.ps1`.

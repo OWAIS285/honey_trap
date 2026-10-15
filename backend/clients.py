@@ -9,7 +9,7 @@ from google.genai import types
 
 import config
 
-log = logging.getLogger("honeytrap.clients")
+log = logging.getLogger("stallwart.clients")
 
 
 @lru_cache
@@ -29,11 +29,11 @@ def text_client() -> genai.Client:
     return _client(config.TEXT_LOCATION, 20000)
 
 
-async def flash(client, *, contents, cfg, attempts: int = 2):
+async def flash(client, *, contents, cfg, attempts: int = 2, model: str | None = None):
     """One Flash request, retried with a short backoff on timeouts, 429s and 5xx. Raises the last error."""
     for attempt in range(attempts):
         try:
-            return await client.aio.models.generate_content(model=config.FLASH_MODEL, contents=contents, config=cfg)
+            return await client.aio.models.generate_content(model=model or config.FLASH_MODEL, contents=contents, config=cfg)
         except Exception as exc:  # noqa: BLE001
             if attempt == attempts - 1:
                 raise

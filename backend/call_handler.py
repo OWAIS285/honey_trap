@@ -13,7 +13,7 @@ from clients import text_client
 from recorder import CallRecorder
 from store import clean, owner_hash, store
 
-log = logging.getLogger("honeytrap.call")
+log = logging.getLogger("stallwart.call")
 
 _STAGE_DIRECTION = re.compile(r"\*[^*]*(\*|$)")
 
@@ -123,18 +123,22 @@ class CallHandler:
 
     async def on_caller_text(self, fragment: str) -> None:
         self.pending_caller += fragment
+        text = " ".join(self.pending_caller.split())
+        foreign = analysis.needs_translation(text)
         await self._emit(
-            {"type": "transcript", "speaker": "caller", "text": " ".join(self.pending_caller.split()),
-             "turn": len(self.turns) + 1, "final": False}
+            {"type": "transcript", "speaker": "caller", "text": "" if foreign else text,
+             "turn": len(self.turns) + 1, "final": False, "translating": foreign}
         )
 
     async def on_persona_text(self, fragment: str) -> None:
         if self.pending_caller:
             await self._flush_caller()
         self.pending_persona += fragment
+        text = strip_stage_directions(self.pending_persona)
+        foreign = analysis.needs_translation(text)
         await self._emit(
-            {"type": "transcript", "speaker": "persona", "text": strip_stage_directions(self.pending_persona),
-             "turn": len(self.turns) + 1, "final": False}
+            {"type": "transcript", "speaker": "persona", "text": "" if foreign else text,
+             "turn": len(self.turns) + 1, "final": False, "translating": foreign}
         )
 
     async def on_persona_audio(self, pcm: bytes) -> None:
@@ -178,22 +182,42 @@ class CallHandler:
 
     # ----- turns -----
 
-    def _add_turn(self, speaker: str, text: str) -> dict:
+    def _add_turn(self, speaker: str, text: str, persist: bool = True) -> dict:
         turn = {"n": len(self.turns) + 1, "speaker": speaker, "text": text, "tSec": self.t()}
         self.turns.append(turn)
-        self._spawn(store.put(f"calls/{self.call_id}/turns/{turn['n']:04d}", turn))
+        if persist:
+            self._spawn(store.put(f"calls/{self.call_id}/turns/{turn['n']:04d}", turn))
         return turn
+
+    async def _final_line(self, speaker: str, text: str) -> dict:
+        """Record a finished turn; Hindi and Hinglish lines reach the screen in English, a moment later."""
+        foreign = analysis.needs_translation(text)
+        turn = self._add_turn(speaker, text, persist=not foreign)
+        if foreign:
+            self._spawn(self._translate_and_emit(turn))
+        else:
+            await self._emit(
+                {"type": "transcript", "speaker": speaker, "text": text, "turn": turn["n"], "final": True,
+                 "tSec": turn["tSec"]}
+            )
+        return turn
+
+    async def _translate_and_emit(self, turn: dict) -> None:
+        english = await analysis.to_english(text_client(), turn["text"])
+        if english:
+            turn["textEn"] = english
+        await self._emit(
+            {"type": "transcript", "speaker": turn["speaker"], "text": english or turn["text"], "turn": turn["n"],
+             "final": True, "tSec": turn["tSec"]}
+        )
+        await store.put(f"calls/{self.call_id}/turns/{turn['n']:04d}", turn)
 
     async def _flush_caller(self) -> None:
         text = " ".join(self.pending_caller.split())
         self.pending_caller = ""
         if not text:
             return
-        turn = self._add_turn("caller", text)
-        await self._emit(
-            {"type": "transcript", "speaker": "caller", "text": text, "turn": turn["n"], "final": True,
-             "tSec": turn["tSec"]}
-        )
+        await self._final_line("caller", text)
         self._schedule_verify()
 
     async def _flush_persona(self) -> None:
@@ -201,11 +225,7 @@ class CallHandler:
         self.pending_persona = ""
         if not text:
             return
-        turn = self._add_turn("persona", text)
-        await self._emit(
-            {"type": "transcript", "speaker": "persona", "text": text, "turn": turn["n"], "final": True,
-             "tSec": turn["tSec"]}
-        )
+        await self._final_line("persona", text)
 
     def _last_caller_turn(self) -> int | None:
         for turn in reversed(self.turns):

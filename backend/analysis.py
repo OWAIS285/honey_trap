@@ -16,7 +16,7 @@ from normalizer import normalize_digits
 from persona import DETAIL_TYPES, STAGES
 from validators import validate_detail
 
-log = logging.getLogger("honeytrap.analysis")
+log = logging.getLogger("stallwart.analysis")
 
 TAXONOMY = [
     "digital_arrest",
@@ -234,6 +234,45 @@ def _transcript(turns: list[dict], limit: int) -> str:
     )
 
 
+_DEVANAGARI = re.compile(r"[\u0900-\u097F]")
+# Words that are Hindi and never English, to spot Roman-script Hindi and Hinglish.
+_ROMAN_HINDI = re.compile(
+    r"\b(hai|hain|nahi|nahin|kya|aap|aapka|aapke|aapki|mera|meri|mere|mujhe|kaun|kyun|kaise|abhi|jaldi|beta|haan|"
+    r"achha|accha|paisa|paise|rupaye|bhej|bhejo|batao|bataiye|bolo|boliye|karo|kijiye|sahab|sahib|arre|arey|theek|"
+    r"thik|samajh|matlab|ghar|bhai|suniye|suno|dekhiye|namaste|dhanyavaad|shukriya)\b",
+    re.IGNORECASE,
+)
+
+
+def needs_translation(text: str) -> bool:
+    """True when a transcript line is Hindi (Devanagari or Roman letters) or Hinglish, so the display needs English."""
+    return bool(_DEVANAGARI.search(text) or _ROMAN_HINDI.search(text))
+
+
+TRANSLATE_PROMPT = (
+    "Translate this line from a phone call into plain, natural English, keeping the speaker's tone. Keep names, "
+    "numbers, UPI IDs, IFSC codes and acronyms (CBI, UPI, OTP) exactly as written, with spoken digits written as digits. "
+    "Output only the translation: no quotes, notes or explanations.\n\nLINE:\n"
+)
+
+
+async def to_english(client, text: str) -> str | None:
+    """English version of a Hindi or Hinglish line, or None when the translation fails (the caller keeps the original)."""
+    try:
+        response = await flash(
+            client,
+            contents=TRANSLATE_PROMPT + text,
+            cfg=types.GenerateContentConfig(temperature=0.0, thinking_config=types.ThinkingConfig(thinking_budget=0)),
+            attempts=3,
+            model=config.TRANSLATE_MODEL,
+        )
+        english = " ".join((response.text or "").split())
+    except Exception:  # noqa: BLE001 - a missing translation must never break the call
+        log.warning("translation failed")
+        return None
+    return english if english and not _DEVANAGARI.search(english) else None
+
+
 async def verify(client, turns: list[dict]) -> VerifierResult | None:
     """Second, independent extraction layer: Gemini Flash over the recent turns with a strict JSON schema."""
     if not any(t["speaker"] == "caller" for t in turns):
@@ -319,7 +358,7 @@ def build_evidence(call: dict, turns: list[dict], details: list[dict], strain: d
 
     ordered = sorted(details, key=lambda d: (not d["confirmed"], d["type"]))
     return {
-        "schema": "honeytrap.evidence.v1",
+        "schema": "stallwart.evidence.v1",
         "generatedAt": now_iso(),
         "callId": call.get("callId"),
         "mode": call.get("mode"),
@@ -332,7 +371,8 @@ def build_evidence(call: dict, turns: list[dict], details: list[dict], strain: d
         "confirmedDetails": [row(d) for d in ordered if d["confirmed"]],
         "unconfirmedDetails": [row(d) for d in ordered if not d["confirmed"]],
         "transcript": [
-            {"turn": t["n"], "speaker": t["speaker"], "text": t["text"], "tSec": t.get("tSec")} for t in turns
+            {"turn": t["n"], "speaker": t["speaker"], "text": t["text"], "textEn": t.get("textEn"), "tSec": t.get("tSec")}
+            for t in turns
         ],
         "strain": strain,
         "recordingAvailable": bool(call.get("recording")),

@@ -10,7 +10,7 @@ import analysis
 from call_handler import jlog
 from store import store
 
-log = logging.getLogger("honeytrap.drill")
+log = logging.getLogger("stallwart.drill")
 
 DRILL_OPENING_CUE = (
     "(You have just phoned the listener. Start your script with the first step, in simple Hinglish, in one or two "

@@ -17,6 +17,7 @@ LIVE_LOCATION = os.getenv("LIVE_LOCATION", "us-central1").strip()
 TEXT_LOCATION = os.getenv("TEXT_LOCATION", "global").strip()
 LIVE_MODEL = os.getenv("LIVE_MODEL", "gemini-3.8-live").strip()
 FLASH_MODEL = os.getenv("FLASH_MODEL", "gemini-3.8-flash").strip()
+TRANSLATE_MODEL = os.getenv("TRANSLATE_MODEL", "gemini-2.5-flash").strip()  # small and fast: transcript lines wait on it
 PERSONA_VOICE = os.getenv("PERSONA_VOICE", "Achird").strip()
 DRILL_VOICE = os.getenv("DRILL_VOICE", "Orus").strip()
 LANGUAGE_CODE = os.getenv("LANGUAGE_CODE", "en-IN").strip()

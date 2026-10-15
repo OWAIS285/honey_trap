@@ -1,10 +1,10 @@
 param(
-    [string]$ProjectId = "honeytrap-aibc-2026",
+    [string]$ProjectId = (gcloud config get-value project 2>$null),
     [string]$Region = "asia-south1"
 )
 
 $bucket = "$ProjectId-recordings"
-$sa = "serviceAccount:honeytrap-run@$ProjectId.iam.gserviceaccount.com"
+$sa = "serviceAccount:stallwart-run@$ProjectId.iam.gserviceaccount.com"
 
 # Private bucket for call recordings; objects are deleted automatically after 14 days.
 gcloud storage buckets create "gs://$bucket" --project $ProjectId --location $Region `

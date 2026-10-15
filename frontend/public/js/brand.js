@@ -3,7 +3,7 @@
 import { h } from "./util.js";
 
 export const BRAND = {
-  name: "Mirage",
+  name: "Stallwart",
   tagline: "The AI decoy that wastes scammers' time",
   introLine: "Pick up. Stall. Catch them.",
 };

@@ -409,6 +409,7 @@ select.input option { background: #14172b; color: var(--text); }
 .b-who time { font-weight: 500; letter-spacing: 0; text-transform: none; }
 .b-text { font-size: 15px; line-height: 1.5; }
 .bubble.partial .b-text::after { content: "▍"; margin-left: 2px; color: var(--accent); animation: blink 0.9s infinite; }
+.bubble.translating .b-text { opacity: 0.6; font-style: italic; }
 @keyframes bubblein { from { opacity: 0; transform: translateY(10px) scale(0.97); } }
 
 .lane-h { display: flex; align-items: center; gap: 8px; font-size: 12.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 14px 0 8px; }

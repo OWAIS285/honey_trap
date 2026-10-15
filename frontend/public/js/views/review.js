@@ -63,7 +63,7 @@ export function ReviewView({ id }) {
         "button",
         { class: `line ${turn.speaker}`, type: "button", onClick: () => seekTo(start - 0.4), "aria-label": `Play from ${fmtClock(start)}` },
         h("span", { class: "who" }, turn.speaker === "caller" ? "Caller" : "Ramesh", h("time", {}, ` · ${fmtClock(turn.tSec || 0)}`)),
-        h("span", { class: "txt" }, turn.text),
+        h("span", { class: "txt" }, turn.textEn || turn.text),
       );
       seekers.push({ row, start, end: turn.tSec || start + 1 });
       return row;
