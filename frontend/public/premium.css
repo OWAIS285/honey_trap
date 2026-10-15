@@ -134,7 +134,7 @@ main:focus, main:focus-visible { outline: none; }
 
 .hero-stage .mock-chip { z-index: 3; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); background: rgba(8, 14, 32, 0.78); }
 .hero-stage .mock-chip.c3 { left: 2%; right: auto; top: 10%; }
-.hero-stage .mock-chip.c2 { right: -3%; top: 34%; }
+.hero-stage .mock-chip.c2 { right: 0; top: 34%; }
 .hero-stage .mock-chip.c1 { left: -1%; right: auto; bottom: 26%; }
 .stage-captions { position: absolute; left: 4%; right: 4%; bottom: 0; height: 92px; z-index: 3; }
 .stage-captions .mock-bubble { position: absolute; bottom: 0; width: fit-content; max-width: 90%; margin: 0; animation-name: caption; animation-duration: 14s; background-color: rgba(8, 14, 32, 0.82); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
