@@ -75,6 +75,10 @@ export const api = {
   createDrill: (payload) => request("/api/drills", { method: "POST", body: payload }),
   drills: () => request("/api/drills"),
   drill: (id) => request(`/api/drills/${encodeURIComponent(id)}`),
+  banks: () => request("/api/banks"),
+  bankReports: (code) => request(`/api/banks/${encodeURIComponent(code)}/reports`),
+  bankDecision: (code, reportId, decision) =>
+    request(`/api/banks/${encodeURIComponent(code)}/reports/${encodeURIComponent(reportId)}/decision`, { method: "POST", body: { decision } }),
   invite: (id, key) => request(`/api/drills/${encodeURIComponent(id)}/invite?k=${encodeURIComponent(key)}`),
 };
 

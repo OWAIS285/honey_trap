@@ -5,6 +5,7 @@ import { installPointerFx, startBackground } from "./fx.js";
 import { playIntro, shouldPlayIntro } from "./intro.js";
 import { createCurtain, installCursor, installMagnetic, installScrollProgress } from "./motion.js";
 import { $, h, icon, installRipples, logo, observeReveal } from "./util.js";
+import { BankInboxView, BanksView } from "./views/banks.js";
 import { CallView } from "./views/call.js";
 import { DrillNewView, DrillReportView, DrillsView } from "./views/drills.js";
 import { HistoryView } from "./views/history.js";
@@ -21,6 +22,7 @@ const NAV = [
   { href: "#/history", label: "History", icon: "list", match: /^#\/(history|call\/.+)$/, tab: true },
   { href: "#/strains", label: "Strains", icon: "virus", match: /^#\/strains$/, tab: true },
   { href: "#/drills", label: "Drills", icon: "users", match: /^#\/drills?(\/.*)?$/, tab: true },
+  { href: "#/banks", label: "Banks", icon: "bank", match: /^#\/banks(\/.*)?$/, tab: true },
 ];
 
 const ROUTES = [
@@ -32,6 +34,8 @@ const ROUTES = [
   { re: /^#\/call\/([\w-]+)$/, title: "Call review", view: (m) => ReviewView({ id: m[1] }) },
   { re: /^#\/strains$/, title: "Strain library", view: () => StrainsView() },
   { re: /^#\/drills$/, title: "Family drills", view: () => DrillsView() },
+  { re: /^#\/banks$/, title: "Bank inboxes", view: () => BanksView() },
+  { re: /^#\/banks\/([A-Z]{4,10})$/, title: "Bank inbox", view: (m) => BankInboxView({ code: m[1] }) },
   { re: /^#\/drill\/new\/?([\w-]*)$/, title: "Create a family drill", view: (m) => DrillNewView({ strainId: m[1] }) },
   { re: /^#\/drill\/([\w-]+)$/, title: "Drill report", view: (m) => DrillReportView({ id: m[1] }) },
   { re: /^#\/join\/([\w-]+)\/([\w-]+)$/, title: "Practice call", bare: true, view: (m) => JoinView({ id: m[1], key: m[2] }) },

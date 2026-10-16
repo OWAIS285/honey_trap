@@ -9,6 +9,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 import analysis
+import bank_registry
+import bank_reports
 import config
 from call_handler import CallHandler, jlog
 from drill import DRILL_OPENING_CUE, DRILL_TOOLS, DrillHandler, build_drill_prompt, new_drill_doc
@@ -149,6 +151,114 @@ async def list_strains(request: Request) -> dict:
     docs = await store.list_owned("strains", owner)
     docs.sort(key=lambda d: d.get("createdAt", ""), reverse=True)
     return {"strains": [clean(d) for d in docs] + analysis.DEMO_STRAINS}
+
+
+# ---------- bank reports ----------
+
+
+class DecisionIn(BaseModel):
+    decision: Literal["monitoring", "frozen", "dismissed"]
+    note: str = Field(default="", max_length=300)
+
+
+def _known_bank(code: str) -> str:
+    if code not in bank_registry.BANKS and code != bank_registry.UNRESOLVED:
+        raise HTTPException(404, "Unknown bank.")
+    return code
+
+
+async def _with_aggregates(reports: list[dict]) -> list[dict]:
+    out = []
+    for report in reports:
+        mule = await store.get(f"mule_accounts/{report.get('muleKey')}") or {}
+        row = clean({k: v for k, v in report.items() if k != "payload"})
+        row["sightings"] = mule.get("sightings", 1)
+        row["bankStatus"] = mule.get("status", "reported")
+        row["linkedDetails"] = (report.get("payload") or {}).get("linkedDetails", [])
+        row["routingReason"] = (report.get("payload") or {}).get("subject", {}).get("routingReason", "")
+        out.append(row)
+    return out
+
+
+@app.get("/api/banks")
+async def list_banks(request: Request) -> dict:
+    """Every proxy bank inbox, with how many reports this browser's calls sent to each."""
+    owner = owner_hash(require_client_id(request.headers.get("x-client-id")))
+    counts: dict[str, int] = {}
+    for report in await store.list_owned("bank_reports", owner, limit=300):
+        counts[report.get("bankCode", "")] = counts.get(report.get("bankCode", ""), 0) + 1
+    return {"banks": [{**b, "reports": counts.get(b["code"], 0)} for b in bank_registry.directory()],
+            "apiEnabled": bool(config.BANK_SIGNING_SECRET)}
+
+
+@app.get("/api/banks/{code}/reports")
+async def bank_inbox_demo(code: str, request: Request) -> dict:
+    """A proxy bank's inbox, limited to reports that came from this browser's own calls."""
+    owner = owner_hash(require_client_id(request.headers.get("x-client-id")))
+    _known_bank(code)
+    reports = [r for r in await store.list_owned("bank_reports", owner, limit=300) if r.get("bankCode") == code]
+    reports.sort(key=lambda r: r.get("sentAt", ""), reverse=True)
+    return {"bank": {"code": code, "name": bank_registry.bank_name(code)}, "reports": await _with_aggregates(reports)}
+
+
+@app.post("/api/banks/{code}/reports/{report_id}/decision")
+async def bank_decision_demo(code: str, report_id: str, body: DecisionIn, request: Request) -> dict:
+    """Play the bank in the demo: record a decision on one of your own reports (never touches the shared record)."""
+    owner = owner_hash(require_client_id(request.headers.get("x-client-id")))
+    report = await store.get(f"bank_reports/{report_id}")
+    if not report or report.get("ownerHash") != owner or report.get("bankCode") != _known_bank(code):
+        raise HTTPException(404, "Report not found.")
+    await store.update(f"bank_reports/{report_id}", {"simulatedDecision": body.decision, "decisionNote": body.note,
+                                                     "decidedAt": analysis.now_iso()})
+    return {"reportId": report_id, "simulatedDecision": body.decision}
+
+
+@app.post("/proxy-banks/{code}/webhook")
+async def proxy_bank_webhook(code: str, request: Request) -> Response:
+    """Where a bank's real webhook would be: verifies the signature and files the report (BANK_DELIVERY=http)."""
+    status, result = await bank_reports.receive(code, dict(request.headers), await request.body())
+    return Response(json.dumps(result), status_code=status, media_type="application/json")
+
+
+def _bank_auth(code: str, request: Request) -> str:
+    _known_bank(code)
+    if not config.BANK_SIGNING_SECRET:
+        raise HTTPException(503, "The bank API is not configured on this server.")
+    if not bank_reports.check_bank_key(code, request.headers.get("x-bank-key")):
+        raise HTTPException(401, "Missing or invalid X-Bank-Key for this bank.")
+    return code
+
+
+@app.get("/bank-api/v1/{code}/reports")
+async def bank_api_reports(code: str, request: Request, limit: int = 100) -> dict:
+    """Full signed-report payloads for one bank, newest first."""
+    _bank_auth(code, request)
+    reports = await store.list_where("bank_reports", "bankCode", code, limit=min(max(limit, 1), 500))
+    reports.sort(key=lambda r: r.get("sentAt", ""), reverse=True)
+    return {"bank": {"code": code, "name": bank_registry.bank_name(code)},
+            "reports": [r.get("payload") for r in reports if r.get("payload")]}
+
+
+@app.get("/bank-api/v1/{code}/mule-accounts")
+async def bank_api_mules(code: str, request: Request) -> dict:
+    """Every payee detail reported to this bank, de-duplicated across calls, with how many calls gave it."""
+    _bank_auth(code, request)
+    mules = [clean({k: v for k, v in m.items() if k != "callIds"}) | {"callCount": len(m.get("callIds", []))}
+             for m in await store.list_where("mule_accounts", "bankCode", code, limit=500)]
+    mules.sort(key=lambda m: (m.get("sightings", 0), m.get("lastSeenAt", "")), reverse=True)
+    return {"bank": {"code": code, "name": bank_registry.bank_name(code)}, "muleAccounts": mules}
+
+
+@app.post("/bank-api/v1/{code}/mule-accounts/{mule_key}/status")
+async def bank_api_status(code: str, mule_key: str, body: DecisionIn, request: Request) -> dict:
+    """The bank's decision on a reported account, visible on every later report of it."""
+    _bank_auth(code, request)
+    mule = await store.get(f"mule_accounts/{mule_key}")
+    if not mule or mule.get("bankCode") != code:
+        raise HTTPException(404, "Mule account not found for this bank.")
+    await store.update(f"mule_accounts/{mule_key}", {"status": body.decision, "statusNote": body.note,
+                                                     "statusAt": analysis.now_iso()})
+    return {"muleKey": mule_key, "status": body.decision}
 
 
 # ---------- family drills ----------

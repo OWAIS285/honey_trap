@@ -9,6 +9,7 @@ import sys
 import time
 
 import analysis
+import bank_reports
 from clients import text_client
 from recorder import CallRecorder
 from store import clean, owner_hash, store
@@ -61,6 +62,8 @@ class CallHandler:
         self._verified_turns = 0
         self._bg: set[asyncio.Task] = set()
         self._finished = False
+        self.bank = bank_reports.BankReporter(call_id=self.call_id, owner=self.owner, emit=self._emit,
+                                              spawn=self._spawn, context=self._bank_context)
 
     def t(self) -> float:
         return round(time.monotonic() - self.t0, 1)
@@ -272,7 +275,13 @@ class CallHandler:
         if detail and changed:
             self._spawn(store.put(f"calls/{self.call_id}/details/{detail['id']}", detail))
             await self._emit({"type": "detail", "detail": detail})
+            if detail["confirmed"]:
+                await self.bank.sweep(self.details, self.turns)
         return detail
+
+    def _bank_context(self) -> dict:
+        return {"callId": self.call_id, "startedAt": self.started_at, "details": self.details, "turns": self.turns,
+                **{k: self.classification.get(k) for k in ("verdict", "scamType", "impersonatedEntity", "redFlags")}}
 
     async def _set_stage(self, stage: str) -> None:
         if stage not in analysis.STAGES:
@@ -310,6 +319,8 @@ class CallHandler:
             current["stage"] = self.classification["stage"]
         self.classification = current
         await self._emit({"type": "classification", **current})
+        self.bank.set_verdict(current["verdict"])
+        await self.bank.sweep(self.details, self.turns)
         self._spawn(
             store.update(
                 f"calls/{self.call_id}",
@@ -349,6 +360,8 @@ class CallHandler:
             except Exception:  # noqa: BLE001
                 log.warning("final verification failed")
         await self._publish_verdict()
+        # Last chance to route account numbers that never got an IFSC (named bank, else the UNRESOLVED queue).
+        await self.bank.sweep(self.details, self.turns, final=True)
         is_scam = self.classification["verdict"] == "scam"
         if is_scam and strain_task is None:
             strain_task = asyncio.create_task(analysis.build_strain(text_client(), list(self.turns), "other_scam"))
@@ -407,16 +420,17 @@ class CallHandler:
             "tokens": {"prompt": self.prompt_tokens, "response": self.response_tokens},
             "estCostUsd": est_cost,
             "recordChecks": [{"item": k, "tSec": v} for k, v in self.record_checks.items()],
+            "bankReports": self.bank.summary(),
         }
         await store.update(f"calls/{self.call_id}", summary)
         await self._emit(
             {"type": "ended", "reason": reason, "durationSec": duration, "recording": bool(recording),
              "strainId": summary["strainId"], "strain": clean(strain), "scamType": summary["scamType"],
              "verdict": summary["verdict"], "counts": summary["counts"], "latency": {"p50": p50, "p90": p90},
-             "estCostUsd": est_cost}
+             "estCostUsd": est_cost, "bankReports": summary["bankReports"]}
         )
         jlog("INFO", "call_ended", callId=self.call_id, mode=self.mode, durationSec=duration, turns=len(self.turns),
              details=len(self.details), confirmed=confirmed, scamType=summary["scamType"], verdict=summary["verdict"],
-             redFlags=[f["signal"] for f in summary["redFlags"]], recordChecks=list(self.record_checks),
+             redFlags=[f["signal"] for f in summary["redFlags"]], recordChecks=list(self.record_checks), bankReports=len(self.bank.sent),
              latencyP50=p50, latencyP90=p90, estCostUsd=est_cost, reason=reason)
         return summary

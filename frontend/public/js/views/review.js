@@ -4,7 +4,7 @@ import { api } from "../api.js";
 import { BRAND } from "../brand.js";
 import { backLink, errorState, pageHeader, skeletons, strainCard } from "../components.js";
 import { createAudioPlayer } from "../player.js";
-import { DETAIL_META, SIGNAL_LABELS, SOURCE_LABELS, downloadBlob, fmtClock, fmtDate, fmtDuration, h, humanize, icon, observeReveal, scamLabel, toast, verdictTitle } from "../util.js";
+import { DELIVERY_LABELS, DETAIL_META, ROUTED_BY_LABELS, SIGNAL_LABELS, SOURCE_LABELS, downloadBlob, fmtClock, fmtDate, fmtDuration, h, humanize, icon, observeReveal, scamLabel, toast, verdictTitle } from "../util.js";
 
 export const DISCLAIMER =
   "Details were stated by an unverified caller during an automated decoy call and may be mis-heard or belong to an innocent third party. This pack is a lead for investigators, not a finding that any account is fraudulent.";
@@ -128,6 +128,37 @@ export function ReviewView({ id }) {
         )
       : null;
 
+    const bankReports = call.bankReports || [];
+    const banks = bankReports.length
+      ? h(
+          "section",
+          { class: "card evidence" },
+          h("div", { class: "card-h" }, icon("bank"), "Reported to banks"),
+          h("p", { class: "muted" }, "Each confirmed UPI ID or account number in this scam call was sent to the bank that can act on it, as a signed report in that bank's proxy inbox."),
+          h(
+            "div",
+            { class: "ev-list" },
+            bankReports.map((r) => {
+              const meta = DETAIL_META[r.detailType] || { label: humanize(r.detailType), icon: "hash" };
+              return h(
+                "article",
+                { class: "ev-row" },
+                h(
+                  "div",
+                  { class: "ev-head" },
+                  h("span", { class: "ev-type" }, icon("bank"), r.bankName),
+                  h("span", { class: `badge ${r.status === "delivered" ? "ok" : r.status === "failed" ? "bad" : "warn"}` }, DELIVERY_LABELS[r.status] || r.status),
+                  h("span", { class: "grow" }),
+                  h("a", { class: "chip action no-print", href: `#/banks/${r.bankCode}` }, "Open inbox"),
+                ),
+                h("div", { class: "ev-value mono" }, `${meta.label}: ${r.value}`),
+                h("small", { class: "muted" }, `${ROUTED_BY_LABELS[r.routedBy] || r.routedBy}: ${r.reason}`),
+              );
+            }),
+          ),
+        )
+      : null;
+
     const printHead = h(
       "div",
       { class: "print-only" },
@@ -145,6 +176,7 @@ export function ReviewView({ id }) {
       h("div", { class: "review-cols" }, transcript, evidence),
     );
     if (reasons) el.append(h("div", { class: "section-gap" }, reasons));
+    if (banks) el.append(h("div", { class: "section-gap" }, banks));
     if (strain) el.append(h("div", { class: "section-gap" }, strainCard(strain, { onDrill: strain.strainId ? () => (location.hash = `#/drill/new/${strain.strainId}`) : null })));
     observeReveal(el);
 

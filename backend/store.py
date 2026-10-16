@@ -93,6 +93,27 @@ class Store:
         query = self.fs.collection(collection).where(filter=FieldFilter("ownerHash", "==", owner)).limit(limit)
         return [d.to_dict() async for d in query.stream()]
 
+    @_safe(list)
+    async def list_where(self, collection: str, field: str, value, limit: int = 200) -> list[dict]:
+        from google.cloud.firestore_v1.base_query import FieldFilter
+
+        query = self.fs.collection(collection).where(filter=FieldFilter(field, "==", value)).limit(limit)
+        return [d.to_dict() async for d in query.stream()]
+
+    @_safe(None)
+    async def record_sighting(self, path: str, data: dict, call_id: str) -> dict | None:
+        """Count one more call that gave this payee detail; returns the updated aggregate."""
+        from google.cloud import firestore
+
+        ref = self.fs.document(path)
+        now = datetime.now(timezone.utc)
+        first = not (await ref.get()).exists
+        extra = {"firstSeenAt": now, "status": "reported"} if first else {}
+        await ref.set({**data, **extra, "lastSeenAt": now, "sightings": firestore.Increment(1),
+                       "callIds": firestore.ArrayUnion([call_id]), "expiresAt": expiry()}, merge=True)
+        snap = await ref.get()
+        return snap.to_dict() if snap.exists else None
+
     @_safe(None)
     async def put_recording(self, call_id: str, data: bytes) -> str | None:
         path = f"calls/{call_id}.wav"

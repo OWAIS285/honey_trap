@@ -381,6 +381,17 @@ select.input option { background: #14172b; color: var(--text); }
 .g-entity { color: var(--muted); font-size: 13.5px; }
 .g-triggers { margin-top: 6px; }
 .decoy-row { display: grid; gap: 8px; margin-top: 6px; }
+.bank-list { display: grid; gap: 8px; }
+.bank-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text); text-decoration: none; animation: rise 0.4s var(--ease) both; }
+.bank-row:hover { border-color: rgba(var(--acc-rgb), 0.45); }
+.bank-i { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; background: rgba(55, 224, 160, 0.12); color: var(--green); flex: none; }
+.bank-i svg { width: 18px; height: 18px; }
+.bank-main { display: grid; min-width: 0; flex: 1; }
+.bank-main small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.plain-list { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: var(--muted); }
+details.card > summary { cursor: pointer; font-weight: 650; }
+details.card[open] > summary { margin-bottom: 12px; }
+.ev-list .ev-row .cta-row { margin-top: 8px; }
 
 .stage-card { display: grid; gap: 14px; align-content: center; }
 .stepper { list-style: none; margin: 0; padding: 0; display: flex; justify-content: space-between; position: relative; }

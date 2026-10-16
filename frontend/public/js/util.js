@@ -168,6 +168,22 @@ export const SIGNAL_LABELS = {
   knows_customer_record: "Knew his account's last 4 digits",
 };
 
+export const ROUTED_BY_LABELS = {
+  ifsc: "by IFSC",
+  upi_handle: "by UPI handle",
+  bank_named: "by bank name",
+  unresolved: "needs a manual lookup",
+};
+
+export const BANK_DECISIONS = {
+  reported: { label: "Reported", tone: "" },
+  monitoring: { label: "Monitoring", tone: "warn" },
+  frozen: { label: "Frozen", tone: "bad" },
+  dismissed: { label: "Dismissed", tone: "" },
+};
+
+export const DELIVERY_LABELS = { pending: "Sending…", delivered: "Delivered", failed: "Delivery failed" };
+
 export const VERDICT_LABELS = { scam: "Scam", legitimate: "Not a scam", undetermined: "Not clear yet" };
 
 export const verdictTitle = (verdict, scamType) => (verdict === "scam" ? scamLabel(scamType) : VERDICT_LABELS[verdict] || scamLabel(scamType));

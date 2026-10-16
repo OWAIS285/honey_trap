@@ -20,6 +20,18 @@ All names, numbers, UPI IDs and accounts in the demo are **fictional**. This is 
 
 For banks the by-product is an **evidence pack**: confirmed and unconfirmed payee details with quotes, timestamps and confidence, plus the stereo recording. It is a *lead, not a verdict* and says so on every page.
 
+**Automatic mule-account reports.** The moment a UPI ID or account number is confirmed in a call judged to be a scam, it is routed to the bank that can act on it and delivered as a signed report, with no human in the loop:
+
+| What the scammer said | Which bank gets the report | Why |
+|---|---|---|
+| `rahul.sharma@okaxis` | Axis Bank | `@okaxis` is a Google Pay handle run by Axis, which can resolve the ID to the linked account at any bank |
+| `98765...@ybl` | Yes Bank | `@ybl` is a PhonePe handle run by Yes Bank |
+| account `123456789012`, IFSC `SBIN0001234` | State Bank of India | the first four letters of an IFSC are the bank code |
+| account `123456789012` and "my Kotak account", no IFSC | Kotak Mahindra Bank | named in the same sentence (only at the end of the call, so an IFSC given later wins) |
+| an unknown handle, or an account with no bank at all | Unresolved queue | a person (in production, an NPCI or I4C lookup) has to tie it to a bank |
+
+Each report (`stallwart.mule_report.v1`) carries the identifier, how it was routed, the caller's own words, the call's verdict and red flags, the other details the same caller gave (another bank's accounts only masked to the last four characters), a bank-wide sighting count across calls and a recommended action (`review_for_freeze` when a decisive red flag was heard and the detail passed two checks, otherwise `monitor`). It is signed with HMAC-SHA256 per bank, timestamped and idempotent, retried on failure, and delivered to that bank's **proxy inbox** (no real bank is contacted). Banks read their inbox through a keyed API and send back a decision (monitoring, frozen, dismissed), which rides on every later report of that account. Nothing is ever sent for a genuine or undetermined call, nor for a detail that was heard only once.
+
 ## Try it
 
 | Way | What happens |
@@ -29,6 +41,7 @@ For banks the by-product is an **evidence pack**: confirmed and unconfirmed paye
 | **Replay** (`#/replay`, Hindi at `#/replay/hi`) | A recorded call of about two minutes, in English or in Hindi, with both sides speaking the same language. An AI scammer (Gemini script-writer, Gemini text-to-speech voice) answers what the decoy actually says; the decoy side is the real pipeline. No microphone, no backend, click to seek, jump to key moments. |
 | **Review** (`#/history`) | Every call from this browser: recording with click-to-seek transcript, evidence pack (JSON or print to PDF), strain card. |
 | **Family drill** (`#/strains`) | Create a consented drill, share the link on WhatsApp. The parent opens a big bilingual "Incoming call" page. |
+| **Bank inboxes** (`#/banks`) | The proxy inbox of every bank your calls reported to: each mule account, how it was routed, how many calls gave it, and buttons to play the bank (monitor, freeze, dismiss). |
 
 ## Architecture
 
@@ -75,6 +88,17 @@ Key choices:
 - **Barge-in.** When the caller interrupts, the server sends `interrupted` and the browser flushes its playback queue.
 - **No client access to data.** Firestore rules deny every browser; everything goes through the backend, which scopes data to a random per-browser id. Recordings are private and fetched with an unguessable per-call token.
 - **Cost guards for a public URL.** Per-IP hourly limit, concurrent-session cap, 5-minute call cap, `max-instances 3`, a `KILL_SWITCH` environment flag, budget alerts and a `scripts/stop_billing.ps1` panic button.
+
+### Bank API
+
+Banks are identified by their IFSC prefix (`SBIN`, `UTIB`, `HDFC`...). The bank key is derived from `BANK_SIGNING_SECRET` (`python scripts/bank_keys.py UTIB` prints it); without that secret the bank API is switched off and reports are signed with a per-process key.
+
+| Call | What it does |
+|---|---|
+| `POST /proxy-banks/{code}/webhook` | Where a bank's webhook would live (`BANK_DELIVERY=http`). Checks `X-Stallwart-Signature` (`sha256=` HMAC of `timestamp.body`), `X-Stallwart-Timestamp` (5-minute window) and `Idempotency-Key`. |
+| `GET /bank-api/v1/{code}/reports` | Full signed-report payloads for that bank, newest first. Header `X-Bank-Key`. |
+| `GET /bank-api/v1/{code}/mule-accounts` | Each reported identifier once, with sightings, call count, first and last seen, and the bank's decision. |
+| `POST /bank-api/v1/{code}/mule-accounts/{key}/status` | `{"decision": "monitoring" | "frozen" | "dismissed", "note": "..."}` |
 
 ### Google Cloud and AI services used
 
@@ -223,11 +247,12 @@ From the end of the caller's speech (measured in the client) to the first decoy 
 - **Speech recognition can mis-hear.** That is why details need two checks, and why the evidence pack is a lead, not a verdict.
 - **Synthetic benchmark.** ICFD-31k is synthetic; our numbers on it say little about real scams. Real redacted messages are still to be added by the team.
 - **In-memory abuse limits** apply per Cloud Run instance only.
+- **Proxy banks, not real ones.** Reports reach simulated inboxes inside this service. The routing tables cover the main IFSC prefixes and the UPI handles we are sure of; others land in the unresolved queue. A bare account number cannot be tied to a bank without an IFSC or a bank name, and a UPI ID goes to the bank that runs its handle, which may not be the bank that holds the account.
 
 ## Repository layout
 
 ```
-backend/            FastAPI app: call engine, Live and text sessions, analysis, validators, recorder, drills
+backend/            FastAPI app: call engine, Live and text sessions, analysis, validators, recorder, drills, bank routing and reports
 frontend/public/    Static site (plain HTML, CSS, ES modules, no build step) and the recorded replay
 scripts/            GCP setup, deploy, simulators, replay recorder, local static server
 tests/              pytest unit tests

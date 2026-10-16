@@ -1,7 +1,7 @@
 // Live analysis dashboard: scam-type gauge, script stage, caught details (confirmed vs heard) and transcript.
 // It only consumes server events, so the same component drives live calls, chat and the replay.
 
-import { DETAIL_META, SIGNAL_LABELS, SOURCE_LABELS, STAGES, clear, flipMove, fmtClock, h, humanize, icon, scamLabel, verdictTitle } from "./util.js";
+import { DELIVERY_LABELS, DETAIL_META, ROUTED_BY_LABELS, SIGNAL_LABELS, SOURCE_LABELS, STAGES, clear, flipMove, fmtClock, h, humanize, icon, scamLabel, verdictTitle } from "./util.js";
 
 const CIRCUMFERENCE = 2 * Math.PI * 52;
 
@@ -74,6 +74,15 @@ export function createDashboard({ callerLabel = "Caller", personaLabel = "Ramesh
     recordText,
     h("small", { class: "muted" }, "He never says these. A genuine bank has them on screen, so to play one, tell him the last four digits; a scammer usually cannot."),
   );
+  const bankList = h("div", { class: "bank-list" });
+  const bankRows = new Map(); // reportId -> row
+  const bankSection = h(
+    "div",
+    { class: "decoy-row", hidden: true },
+    h("h4", { class: "lane-h ok" }, icon("bank"), "Reported to banks"),
+    bankList,
+    h("small", { class: "muted" }, "Sent automatically to each bank's proxy inbox, signed, the moment a payee detail is confirmed in a scam call."),
+  );
   const detailsEmpty = h("div", { class: "empty-note" }, icon("shield"), h("p", {}, "Nothing caught yet. Account numbers, UPI IDs, links and names show up here the moment the caller says them."));
   const confirmedHead = h("h4", { class: "lane-h ok", hidden: true }, icon("check"), "Confirmed by two checks");
   const heardHead = h("h4", { class: "lane-h", hidden: true }, icon("eye"), "Heard, waiting for a second check");
@@ -86,6 +95,7 @@ export function createDashboard({ callerLabel = "Caller", personaLabel = "Ramesh
     confirmedList,
     heardHead,
     heardList,
+    bankSection,
     recordRow,
   );
 
@@ -242,6 +252,26 @@ export function createDashboard({ callerLabel = "Caller", personaLabel = "Ramesh
     if (ev.stage) onStage(ev.stage);
   }
 
+  function onBankReport(ev) {
+    let row = bankRows.get(ev.reportId);
+    if (!row) {
+      row = h("a", { class: "bank-row", href: `#/banks/${ev.bankCode}` });
+      bankRows.set(ev.reportId, row);
+      bankList.append(row);
+    }
+    const meta = DETAIL_META[ev.detailType] || { label: humanize(ev.detailType), icon: "hash" };
+    const tone = ev.status === "delivered" ? "ok" : ev.status === "failed" ? "bad" : "warn";
+    const seen = ev.sightings > 1 ? h("span", { class: "chip danger" }, `seen in ${ev.sightings} calls`) : null;
+    row.replaceChildren(
+      h("span", { class: "bank-i" }, icon("bank")),
+      h("div", { class: "bank-main" }, h("b", {}, ev.bankName), h("small", { class: "muted" }, `${meta.label} ${ev.value} · ${ROUTED_BY_LABELS[ev.routedBy] || ev.routedBy}`)),
+      seen,
+      h("span", { class: `badge ${tone}` }, DELIVERY_LABELS[ev.status] || ev.status),
+    );
+    row.title = ev.reason || "";
+    bankSection.hidden = false;
+  }
+
   function onRecord(ev) {
     const last4 = ev.last4 || {};
     recordText.textContent = `${ev.bank}, ${ev.branch} branch · account ends ${last4.account} · Aadhaar ends ${last4.aadhaar} · debit card ends ${last4.card} · UPI on ${ev.upiApp}`;
@@ -310,6 +340,9 @@ export function createDashboard({ callerLabel = "Caller", personaLabel = "Ramesh
       case "record":
         onRecord(ev);
         break;
+      case "bank_report":
+        onBankReport(ev);
+        break;
       case "latency":
         latencyEl.textContent = `${ev.p50 ?? ev.ms} / ${ev.p90 ?? ev.ms} ms`;
         latencySub.textContent = `last reply ${ev.ms} ms`;
@@ -350,6 +383,9 @@ export function createDashboard({ callerLabel = "Caller", personaLabel = "Ramesh
     clear(triggersEl);
     recordText.textContent = "";
     recordRow.hidden = true;
+    bankRows.clear();
+    clear(bankList);
+    bankSection.hidden = true;
     setTone("idle");
     stageNodes.forEach((node) => node.classList.remove("done", "active"));
     latencyEl.textContent = "—";

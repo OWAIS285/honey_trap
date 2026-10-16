@@ -567,6 +567,7 @@ def build_evidence(call: dict, turns: list[dict], details: list[dict], strain: d
         "redFlags": call.get("redFlags", []),
         "legitSignals": call.get("legitSignals", []),
         "recordChecks": call.get("recordChecks", []),
+        "bankReports": call.get("bankReports", []),
         "impersonatedEntity": call.get("impersonatedEntity"),
         "triggerPhrases": call.get("triggerPhrases", []),
         "confirmedDetails": [row(d) for d in ordered if d["confirmed"]],
