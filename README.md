@@ -142,6 +142,8 @@ firebase use <project>     # writes .firebaserc (git-ignored); hosting site id i
 firebase deploy --only hosting,firestore
 ```
 
+Check the deployment: `python scripts/verify_deployment.py` prints PASS or FAIL for every feature (verdicts, the record test, bank routing and the confidence gate, the watchlist, origin lock, website version, GitHub sync) using three short live chats; add `--quick` to skip the chats or `--unit` to run the unit tests too.
+
 Useful scripts: `scripts/sim_call.py` (typed or silent-mic simulated caller), `scripts/sim_drill.py` (drill scenarios), `scripts/make_replay.py` (records the English or Hindi replay: an AI scammer talks to the real decoy, then the audio is assembled turn by turn so voices never overlap and the length lands between 1:45 and 2:00), `eval/variety_eval.py` (how repetitive the decoy is), `scripts/stop_billing.ps1`.
 
 Environment variables are documented in [.env.example](.env.example).
