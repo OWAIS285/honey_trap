@@ -266,19 +266,21 @@ async def _run_call(ws: WebSocket, mode: str) -> None:
     ip = client_ip(ws)
     limiter.enter(ip)
     try:
-        handler = CallHandler(client_id=client_id, ip=ip, mode=mode)
+        profile = CallProfile()
+        handler = CallHandler(client_id=client_id, ip=ip, mode=mode, record=profile.record)
         await store.put(f"calls/{handler.call_id}", handler.initial_doc())
         if mode == "live":
-            profile = CallProfile()
             jlog("INFO", "persona_profile", callId=handler.call_id, mood=profile.mood_key)
             session = LiveSession(ws, handler, system_instruction=build_persona(profile), voice=config.PERSONA_VOICE,
                                   tools=PERSONA_TOOLS, max_seconds=config.MAX_CALL_SECONDS, opening_cue=OPENING_CUE,
                                   temperature=config.PERSONA_TEMPERATURE)
         else:
-            session = TextSession(ws, handler)
+            session = TextSession(ws, handler, profile)
         handler.emit = session.send
         await session.send({"type": "ready", "callId": handler.call_id, "playToken": handler.play_token,
                             "mode": mode, "maxSeconds": config.MAX_CALL_SECONDS})
+        # Shown to the tester so they can play a genuine bank: a real bank has these endings on screen.
+        await session.send({"type": "record", **profile.record.public()})
         jlog("INFO", "call_started", callId=handler.call_id, mode=mode)
         reason = await session.run()
         await handler.finish(reason)

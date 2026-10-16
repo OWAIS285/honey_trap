@@ -4,7 +4,7 @@ import { api } from "../api.js";
 import { BRAND } from "../brand.js";
 import { errorState, pageHeader, skeletons, strainCard } from "../components.js";
 import { createAudioPlayer } from "../player.js";
-import { DETAIL_META, SOURCE_LABELS, downloadBlob, fmtClock, fmtDate, fmtDuration, h, humanize, icon, observeReveal, scamLabel, toast } from "../util.js";
+import { DETAIL_META, SIGNAL_LABELS, SOURCE_LABELS, downloadBlob, fmtClock, fmtDate, fmtDuration, h, humanize, icon, observeReveal, scamLabel, toast, verdictTitle } from "../util.js";
 
 export const DISCLAIMER =
   "Details were stated by an unverified caller during an automated decoy call and may be mis-heard or belong to an innocent third party. This pack is a lead for investigators, not a finding that any account is fraudulent.";
@@ -45,12 +45,13 @@ export function ReviewView({ id }) {
       call.strainId ? h("a", { class: "btn primary", href: `#/drill/new/${call.strainId}` }, icon("users"), "Create family drill") : null,
     ];
 
+    const title = call.verdict ? verdictTitle(call.verdict, call.scamType) : scamLabel(call.scamType);
     const tile = (label, value, sub) => h("div", { class: "tile" }, h("span", {}, label), h("b", {}, value), sub ? h("small", {}, sub) : null);
     const tiles = h(
       "div",
       { class: "tiles" },
-      tile("Scam type", scamLabel(call.scamType), call.scamTypeConfidence ? `${Math.round(call.scamTypeConfidence * 100)}% confidence` : ""),
-      tile("Pretending to be", call.impersonatedEntity || "Unclear"),
+      tile(call.verdict ? "Verdict" : "Scam type", title, call.scamTypeConfidence ? `${Math.round(call.scamTypeConfidence * 100)}% confidence` : ""),
+      tile(call.verdict === "scam" || !call.verdict ? "Pretending to be" : "Says they are from", call.impersonatedEntity || "Unclear"),
       tile("Time wasted", call.durationSec != null ? fmtDuration(call.durationSec) : "—"),
       tile("Details", `${confirmed.length} confirmed`, `${unconfirmed.length} heard, not confirmed`),
       tile("Reply speed", call.latencyMsP50 ? `${Math.round(call.latencyMsP50)} ms` : "—", call.latencyMsP90 ? `p90 ${Math.round(call.latencyMsP90)} ms` : "p50"),
@@ -107,6 +108,25 @@ export function ReviewView({ id }) {
       unconfirmed.length ? h("div", {}, h("h4", { class: "lane-h" }, icon("eye"), `Heard, not confirmed (${unconfirmed.length})`), table(unconfirmed)) : null,
     );
 
+    const signalRow = (item, tone) =>
+      h(
+        "article",
+        { class: "ev-row" },
+        h("div", { class: "ev-head" }, h("span", { class: `badge ${tone === "danger" ? "bad" : "ok"}` }, SIGNAL_LABELS[item.signal] || humanize(item.signal)), item.severity === "hard" ? h("small", { class: "muted" }, "decisive on its own") : null),
+        h("small", { class: "muted" }, item.label),
+        item.quote ? h("div", { class: "ev-quote" }, `“${item.quote}”`) : null,
+      );
+    const reasons = call.verdict
+      ? h(
+          "section",
+          { class: "card evidence" },
+          h("div", { class: "card-h" }, icon("alert"), "Why this verdict"),
+          h("p", { class: "muted" }, "Decided by what the caller asked for, not the topic: one decisive red flag or two warning signs make a scam; a caller who accepts an official callback and asks for nothing risky is genuine."),
+          (call.redFlags || []).length ? h("div", { class: "ev-list" }, call.redFlags.map((f) => signalRow(f, "danger"))) : h("p", { class: "muted" }, "No red flag was heard."),
+          (call.legitSignals || []).length ? h("div", { class: "ev-list" }, call.legitSignals.map((s) => signalRow(s, "ok"))) : null,
+        )
+      : null;
+
     const printHead = h(
       "div",
       { class: "print-only" },
@@ -117,11 +137,12 @@ export function ReviewView({ id }) {
     const playerSlot = h("div", { class: "slot no-print" });
     el.replaceChildren(
       printHead,
-      pageHeader(scamLabel(call.scamType), `${fmtDate(call.startedAt)} · ${call.mode === "text" ? "text chat" : "voice call"}`, ...actions),
+      pageHeader(title, `${fmtDate(call.startedAt)} · ${call.mode === "text" ? "text chat" : "voice call"}`, ...actions),
       tiles,
       playerSlot,
       h("div", { class: "review-cols" }, transcript, evidence),
     );
+    if (reasons) el.append(h("div", { class: "section-gap" }, reasons));
     if (strain) el.append(h("div", { class: "section-gap" }, strainCard(strain, { onDrill: strain.strainId ? () => (location.hash = `#/drill/new/${strain.strainId}`) : null })));
     observeReveal(el);
 

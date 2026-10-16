@@ -7,7 +7,7 @@ import { createDashboard } from "../dashboard.js";
 import { scriptPanel } from "../scripts.js";
 import { CallSession } from "../session.js";
 import { setEnergy } from "../fx.js";
-import { fmtClock, fmtDuration, h, icon, toast } from "../util.js";
+import { fmtClock, fmtDuration, h, icon, toast, verdictTitle } from "../util.js";
 
 export function CallView({ mode }) {
   const voice = mode === "voice";
@@ -277,6 +277,7 @@ export function CallView({ mode }) {
           "div",
           { class: "metrics" },
           metric("time wasted", fmtDuration(ev.durationSec)),
+          ev.verdict ? metric("verdict", verdictTitle(ev.verdict, ev.scamType)) : null,
           metric("details caught", `${counts.details ?? 0} (${counts.confirmed ?? 0} confirmed)`),
           metric("recording", ev.recording ? "saved" : "none"),
           ev.estCostUsd != null ? metric("estimated AI cost", `$${Number(ev.estCostUsd).toFixed(3)}`) : null,

@@ -46,19 +46,87 @@ DEFAULT_RED_FLAGS = [
 ]
 
 
+# What separates a scam from a genuine bank, lender, courier or government call is what the caller ASKS FOR, not
+# what they talk about: real banks also mention loans, KYC, accounts and Aadhaar. Gemini only reports which of these
+# behaviours it can quote from the caller; decide_verdict() turns them into a verdict with a fixed, testable rule.
+HARD_FLAGS = {
+    "asks_secret_credential": "Asks for an OTP, PIN, UPI PIN, CVV, card expiry, password or net-banking login",
+    "remote_access_or_install": "Asks to install an app (AnyDesk, TeamViewer, QuickSupport, an APK) or share the screen",
+    "pay_to_receive": "Wants a fee, deposit, charge or tax paid first to receive a loan, refund, prize, job or release, "
+    "or asks to approve a UPI collect request or scan a QR code to receive money",
+    "payment_to_personal_account": "Wants money sent to a personal UPI ID, an individual's account, gift cards or crypto "
+    "instead of the organisation's own official channel",
+    "arrest_or_legal_threat": "Threatens arrest, police, court, a warrant, a case or 'digital arrest' over the phone",
+    "secrecy_or_isolation": "Tells the listener not to tell family or the bank, or to stay on the call or video",
+}
+SOFT_FLAGS = {
+    "urgency_deadline": "Pressure to act right now under threat of loss: account, card, SIM or power blocked today, a "
+    "penalty or case within hours. A marketing offer that simply ends on a date is not this flag",
+    "discourages_verification": "Refuses or talks the listener out of calling back on the official number, visiting "
+    "the branch or office, or checking with family",
+    "asks_full_identifier": "Asks the listener to read out a full account number, Aadhaar, PAN or card number",
+    "link_or_unofficial_channel": "Sends or asks to open a link, a WhatsApp or SMS form, or gives a personal mobile "
+    "number as an official line",
+    "too_good_to_be_true": "A lottery the listener never entered, guaranteed or very high returns, a loan with no "
+    "checks at all, or easy work that pays far too much. A bank's ordinary pre-approved offer is not this flag",
+    "emotional_emergency": "A family member in trouble (accident, hospital, arrest) who needs money urgently",
+    "identity_inconsistency": "The caller's name, organisation or story changes, or they cannot answer basic questions "
+    "about it (for example, says they are the listener's bank but cannot say the last digits of the account)",
+}
+LEGIT_SIGNALS = {
+    "offers_official_verification": "Invites or agrees to a callback on the official number (back of the card, "
+    "passbook, website), a branch or office visit, or the official app",
+    "partial_identifier_only": "Asks only for a partial detail (last 4 digits) or reads out what they already have "
+    "for the listener to confirm",
+    "official_channel_only": "Any payment or action goes only through the official app, branch, website or biller",
+    "accepts_refusal": "Accepts 'no' or 'I will check myself' calmly, without pressure",
+    "no_request": "Asks for no money, no details and no action (wrong number, family chat, a plain reminder or "
+    "delivery notice)",
+}
+# Set by the call engine itself, never by Gemini: the caller correctly said the last four digits of one of the
+# persona's own accounts, which a genuine bank has on screen and a cold-calling scammer usually does not.
+RECORD_SIGNALS = {
+    "knows_customer_record": "Correctly said the last four digits of the listener's own account, Aadhaar or card",
+}
+ALL_LEGIT = {**LEGIT_SIGNALS, **RECORD_SIGNALS}
+RED_FLAGS = {**HARD_FLAGS, **SOFT_FLAGS}
+VERDICTS = ["scam", "legitimate", "undetermined"]
+
+
 class VerifierDetail(BaseModel):
     type: str = Field(description="One of: " + ", ".join(DETAIL_TYPES))
     value: str = Field(description="The detail written normally: digits as digits, UPI ID as name@handle.")
     raw_utterance: str = Field(description="The caller's exact words that contain the detail.")
 
 
-class VerifierResult(BaseModel):
+class Evidence(BaseModel):
+    signal: str = Field(description="The id of the red flag or legitimacy signal.")
+    quote: str = Field(description="The CALLER's exact words that show it, copied verbatim.")
+
+
+class VerifierExtraction(BaseModel):
+    """What Gemini returns: observations with quotes. It never returns the verdict itself."""
+
     scam_type: str = Field(description="One of: " + ", ".join(TAXONOMY))
-    confidence: float = Field(description="0 to 1")
-    trigger_phrases: list[str] = Field(description="Up to 4 short phrases copied exactly from the CALLER's words.")
     impersonated_entity: str = Field(description="Organisation the caller claims to be, or an empty string.")
     stage: str = Field(description="One of: " + ", ".join(STAGES))
+    red_flags: list[Evidence]
+    legit_signals: list[Evidence]
     details: list[VerifierDetail]
+
+
+class VerifierResult(BaseModel):
+    """The verifier's output after the deterministic rule has been applied to one transcript window."""
+
+    scam_type: str = Field(description="The pattern the call resembles; a label, never the verdict.")
+    verdict: str = "undetermined"
+    confidence: float = 0.0
+    trigger_phrases: list[str] = []
+    impersonated_entity: str = ""
+    stage: str | None = None
+    red_flags: list[Evidence] = []
+    legit_signals: list[Evidence] = []
+    details: list[VerifierDetail] = []
 
 
 class StrainCard(BaseModel):
@@ -71,18 +139,28 @@ class StrainCard(BaseModel):
     language: str = Field(description="english, hindi or hinglish")
 
 
-VERIFIER_PROMPT = f"""You analyse a phone call between a CALLER (a suspected scammer) and a PERSONA (a decoy elderly man).
-Only the CALLER's words count as evidence.
+def _catalogue(items: dict[str, str]) -> str:
+    return "\n".join(f"  - {key}: {text}" for key, text in items.items())
+
+
+VERIFIER_PROMPT = f"""You analyse a phone call between a CALLER (unknown intent: may be a scammer, may be a genuine bank,
+lender, insurer, courier, government office, a wrong number or family) and a PERSONA (an elderly man who answered).
+Only the CALLER's words count as evidence. Do not judge by topic: genuine banks and lenders also call about loans,
+KYC, accounts, cards and Aadhaar. Report only behaviour the caller actually showed, never what they might do later.
 Return JSON with:
-- scam_type: one of {', '.join(TAXONOMY)}
-- confidence: 0 to 1
-- trigger_phrases: up to 4 short phrases copied EXACTLY from the CALLER's words that show the scam type
-- impersonated_entity: the organisation the caller claims to be, or an empty string
-- stage: the current stage, one of {', '.join(STAGES)}
+- scam_type: the pattern this call resembles, one of {', '.join(TAXONOMY)}. Use not_scam when the call matches
+  no scam pattern at all. This is a label for the topic, not a verdict.
+- impersonated_entity: the organisation the caller says they are from, or an empty string
+- stage: one of {', '.join(STAGES)} (use hook if nothing risky has happened yet)
+- red_flags: one entry per flag the CALLER clearly showed, each with signal (an id below) and quote (the caller's
+  exact words, copied verbatim). Leave the list empty if none. Allowed ids:
+{_catalogue(RED_FLAGS)}
+- legit_signals: one entry per signal the CALLER clearly showed, same format. Allowed ids:
+{_catalogue(LEGIT_SIGNALS)}
 - details: every detail the CALLER stated. type is one of {', '.join(DETAIL_TYPES)}. value is the detail written
   normally (digits as digits, UPI ID as name@handle, spoken numbers converted). raw_utterance is the caller's exact
   words containing it.
-Callers may speak English, Hindi (Devanagari or Roman letters) or a mix. If nothing is stated, return an empty list."""
+Callers may speak English, Hindi (Devanagari or Roman letters) or a mix. Quotes keep the caller's own language."""
 
 STRAIN_PROMPT = """You are a fraud analyst. From this scam-call transcript build a 'scam strain' card as JSON:
 - scam_type: one of {taxonomy}
@@ -228,6 +306,99 @@ def _thinking() -> types.ThinkingConfig | None:
         return None
 
 
+_QUOTE_TOKEN = re.compile(r"[\u0900-\u097F]+|[^\W_]+")
+
+
+def _tokens(text: str) -> list[str]:
+    return _QUOTE_TOKEN.findall(text.lower())
+
+
+def grounded(quote: str, caller_text: str) -> bool:
+    """A flag counts only if its quote is really in the caller's words (tolerates small transcription drift)."""
+    words = _tokens(quote)
+    if not words:
+        return False
+    if " ".join(words) in " ".join(_tokens(caller_text)):
+        return True
+    have = set(_tokens(caller_text))
+    hits = sum(1 for w in words if w in have)
+    return len(words) > 2 and hits / len(words) >= 0.7
+
+
+def decide_verdict(red_flags, legit_signals, caller_turns: int, persona_not_scam: bool = False) -> tuple[str, float]:
+    """The scam / legitimate / undetermined rule. Pure and deterministic so it can be unit-tested and explained.
+
+    scam: any hard flag, or two different soft flags.
+    legitimate: at least two caller turns, no hard flag, and either no soft flag with one legitimacy signal, or a
+      single soft flag outweighed by two legitimacy signals.
+    undetermined: everything else (including 'talks about loans or KYC but has asked for nothing risky yet').
+    """
+    red = set(red_flags)
+    legit = set(legit_signals) & set(ALL_LEGIT)
+    hard = red & set(HARD_FLAGS)
+    soft = red & set(SOFT_FLAGS)
+    if hard:
+        return "scam", round(min(0.99, 0.85 + 0.05 * (len(hard) - 1) + 0.02 * len(soft)), 2)
+    if len(soft) >= 2:
+        return "scam", round(min(0.9, 0.55 + 0.1 * len(soft)), 2)
+    if caller_turns >= 2 and ((not soft and legit) or (len(soft) == 1 and len(legit) >= 2)):
+        return "legitimate", round(min(0.9, 0.55 + 0.1 * len(legit) - 0.15 * len(soft)), 2)
+    if persona_not_scam and not soft:
+        return "legitimate", 0.5
+    return "undetermined", 0.0
+
+
+def verdict_label(verdict: str, topic: str | None) -> str | None:
+    """The scam-type label shown to users: the topic only once the behaviour says scam."""
+    if verdict == "scam":
+        return topic if topic in TAXONOMY and topic != "not_scam" else "other_scam"
+    if verdict == "legitimate":
+        return "not_scam"
+    return None
+
+
+class VerdictState:
+    """Evidence gathered over a whole call. Flags are never removed, so a call that starts genuine and later asks for
+    an OTP still becomes a scam, while a topic on its own can never make one."""
+
+    def __init__(self) -> None:
+        self.red: dict[str, str] = {}
+        self.legit: dict[str, str] = {}
+        self.topic: str | None = None
+        self.entity = ""
+        self.stage: str | None = None
+        self.persona_not_scam = False
+
+    def merge(self, result: VerifierResult) -> None:
+        for item in result.red_flags:
+            self.red.setdefault(item.signal, item.quote)
+        for item in result.legit_signals:
+            self.legit.setdefault(item.signal, item.quote)
+        if result.scam_type in TAXONOMY and (result.scam_type != "not_scam" or self.topic is None):
+            self.topic = result.scam_type
+        if result.impersonated_entity:
+            self.entity = result.impersonated_entity
+        if result.stage:
+            self.stage = result.stage
+
+    def summary(self, caller_turns: int) -> dict:
+        verdict, confidence = decide_verdict(self.red, self.legit, caller_turns, self.persona_not_scam)
+        return {
+            "verdict": verdict,
+            "scamType": verdict_label(verdict, self.topic),
+            "topic": self.topic,
+            "confidence": confidence,
+            "triggerPhrases": list(dict.fromkeys(self.red.values()))[:4],
+            "impersonatedEntity": self.entity,
+            "stage": self.stage if verdict == "scam" else None,
+            "redFlags": [
+                {"signal": k, "label": RED_FLAGS[k], "severity": "hard" if k in HARD_FLAGS else "soft", "quote": q}
+                for k, q in self.red.items()
+            ],
+            "legitSignals": [{"signal": k, "label": ALL_LEGIT[k], "quote": q} for k, q in self.legit.items()],
+        }
+
+
 def _transcript(turns: list[dict], limit: int) -> str:
     return "\n".join(
         f"{'CALLER' if t['speaker'] == 'caller' else 'PERSONA'}: {t['text']}" for t in turns[-limit:]
@@ -244,26 +415,44 @@ async def verify(client, turns: list[dict]) -> VerifierResult | None:
             contents=VERIFIER_PROMPT + "\n\nTRANSCRIPT:\n" + _transcript(turns, 10),
             cfg=types.GenerateContentConfig(
                 response_mime_type="application/json",
-                response_schema=VerifierResult,
+                response_schema=VerifierExtraction,
                 thinking_config=_thinking(),
             ),
             attempts=3,
         )
-        result = VerifierResult.model_validate_json(response.text)
+        raw = VerifierExtraction.model_validate_json(response.text)
     except Exception:  # noqa: BLE001 - the call must continue if the verifier fails
         log.exception("verifier failed")
         return None
-    if result.scam_type not in TAXONOMY:
-        result.scam_type = "other_scam"
-    if result.stage not in STAGES:
-        result.stage = "hook"
-    result.confidence = max(0.0, min(1.0, result.confidence))
-    caller_text = " ".join(t["text"] for t in turns if t["speaker"] == "caller").lower()
-    result.trigger_phrases = [
-        p.strip() for p in result.trigger_phrases if p.strip() and re.sub(r"\s+", " ", p.strip().lower()) in
-        re.sub(r"\s+", " ", caller_text)
-    ][:4]
-    return result
+    return finalize(raw, turns)
+
+
+def finalize(raw: VerifierExtraction, turns: list[dict]) -> VerifierResult:
+    """Keep only known, quoted signals and apply the decision rule to this window."""
+    caller_turns = [t for t in turns if t["speaker"] == "caller"]
+    caller_text = " ".join(t["text"] for t in caller_turns)
+
+    def keep(items: list[Evidence], allowed: dict[str, str]) -> list[Evidence]:
+        out: dict[str, Evidence] = {}
+        for item in items:
+            if item.signal in allowed and item.signal not in out and grounded(item.quote, caller_text):
+                out[item.signal] = Evidence(signal=item.signal, quote=item.quote.strip())
+        return list(out.values())
+
+    red = keep(raw.red_flags, RED_FLAGS)
+    legit = keep(raw.legit_signals, LEGIT_SIGNALS)
+    verdict, confidence = decide_verdict([e.signal for e in red], [e.signal for e in legit], len(caller_turns))
+    return VerifierResult(
+        scam_type=raw.scam_type if raw.scam_type in TAXONOMY else "other_scam",
+        verdict=verdict,
+        confidence=confidence,
+        trigger_phrases=list(dict.fromkeys(e.quote for e in red))[:4],
+        impersonated_entity=raw.impersonated_entity,
+        stage=raw.stage if raw.stage in STAGES else "hook",
+        red_flags=red,
+        legit_signals=legit,
+        details=raw.details,
+    )
 
 
 async def build_strain(client, turns: list[dict], scam_type: str) -> dict | None:
@@ -327,6 +516,10 @@ def build_evidence(call: dict, turns: list[dict], details: list[dict], strain: d
         "durationSec": call.get("durationSec"),
         "scamType": call.get("scamType"),
         "scamTypeConfidence": call.get("scamTypeConfidence"),
+        "verdict": call.get("verdict"),
+        "redFlags": call.get("redFlags", []),
+        "legitSignals": call.get("legitSignals", []),
+        "recordChecks": call.get("recordChecks", []),
         "impersonatedEntity": call.get("impersonatedEntity"),
         "triggerPhrases": call.get("triggerPhrases", []),
         "confirmedDetails": [row(d) for d in ordered if d["confirmed"]],

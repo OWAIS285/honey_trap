@@ -18,6 +18,7 @@ log = logging.getLogger("honeytrap.call")
 _STAGE_DIRECTION = re.compile(r"\*[^*]*(\*|$)")
 
 
+
 def strip_stage_directions(text: str) -> str:
     """Remove '*coughs*'-style narration (also a half-streamed one) and tidy the spaces."""
     return " ".join(_STAGE_DIRECTION.sub(" ", text).split())
@@ -31,8 +32,10 @@ def jlog(severity: str, message: str, **fields) -> None:
 class CallHandler:
     """Receives events from a LiveSession (voice) or TextSession (chat) and runs the analysis around them."""
 
-    def __init__(self, *, client_id: str, ip: str, mode: str = "live") -> None:
+    def __init__(self, *, client_id: str, ip: str, mode: str = "live", record=None) -> None:
         self.mode = mode
+        self.record = record
+        self.record_checks: dict[str, float] = {}
         self.call_id = secrets.token_hex(6)
         self.play_token = secrets.token_urlsafe(12)
         self.owner = owner_hash(client_id)
@@ -41,13 +44,8 @@ class CallHandler:
         self.started_at = analysis.now_iso()
         self.turns: list[dict] = []
         self.details: dict[str, dict] = {}
-        self.classification = {
-            "scamType": None,
-            "confidence": 0.0,
-            "triggerPhrases": [],
-            "impersonatedEntity": "",
-            "stage": None,
-        }
+        self.verdict = analysis.VerdictState()
+        self.classification = self.verdict.summary(0)
         self.pending_caller = ""
         self.pending_persona = ""
         self.latencies: list[float] = []
@@ -77,6 +75,7 @@ class CallHandler:
             "status": "live",
             "scamType": None,
             "scamTypeConfidence": 0.0,
+            "verdict": "undetermined",
             "currentStage": None,
         }
 
@@ -173,6 +172,9 @@ class CallHandler:
         if name == "end_call":
             self.end_requested = True
             self.end_reason = str(args.get("reason") or "persona_ended")
+            if self.end_reason == "not_scam":
+                # Only a tie-breaker: it can settle an undetermined call, never outvote a red flag.
+                self.verdict.persona_not_scam = True
             return {"result": "ok"}
         return {"result": "unknown_tool"}
 
@@ -194,7 +196,21 @@ class CallHandler:
             {"type": "transcript", "speaker": "caller", "text": text, "turn": turn["n"], "final": True,
              "tSec": turn["tSec"]}
         )
+        await self._check_record(text, turn["tSec"])
         self._schedule_verify()
+
+    async def _check_record(self, text: str, t_sec: float) -> None:
+        """The record test, decided in code: did the caller say the last four digits of one of Ramesh's accounts?"""
+        if not self.record:
+            return
+        new = [item for item in self.record.matches(text) if item not in self.record_checks]
+        if not new:
+            return
+        for item in new:
+            self.record_checks[item] = t_sec
+            jlog("INFO", "record_check_passed", callId=self.call_id, item=item)
+        self.verdict.legit.setdefault("knows_customer_record", text)
+        await self._publish_verdict()
 
     async def _flush_persona(self) -> None:
         text = strip_stage_directions(self.pending_persona)
@@ -262,26 +278,25 @@ class CallHandler:
         for item in result.details:
             await self._upsert(item.type, item.value, "verifier", quote=item.raw_utterance,
                                turn=self._find_turn(item.raw_utterance or item.value))
-        # A call that first looked harmless may turn into a scam once the caller actually speaks.
-        current = self.classification
-        stable = current["scamType"] == result.scam_type
-        turned_scam = current["scamType"] == "not_scam" and result.scam_type != "not_scam"
-        if current["scamType"] is None or stable or turned_scam or result.confidence > current["confidence"] + 0.02:
-            current.update(
-                scamType=result.scam_type,
-                confidence=round(result.confidence, 2),
-                triggerPhrases=result.trigger_phrases,
-                impersonatedEntity=result.impersonated_entity,
-            )
-        if result.stage:
-            current["stage"] = result.stage
+        self.verdict.merge(result)
+        await self._publish_verdict()
+
+    def _caller_turns(self) -> int:
+        return sum(1 for t in self.turns if t["speaker"] == "caller")
+
+    async def _publish_verdict(self) -> None:
+        current = self.verdict.summary(self._caller_turns())
+        if self.classification.get("stage") and current["verdict"] == "scam" and not current["stage"]:
+            current["stage"] = self.classification["stage"]
+        self.classification = current
         await self._emit({"type": "classification", **current})
         self._spawn(
             store.update(
                 f"calls/{self.call_id}",
                 {"scamType": current["scamType"], "scamTypeConfidence": current["confidence"],
-                 "impersonatedEntity": current["impersonatedEntity"], "triggerPhrases": current["triggerPhrases"],
-                 "currentStage": current["stage"]},
+                 "verdict": current["verdict"], "topic": current["topic"], "redFlags": current["redFlags"],
+                 "legitSignals": current["legitSignals"], "impersonatedEntity": current["impersonatedEntity"],
+                 "triggerPhrases": current["triggerPhrases"], "currentStage": current["stage"]},
             )
         )
 
@@ -295,8 +310,11 @@ class CallHandler:
         await self._flush_persona()
         duration = round(time.monotonic() - self.t0, 1)
 
-        # The strain card only needs the transcript, so build it while the verifier finishes.
-        strain_task = asyncio.create_task(analysis.build_strain(text_client(), list(self.turns), "other_scam"))
+        # The strain card only needs the transcript, so build it while the verifier finishes. A genuine call must never
+        # become a "scam strain" (or a family drill), so the card is kept only if the final verdict is scam.
+        strain_task = None
+        if self.classification["verdict"] == "scam":
+            strain_task = asyncio.create_task(analysis.build_strain(text_client(), list(self.turns), "other_scam"))
         if self._verify_task:
             try:
                 await asyncio.wait_for(self._verify_task, 25)
@@ -310,6 +328,14 @@ class CallHandler:
                     await self._apply_verifier(final)
             except Exception:  # noqa: BLE001
                 log.warning("final verification failed")
+        await self._publish_verdict()
+        is_scam = self.classification["verdict"] == "scam"
+        if is_scam and strain_task is None:
+            strain_task = asyncio.create_task(analysis.build_strain(text_client(), list(self.turns), "other_scam"))
+        elif not is_scam and strain_task is not None:
+            self._bg.add(strain_task)
+            strain_task.cancel()
+            strain_task = None
 
         recording = None
         if self.recorder and self.recorder.has_audio():
@@ -319,11 +345,12 @@ class CallHandler:
                 recording = {"path": path, "bytes": len(wav), "durationSec": round(self.recorder.duration_sec(), 1)}
 
         strain = None
-        try:
-            card = await asyncio.wait_for(strain_task, 50)
-        except Exception:  # noqa: BLE001
-            log.warning("strain card was not ready in time")
-            card = None
+        card = None
+        if strain_task is not None:
+            try:
+                card = await asyncio.wait_for(strain_task, 50)
+            except Exception:  # noqa: BLE001
+                log.warning("strain card was not ready in time")
         if card:
             card["scamType"] = self.classification["scamType"] or card["scamType"]
             strain = {**card, "strainId": f"s{secrets.token_hex(5)}", "sourceCallId": self.call_id,
@@ -344,6 +371,10 @@ class CallHandler:
             "endReason": reason,
             "scamType": self.classification["scamType"],
             "scamTypeConfidence": self.classification["confidence"],
+            "verdict": self.classification["verdict"],
+            "topic": self.classification["topic"],
+            "redFlags": self.classification["redFlags"],
+            "legitSignals": self.classification["legitSignals"],
             "impersonatedEntity": self.classification["impersonatedEntity"],
             "triggerPhrases": self.classification["triggerPhrases"],
             "currentStage": self.classification["stage"],
@@ -355,14 +386,17 @@ class CallHandler:
             "counts": {"turns": len(self.turns), "details": len(self.details), "confirmed": confirmed},
             "tokens": {"prompt": self.prompt_tokens, "response": self.response_tokens},
             "estCostUsd": est_cost,
+            "recordChecks": [{"item": k, "tSec": v} for k, v in self.record_checks.items()],
         }
         await store.update(f"calls/{self.call_id}", summary)
         await self._emit(
             {"type": "ended", "reason": reason, "durationSec": duration, "recording": bool(recording),
              "strainId": summary["strainId"], "strain": clean(strain), "scamType": summary["scamType"],
-             "counts": summary["counts"], "latency": {"p50": p50, "p90": p90}, "estCostUsd": est_cost}
+             "verdict": summary["verdict"], "counts": summary["counts"], "latency": {"p50": p50, "p90": p90},
+             "estCostUsd": est_cost}
         )
         jlog("INFO", "call_ended", callId=self.call_id, mode=self.mode, durationSec=duration, turns=len(self.turns),
-             details=len(self.details), confirmed=confirmed, scamType=summary["scamType"], latencyP50=p50,
-             latencyP90=p90, estCostUsd=est_cost, reason=reason)
+             details=len(self.details), confirmed=confirmed, scamType=summary["scamType"], verdict=summary["verdict"],
+             redFlags=[f["signal"] for f in summary["redFlags"]], recordChecks=list(self.record_checks),
+             latencyP50=p50, latencyP90=p90, estCostUsd=est_cost, reason=reason)
         return summary

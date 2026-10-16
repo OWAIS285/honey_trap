@@ -1,0 +1,2074 @@
+{
+ "summary": {
+  "dataset": "hard_negatives.json: 40 hand-written fictional calls (pairs, late-turn scams, benign)",
+  "legit_calls": 20,
+  "scam_calls": 20,
+  "methods": {
+   "keyword": {
+    "runs": 1,
+    "mean": {
+     "false_positive_rate": 0.15,
+     "legit_cleared_rate": 0.85,
+     "legit_undetermined_rate": 0.0,
+     "scam_recall": 0.55,
+     "pair_accuracy": 0.438,
+     "stream_false_alarm_rate": 0.15,
+     "stream_scam_recall": 0.55
+    },
+    "range": {
+     "false_positive_rate": [
+      0.15,
+      0.15
+     ],
+     "legit_cleared_rate": [
+      0.85,
+      0.85
+     ],
+     "legit_undetermined_rate": [
+      0.0,
+      0.0
+     ],
+     "scam_recall": [
+      0.55,
+      0.55
+     ],
+     "pair_accuracy": [
+      0.438,
+      0.438
+     ],
+     "stream_false_alarm_rate": [
+      0.15,
+      0.15
+     ],
+     "stream_scam_recall": [
+      0.55,
+      0.55
+     ]
+    }
+   },
+   "legacy": {
+    "runs": 1,
+    "mean": {
+     "false_positive_rate": 0.0,
+     "legit_cleared_rate": 1.0,
+     "legit_undetermined_rate": 0.0,
+     "scam_recall": 1.0,
+     "pair_accuracy": 1.0,
+     "stream_false_alarm_rate": 0.55,
+     "stream_scam_recall": 1.0
+    },
+    "range": {
+     "false_positive_rate": [
+      0.0,
+      0.0
+     ],
+     "legit_cleared_rate": [
+      1.0,
+      1.0
+     ],
+     "legit_undetermined_rate": [
+      0.0,
+      0.0
+     ],
+     "scam_recall": [
+      1.0,
+      1.0
+     ],
+     "pair_accuracy": [
+      1.0,
+      1.0
+     ],
+     "stream_false_alarm_rate": [
+      0.55,
+      0.55
+     ],
+     "stream_scam_recall": [
+      1.0,
+      1.0
+     ]
+    }
+   },
+   "current": {
+    "runs": 1,
+    "mean": {
+     "false_positive_rate": 0.0,
+     "legit_cleared_rate": 1.0,
+     "legit_undetermined_rate": 0.0,
+     "scam_recall": 1.0,
+     "pair_accuracy": 1.0,
+     "stream_false_alarm_rate": 0.0,
+     "stream_scam_recall": 1.0
+    },
+    "range": {
+     "false_positive_rate": [
+      0.0,
+      0.0
+     ],
+     "legit_cleared_rate": [
+      1.0,
+      1.0
+     ],
+     "legit_undetermined_rate": [
+      0.0,
+      0.0
+     ],
+     "scam_recall": [
+      1.0,
+      1.0
+     ],
+     "pair_accuracy": [
+      1.0,
+      1.0
+     ],
+     "stream_false_alarm_rate": [
+      0.0,
+      0.0
+     ],
+     "stream_scam_recall": [
+      1.0,
+      1.0
+     ]
+    }
+   }
+  },
+  "classifier_latency_seconds": {
+   "p50": 9.359000000000378,
+   "p90": 29.39099999999962,
+   "calls": 307
+  },
+  "caveats": [
+   "Hand-written by the team, so the calls are cleaner than real speech-to-text and the scams are clear-cut.",
+   "Small set: one wrong call moves a rate by several points.",
+   "Streaming re-checks after each caller turn on the full prefix; the live product also adds the persona's own end_call(not_scam) as a tie-breaker, which is not exercised here."
+  ]
+ },
+ "detail": {
+  "keyword": {
+   "runs": 1,
+   "mean": {
+    "false_positive_rate": 0.15,
+    "legit_cleared_rate": 0.85,
+    "legit_undetermined_rate": 0.0,
+    "scam_recall": 0.55,
+    "pair_accuracy": 0.438,
+    "stream_false_alarm_rate": 0.15,
+    "stream_scam_recall": 0.55
+   },
+   "range": {
+    "false_positive_rate": [
+     0.15,
+     0.15
+    ],
+    "legit_cleared_rate": [
+     0.85,
+     0.85
+    ],
+    "legit_undetermined_rate": [
+     0.0,
+     0.0
+    ],
+    "scam_recall": [
+     0.55,
+     0.55
+    ],
+    "pair_accuracy": [
+     0.438,
+     0.438
+    ],
+    "stream_false_alarm_rate": [
+     0.15,
+     0.15
+    ],
+    "stream_scam_recall": [
+     0.55,
+     0.55
+    ]
+   },
+   "per_run": [
+    {
+     "metrics": {
+      "legit_calls": 20,
+      "scam_calls": 20,
+      "failed_requests": 0,
+      "false_positive_rate": 0.15,
+      "legit_cleared_rate": 0.85,
+      "legit_undetermined_rate": 0.0,
+      "scam_recall": 0.55,
+      "pair_accuracy": 0.438,
+      "pairs": 16,
+      "false_positives": [
+       "fraud-alert-en-legit",
+       "kyc-hinglish-legit",
+       "loan-en-legit"
+      ],
+      "missed_scams": [
+       "acct-en-scam",
+       "card-en-scam",
+       "fraud-alert-en-scam",
+       "invest-en-scam",
+       "late-courier-hi",
+       "late-insure-en",
+       "lpg-hi-scam",
+       "pension-hi-scam",
+       "sim-hi-scam"
+      ],
+      "correct_by_language": {
+       "en": "15/22",
+       "hi": "4/8",
+       "hinglish": "9/10"
+      },
+      "stream_false_alarm_rate": 0.15,
+      "stream_false_alarms": [
+       "fraud-alert-en-legit",
+       "kyc-hinglish-legit",
+       "loan-en-legit"
+      ],
+      "stream_scam_recall": 0.55,
+      "late_turn_flagged_before_scam_began": [],
+      "late_turn_extra_turns_to_flag": [
+       0,
+       0
+      ]
+     },
+     "static": {
+      "loan-en-legit": {
+       "verdict": "scam"
+      },
+      "loan-en-scam": {
+       "verdict": "scam"
+      },
+      "kyc-hinglish-legit": {
+       "verdict": "scam"
+      },
+      "kyc-hinglish-scam": {
+       "verdict": "scam"
+      },
+      "card-en-legit": {
+       "verdict": "legitimate"
+      },
+      "card-en-scam": {
+       "verdict": "legitimate"
+      },
+      "acct-en-legit": {
+       "verdict": "legitimate"
+      },
+      "acct-en-scam": {
+       "verdict": "legitimate"
+      },
+      "sim-hi-legit": {
+       "verdict": "legitimate"
+      },
+      "sim-hi-scam": {
+       "verdict": "legitimate"
+      },
+      "power-hinglish-legit": {
+       "verdict": "legitimate"
+      },
+      "power-hinglish-scam": {
+       "verdict": "scam"
+      },
+      "courier-en-legit": {
+       "verdict": "legitimate"
+      },
+      "courier-en-scam": {
+       "verdict": "scam"
+      },
+      "insure-en-legit": {
+       "verdict": "legitimate"
+      },
+      "insure-en-scam": {
+       "verdict": "scam"
+      },
+      "pension-hi-legit": {
+       "verdict": "legitimate"
+      },
+      "pension-hi-scam": {
+       "verdict": "legitimate"
+      },
+      "tax-en-legit": {
+       "verdict": "legitimate"
+      },
+      "tax-en-scam": {
+       "verdict": "scam"
+      },
+      "job-hinglish-legit": {
+       "verdict": "legitimate"
+      },
+      "job-hinglish-scam": {
+       "verdict": "scam"
+      },
+      "hospital-en-legit": {
+       "verdict": "legitimate"
+      },
+      "hospital-en-scam": {
+       "verdict": "scam"
+      },
+      "fraud-alert-en-legit": {
+       "verdict": "scam"
+      },
+      "fraud-alert-en-scam": {
+       "verdict": "legitimate"
+      },
+      "emi-hinglish-legit": {
+       "verdict": "legitimate"
+      },
+      "emi-hinglish-scam": {
+       "verdict": "scam"
+      },
+      "lpg-hi-legit": {
+       "verdict": "legitimate"
+      },
+      "lpg-hi-scam": {
+       "verdict": "legitimate"
+      },
+      "invest-en-legit": {
+       "verdict": "legitimate"
+      },
+      "invest-en-scam": {
+       "verdict": "legitimate"
+      },
+      "late-kyc-en": {
+       "verdict": "scam"
+      },
+      "late-loan-hinglish": {
+       "verdict": "scam"
+      },
+      "late-courier-hi": {
+       "verdict": "legitimate"
+      },
+      "late-insure-en": {
+       "verdict": "legitimate"
+      },
+      "benign-wrong-number-en": {
+       "verdict": "legitimate"
+      },
+      "benign-family-hinglish": {
+       "verdict": "legitimate"
+      },
+      "benign-doctor-en": {
+       "verdict": "legitimate"
+      },
+      "benign-society-hi": {
+       "verdict": "legitimate"
+      }
+     },
+     "stream": {
+      "loan-en-legit": [
+       "legitimate",
+       "legitimate",
+       "scam",
+       "scam"
+      ],
+      "loan-en-scam": [
+       "legitimate",
+       "legitimate",
+       "legitimate",
+       "scam"
+      ],
+      "kyc-hinglish-legit": [
+       "legitimate",
+       "legitimate",
+       "scam"
+      ],
+      "kyc-hinglish-scam": [
+       "legitimate",
+       "scam",
+       "scam"
+      ],
+      "card-en-legit": [
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "card-en-scam": [
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "acct-en-legit": [
+       "legitimate",
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "acct-en-scam": [
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "sim-hi-legit": [
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "sim-hi-scam": [
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "power-hinglish-legit": [
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "power-hinglish-scam": [
+       "legitimate",
+       "scam",
+       "scam"
+      ],
+      "courier-en-legit": [
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "courier-en-scam": [
+       "legitimate",
+       "legitimate",
+       "scam"
+      ],
+      "insure-en-legit": [
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "insure-en-scam": [
+       "legitimate",
+       "legitimate",
+       "scam"
+      ],
+      "pension-hi-legit": [
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "pension-hi-scam": [
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "tax-en-legit": [
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "tax-en-scam": [
+       "legitimate",
+       "scam",
+       "scam"
+      ],
+      "job-hinglish-legit": [
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "job-hinglish-scam": [
+       "legitimate",
+       "scam",
+       "scam"
+      ],
+      "hospital-en-legit": [
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "hospital-en-scam": [
+       "legitimate",
+       "legitimate",
+       "scam"
+      ],
+      "fraud-alert-en-legit": [
+       "legitimate",
+       "scam",
+       "scam"
+      ],
+      "fraud-alert-en-scam": [
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "emi-hinglish-legit": [
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "emi-hinglish-scam": [
+       "legitimate",
+       "scam",
+       "scam"
+      ],
+      "lpg-hi-legit": [
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "lpg-hi-scam": [
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "invest-en-legit": [
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "invest-en-scam": [
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "late-kyc-en": [
+       "legitimate",
+       "legitimate",
+       "scam"
+      ],
+      "late-loan-hinglish": [
+       "legitimate",
+       "legitimate",
+       "scam"
+      ],
+      "late-courier-hi": [
+       "legitimate",
+       "legitimate"
+      ],
+      "late-insure-en": [
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "benign-wrong-number-en": [
+       "legitimate",
+       "legitimate"
+      ],
+      "benign-family-hinglish": [
+       "legitimate",
+       "legitimate"
+      ],
+      "benign-doctor-en": [
+       "legitimate",
+       "legitimate"
+      ],
+      "benign-society-hi": [
+       "legitimate",
+       "legitimate"
+      ]
+     }
+    }
+   ]
+  },
+  "legacy": {
+   "runs": 1,
+   "mean": {
+    "false_positive_rate": 0.0,
+    "legit_cleared_rate": 1.0,
+    "legit_undetermined_rate": 0.0,
+    "scam_recall": 1.0,
+    "pair_accuracy": 1.0,
+    "stream_false_alarm_rate": 0.55,
+    "stream_scam_recall": 1.0
+   },
+   "range": {
+    "false_positive_rate": [
+     0.0,
+     0.0
+    ],
+    "legit_cleared_rate": [
+     1.0,
+     1.0
+    ],
+    "legit_undetermined_rate": [
+     0.0,
+     0.0
+    ],
+    "scam_recall": [
+     1.0,
+     1.0
+    ],
+    "pair_accuracy": [
+     1.0,
+     1.0
+    ],
+    "stream_false_alarm_rate": [
+     0.55,
+     0.55
+    ],
+    "stream_scam_recall": [
+     1.0,
+     1.0
+    ]
+   },
+   "per_run": [
+    {
+     "metrics": {
+      "legit_calls": 20,
+      "scam_calls": 20,
+      "failed_requests": 1,
+      "false_positive_rate": 0.0,
+      "legit_cleared_rate": 1.0,
+      "legit_undetermined_rate": 0.0,
+      "scam_recall": 1.0,
+      "pair_accuracy": 1.0,
+      "pairs": 15,
+      "false_positives": [],
+      "missed_scams": [],
+      "correct_by_language": {
+       "en": "22/22",
+       "hi": "8/8",
+       "hinglish": "9/9"
+      },
+      "stream_false_alarm_rate": 0.55,
+      "stream_false_alarms": [
+       "acct-en-legit",
+       "card-en-legit",
+       "emi-hinglish-legit",
+       "hospital-en-legit",
+       "job-hinglish-legit",
+       "kyc-hinglish-legit",
+       "loan-en-legit",
+       "pension-hi-legit",
+       "power-hinglish-legit",
+       "sim-hi-legit",
+       "tax-en-legit"
+      ],
+      "stream_scam_recall": 1.0,
+      "late_turn_flagged_before_scam_began": [
+       "late-kyc-en",
+       "late-loan-hinglish",
+       "late-courier-hi",
+       "late-insure-en"
+      ],
+      "late_turn_extra_turns_to_flag": []
+     },
+     "static": {
+      "loan-en-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.95
+      },
+      "loan-en-scam": {
+       "verdict": "scam",
+       "type": "loan_app",
+       "confidence": 0.95
+      },
+      "kyc-hinglish-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.95
+      },
+      "kyc-hinglish-scam": {
+       "verdict": "scam",
+       "type": "bank_kyc_block",
+       "confidence": 0.98
+      },
+      "card-en-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.95
+      },
+      "card-en-scam": {
+       "verdict": "scam",
+       "type": "fake_customer_care",
+       "confidence": 0.95
+      },
+      "acct-en-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.95
+      },
+      "acct-en-scam": {
+       "verdict": "scam",
+       "type": "loan_app",
+       "confidence": 0.95
+      },
+      "sim-hi-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.95
+      },
+      "sim-hi-scam": {
+       "verdict": "scam",
+       "type": "digital_arrest",
+       "confidence": 0.95
+      },
+      "power-hinglish-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.95
+      },
+      "power-hinglish-scam": {
+       "verdict": "scam",
+       "type": "electricity_bill",
+       "confidence": 0.98
+      },
+      "courier-en-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.95
+      },
+      "courier-en-scam": {
+       "verdict": "scam",
+       "type": "courier_parcel",
+       "confidence": 0.98
+      },
+      "insure-en-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.95
+      },
+      "insure-en-scam": {
+       "verdict": "scam",
+       "type": "lottery_prize",
+       "confidence": 0.95
+      },
+      "pension-hi-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.95
+      },
+      "pension-hi-scam": {
+       "verdict": "scam",
+       "type": "other_scam",
+       "confidence": 0.95
+      },
+      "tax-en-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.95
+      },
+      "tax-en-scam": {
+       "verdict": "scam",
+       "type": "other_scam",
+       "confidence": 0.95
+      },
+      "job-hinglish-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.95
+      },
+      "job-hinglish-scam": {
+       "verdict": "scam",
+       "type": "task_job",
+       "confidence": 0.98
+      },
+      "hospital-en-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.95
+      },
+      "hospital-en-scam": {
+       "verdict": "scam",
+       "type": "family_emergency",
+       "confidence": 0.98
+      },
+      "fraud-alert-en-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.95
+      },
+      "fraud-alert-en-scam": {
+       "verdict": "scam",
+       "type": "fake_customer_care",
+       "confidence": 0.95
+      },
+      "emi-hinglish-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.95
+      },
+      "emi-hinglish-scam": null,
+      "lpg-hi-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.95
+      },
+      "lpg-hi-scam": {
+       "verdict": "scam",
+       "type": "other_scam",
+       "confidence": 0.95
+      },
+      "invest-en-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.95
+      },
+      "invest-en-scam": {
+       "verdict": "scam",
+       "type": "investment_trading",
+       "confidence": 0.98
+      },
+      "late-kyc-en": {
+       "verdict": "scam",
+       "type": "bank_kyc_block",
+       "confidence": 0.98
+      },
+      "late-loan-hinglish": {
+       "verdict": "scam",
+       "type": "loan_app",
+       "confidence": 0.95
+      },
+      "late-courier-hi": {
+       "verdict": "scam",
+       "type": "courier_parcel",
+       "confidence": 0.95
+      },
+      "late-insure-en": {
+       "verdict": "scam",
+       "type": "lottery_prize",
+       "confidence": 0.95
+      },
+      "benign-wrong-number-en": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.99
+      },
+      "benign-family-hinglish": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.99
+      },
+      "benign-doctor-en": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.99
+      },
+      "benign-society-hi": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.95
+      }
+     },
+     "stream": {
+      "loan-en-legit": [
+       "scam",
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "loan-en-scam": [
+       "scam",
+       "scam",
+       "scam",
+       "scam"
+      ],
+      "kyc-hinglish-legit": [
+       "scam",
+       "legitimate",
+       "legitimate"
+      ],
+      "kyc-hinglish-scam": [
+       "scam",
+       "scam",
+       "scam"
+      ],
+      "card-en-legit": [
+       "scam",
+       "legitimate",
+       "legitimate"
+      ],
+      "card-en-scam": [
+       "scam",
+       "scam",
+       "scam"
+      ],
+      "acct-en-legit": [
+       "scam",
+       "scam",
+       "legitimate",
+       "legitimate"
+      ],
+      "acct-en-scam": [
+       "scam",
+       "scam",
+       "scam"
+      ],
+      "sim-hi-legit": [
+       "scam",
+       "legitimate",
+       "legitimate"
+      ],
+      "sim-hi-scam": [
+       "scam",
+       null,
+       "scam"
+      ],
+      "power-hinglish-legit": [
+       "scam",
+       "legitimate",
+       "legitimate"
+      ],
+      "power-hinglish-scam": [
+       "scam",
+       "scam",
+       "scam"
+      ],
+      "courier-en-legit": [
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "courier-en-scam": [
+       "scam",
+       "scam",
+       "scam"
+      ],
+      "insure-en-legit": [
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "insure-en-scam": [
+       "scam",
+       "scam",
+       "scam"
+      ],
+      "pension-hi-legit": [
+       "scam",
+       "legitimate",
+       "legitimate"
+      ],
+      "pension-hi-scam": [
+       "scam",
+       "scam",
+       "scam"
+      ],
+      "tax-en-legit": [
+       "scam",
+       "legitimate",
+       "legitimate"
+      ],
+      "tax-en-scam": [
+       "scam",
+       "scam",
+       "scam"
+      ],
+      "job-hinglish-legit": [
+       "scam",
+       "legitimate",
+       "legitimate"
+      ],
+      "job-hinglish-scam": [
+       "scam",
+       "scam",
+       "scam"
+      ],
+      "hospital-en-legit": [
+       "scam",
+       "legitimate",
+       "legitimate"
+      ],
+      "hospital-en-scam": [
+       "scam",
+       "scam",
+       "scam"
+      ],
+      "fraud-alert-en-legit": [
+       null,
+       "legitimate",
+       "legitimate"
+      ],
+      "fraud-alert-en-scam": [
+       "scam",
+       "scam",
+       "scam"
+      ],
+      "emi-hinglish-legit": [
+       "scam",
+       "legitimate",
+       "legitimate"
+      ],
+      "emi-hinglish-scam": [
+       "scam",
+       "scam",
+       null
+      ],
+      "lpg-hi-legit": [
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "lpg-hi-scam": [
+       "scam",
+       "scam",
+       "scam"
+      ],
+      "invest-en-legit": [
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "invest-en-scam": [
+       "scam",
+       "scam",
+       "scam"
+      ],
+      "late-kyc-en": [
+       "scam",
+       "scam",
+       "scam"
+      ],
+      "late-loan-hinglish": [
+       "scam",
+       "legitimate",
+       "scam"
+      ],
+      "late-courier-hi": [
+       "scam",
+       "scam"
+      ],
+      "late-insure-en": [
+       "scam",
+       "legitimate",
+       "scam"
+      ],
+      "benign-wrong-number-en": [
+       "legitimate",
+       "legitimate"
+      ],
+      "benign-family-hinglish": [
+       "legitimate",
+       "legitimate"
+      ],
+      "benign-doctor-en": [
+       "legitimate",
+       "legitimate"
+      ],
+      "benign-society-hi": [
+       "legitimate",
+       "legitimate"
+      ]
+     }
+    }
+   ]
+  },
+  "current": {
+   "runs": 1,
+   "mean": {
+    "false_positive_rate": 0.0,
+    "legit_cleared_rate": 1.0,
+    "legit_undetermined_rate": 0.0,
+    "scam_recall": 1.0,
+    "pair_accuracy": 1.0,
+    "stream_false_alarm_rate": 0.0,
+    "stream_scam_recall": 1.0
+   },
+   "range": {
+    "false_positive_rate": [
+     0.0,
+     0.0
+    ],
+    "legit_cleared_rate": [
+     1.0,
+     1.0
+    ],
+    "legit_undetermined_rate": [
+     0.0,
+     0.0
+    ],
+    "scam_recall": [
+     1.0,
+     1.0
+    ],
+    "pair_accuracy": [
+     1.0,
+     1.0
+    ],
+    "stream_false_alarm_rate": [
+     0.0,
+     0.0
+    ],
+    "stream_scam_recall": [
+     1.0,
+     1.0
+    ]
+   },
+   "per_run": [
+    {
+     "metrics": {
+      "legit_calls": 20,
+      "scam_calls": 20,
+      "failed_requests": 3,
+      "false_positive_rate": 0.0,
+      "legit_cleared_rate": 1.0,
+      "legit_undetermined_rate": 0.0,
+      "scam_recall": 1.0,
+      "pair_accuracy": 1.0,
+      "pairs": 13,
+      "false_positives": [],
+      "missed_scams": [],
+      "correct_by_language": {
+       "en": "21/21",
+       "hi": "7/7",
+       "hinglish": "9/9"
+      },
+      "stream_false_alarm_rate": 0.0,
+      "stream_false_alarms": [],
+      "stream_scam_recall": 1.0,
+      "late_turn_flagged_before_scam_began": [],
+      "late_turn_extra_turns_to_flag": [
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     "static": {
+      "loan-en-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.85,
+       "redFlags": [],
+       "legitSignals": [
+        [
+         "offers_official_verification",
+         "Yes sir, absolutely, please call the number in your passbook or visit your home branch, they will show you the same offer."
+        ],
+        [
+         "accepts_refusal",
+         "That is perfectly fine sir. The offer is valid till the end of the month."
+        ],
+        [
+         "no_request",
+         "There is no obligation at all, I am only informing you."
+        ]
+       ]
+      },
+      "loan-en-scam": {
+       "verdict": "scam",
+       "type": "loan_app",
+       "confidence": 0.94,
+       "redFlags": [
+        [
+         "pay_to_receive",
+         "Only a small processing fee of two thousand nine hundred ninety nine rupees has to be paid first."
+        ],
+        [
+         "discourages_verification",
+         "No sir, no need, the branch will not know about this special offer, it is only from our head office."
+        ],
+        [
+         "urgency_deadline",
+         "If you delay the offer will lapse in one hour."
+        ],
+        [
+         "payment_to_personal_account",
+         "Send it by UPI to loandesk.kmb at okaxis, then the three lakh will be released immediately."
+        ]
+       ],
+       "legitSignals": []
+      },
+      "kyc-hinglish-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.85,
+       "redFlags": [],
+       "legitSignals": [
+        [
+         "offers_official_verification",
+         "aap jab free ho branch aa jaiye Aadhaar aur PAN ki copy le kar, ya bob World app mein khud update kar sakte hain."
+        ],
+        [
+         "official_channel_only",
+         "Phone par main aapse koi detail nahi maangungi."
+        ],
+        [
+         "accepts_refusal",
+         "Bilkul uncle ji, zaroor kijiye, number aapki passbook ke peeche likha hai. Agle mahine tak kabhi bhi aa sakte hain, koi jaldi nahi hai."
+        ]
+       ]
+      },
+      "kyc-hinglish-scam": {
+       "verdict": "scam",
+       "type": "bank_kyc_block",
+       "confidence": 0.91,
+       "redFlags": [
+        [
+         "urgency_deadline",
+         "Aaj raat tak update nahi hua toh aapka account band ho jayega aur pension bhi ruk jayegi."
+        ],
+        [
+         "link_or_unofficial_channel",
+         "Main aapko SMS mein ek link bhej raha hoon, usme apni details bhariye."
+        ],
+        [
+         "discourages_verification",
+         "Uncle branch walon ko is system ka pata nahi hota, time waste mat kijiye."
+        ],
+        [
+         "asks_secret_credential",
+         "Link khol ke bhariye, phir aapke phone pe ek OTP aayega, wo mujhe bata dena."
+        ]
+       ],
+       "legitSignals": []
+      },
+      "card-en-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.9,
+       "redFlags": [],
+       "legitSignals": [
+        [
+         "official_channel_only",
+         "If you are interested you can accept it in the SBI Card app under offers"
+        ],
+        [
+         "offers_official_verification",
+         "or call the customer care number on the back of your card."
+        ],
+        [
+         "partial_identifier_only",
+         "may I confirm the last four digits of your card end in 4417?"
+        ],
+        [
+         "accepts_refusal",
+         "That is completely fine sir, you are right to be careful. The offer will stay in your app, you can look at it whenever you like."
+        ]
+       ]
+      },
+      "card-en-scam": {
+       "verdict": "scam",
+       "type": "fake_customer_care",
+       "confidence": 0.89,
+       "redFlags": [
+        [
+         "asks_full_identifier",
+         "Please read out the sixteen digit number on the front of your card and the expiry date."
+        ],
+        [
+         "asks_secret_credential",
+         "Please read out the sixteen digit number on the front of your card and the expiry date."
+        ],
+        [
+         "urgency_deadline",
+         "otherwise the upgrade will be cancelled today."
+        ]
+       ],
+       "legitSignals": []
+      },
+      "acct-en-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.6,
+       "redFlags": [
+        [
+         "asks_full_identifier",
+         "Could you confirm your full account number for me?"
+        ]
+       ],
+       "legitSignals": [
+        [
+         "offers_official_verification",
+         "Please bring your passbook to the Hazratganj branch any day this week, or you can also call the branch on the number on your loan papers."
+        ],
+        [
+         "accepts_refusal",
+         "Of course sir, no problem at all."
+        ]
+       ]
+      },
+      "acct-en-scam": {
+       "verdict": "scam",
+       "type": "loan_app",
+       "confidence": 0.91,
+       "redFlags": [
+        [
+         "asks_full_identifier",
+         "For disbursal I need your full account number and your Aadhaar number right now."
+        ],
+        [
+         "discourages_verification",
+         "Sir branch will take fifteen days, this is direct from head office."
+        ],
+        [
+         "urgency_deadline",
+         "If you do not confirm in the next ten minutes the sanction will be cancelled permanently."
+        ],
+        [
+         "secrecy_or_isolation",
+         "Do not waste time calling anyone."
+        ]
+       ],
+       "legitSignals": []
+      },
+      "sim-hi-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.85,
+       "redFlags": [],
+       "legitSignals": [
+        [
+         "offers_official_verification",
+         "जी ज़रूर पूछ लीजिए, एक सौ इक्कीस पर फ़ोन कीजिए, वो भी यही बताएँगे।"
+        ],
+        [
+         "official_channel_only",
+         "आप जब सुविधा हो, अपना आधार कार्ड लेकर हमारे स्टोर पर आ जाइए। अंगूठा लगाकर दो मिनट में हो जाएगा। फ़ोन पर कुछ नहीं बताना है।"
+        ],
+        [
+         "accepts_refusal",
+         "जी ज़रूर पूछ लीजिए, एक सौ इक्कीस पर फ़ोन कीजिए, वो भी यही बताएँगे। कोई जल्दी नहीं है।"
+        ]
+       ]
+      },
+      "sim-hi-scam": {
+       "verdict": "scam",
+       "type": "telecom_trai_sim_block",
+       "confidence": 0.94,
+       "redFlags": [
+        [
+         "urgency_deadline",
+         "आपका नंबर दो घंटे में बंद हो जाएगा"
+        ],
+        [
+         "arrest_or_legal_threat",
+         "मुंबई पुलिस आपके खिलाफ़ केस दर्ज कर रही है।"
+        ],
+        [
+         "discourages_verification",
+         "किसी को फ़ोन मत कीजिए, यह गोपनीय जाँच है।"
+        ],
+        [
+         "secrecy_or_isolation",
+         "अपने परिवार को भी मत बताइए, नहीं तो आपको गिरफ़्तार किया जाएगा।"
+        ]
+       ],
+       "legitSignals": []
+      },
+      "power-hinglish-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.85,
+       "redFlags": [],
+       "legitSignals": [
+        [
+         "official_channel_only",
+         "Aap UPPCL ki official website ya app se bhar sakte hain, ya office ke counter pe aa kar."
+        ],
+        [
+         "offers_official_verification",
+         "Haan ji bilkul, number aapke bill pe neeche likha hai."
+        ],
+        [
+         "no_request",
+         "Bees tareekh ke baad niyam ke hisaab se late fee lagegi, bas yahi batana tha."
+        ]
+       ]
+      },
+      "power-hinglish-scam": {
+       "verdict": "scam",
+       "type": "electricity_bill",
+       "confidence": 0.94,
+       "redFlags": [
+        [
+         "urgency_deadline",
+         "Aaj raat saadhe nau baje aapki bijli kaat di jayegi."
+        ],
+        [
+         "remote_access_or_install",
+         "Abhi turant hamara support app download kijiye, main naam bata raha hoon, QuickSupport."
+        ],
+        [
+         "discourages_verification",
+         "Office band ho chuka hai, sirf main hi madad kar sakta hoon."
+        ],
+        [
+         "asks_secret_credential",
+         "App kholiye aur jo code dikhe wo mujhe bataiye."
+        ]
+       ],
+       "legitSignals": []
+      },
+      "courier-en-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.75,
+       "redFlags": [],
+       "legitSignals": [
+        [
+         "accepts_refusal",
+         "Sure sir, no problem, ask him. If you do not want it you can simply refuse it at the door and it goes back."
+        ],
+        [
+         "no_request",
+         "It says prepaid, so nothing to pay sir. Will you be at home in ten minutes, or should I come back tomorrow?"
+        ]
+       ]
+      },
+      "courier-en-scam": {
+       "verdict": "scam",
+       "type": "courier_parcel",
+       "confidence": 0.92,
+       "redFlags": [
+        [
+         "arrest_or_legal_threat",
+         "I am transferring your call to the Mumbai Police cyber cell, an FIR is being registered."
+        ],
+        [
+         "secrecy_or_isolation",
+         "No sir, do not tell your son or anyone, this is a confidential investigation. Stay on this call, if you disconnect you will be arrested."
+        ],
+        [
+         "discourages_verification",
+         "No sir, do not tell your son or anyone, this is a confidential investigation."
+        ]
+       ],
+       "legitSignals": []
+      },
+      "insure-en-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.9,
+       "redFlags": [],
+       "legitSignals": [
+        [
+         "official_channel_only",
+         "You can pay it at the branch, on the LIC website or through the LIC app, whichever is easy."
+        ],
+        [
+         "offers_official_verification",
+         "You can pay it at the branch, on the LIC website or through the LIC app, whichever is easy. I can also post the premium notice to your home."
+        ],
+        [
+         "accepts_refusal",
+         "That is the best, sir. Please take your policy number with you. Thank you, take care."
+        ],
+        [
+         "no_request",
+         "Namaste sir, I am Meena, your LIC agent from the Aminabad branch. Your policy premium is due on the twenty-eighth."
+        ]
+       ]
+      },
+      "insure-en-scam": {
+       "verdict": "scam",
+       "type": "lottery_prize",
+       "confidence": 0.92,
+       "redFlags": [
+        [
+         "pay_to_receive",
+         "Yes sir, but to release it a GST charge of eighteen thousand five hundred must be deposited first."
+        ],
+        [
+         "discourages_verification",
+         "Sir the branch cannot release head office bonus."
+        ],
+        [
+         "payment_to_personal_account",
+         "Deposit the GST in my account, account number one two three four five six seven eight nine zero, then the money will come."
+        ]
+       ],
+       "legitSignals": []
+      },
+      "pension-hi-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.85,
+       "redFlags": [],
+       "legitSignals": [
+        [
+         "offers_official_verification",
+         "आप शाखा में आ जाइए या किसी जीवन प्रमाण केंद्र पर जाइए।"
+        ],
+        [
+         "no_request",
+         "फ़ोन पर मुझे कोई जानकारी नहीं चाहिए।"
+        ],
+        [
+         "official_channel_only",
+         "आप शाखा में आ जाइए या किसी जीवन प्रमाण केंद्र पर जाइए। आधार और पेंशन बुक साथ लाइए।"
+        ]
+       ]
+      },
+      "pension-hi-scam": {
+       "verdict": "scam",
+       "type": "bank_kyc_block",
+       "confidence": 0.94,
+       "redFlags": [
+        [
+         "urgency_deadline",
+         "अगर आज ऑनलाइन अपडेट नहीं हुआ तो आपकी पेंशन बंद हो जाएगी।"
+        ],
+        [
+         "remote_access_or_install",
+         "अपने फ़ोन में एनीडेस्क ऐप डाउनलोड कीजिए, मैं ख़ुद अपडेट कर दूँगा।"
+        ],
+        [
+         "discourages_verification",
+         "शाखा जाने की ज़रूरत नहीं है, वो आपको लाइन में खड़ा रखेंगे।"
+        ],
+        [
+         "asks_secret_credential",
+         "ऐप में जो नौ अंकों का कोड आए वो मुझे बताइए।"
+        ]
+       ],
+       "legitSignals": []
+      },
+      "tax-en-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.75,
+       "redFlags": [],
+       "legitSignals": [
+        [
+         "offers_official_verification",
+         "You can drop them at our office or your son can email them to the office address."
+        ],
+        [
+         "no_request",
+         "The deadline is the thirty-first of July, so there is still time. Thank you."
+        ]
+       ]
+      },
+      "tax-en-scam": null,
+      "job-hinglish-legit": null,
+      "job-hinglish-scam": {
+       "verdict": "scam",
+       "type": "task_job",
+       "confidence": 0.94,
+       "redFlags": [
+        [
+         "too_good_to_be_true",
+         "Ghar baithe part time job hai, sirf YouTube videos like karne hain aur roz paanch hazaar kamaiye."
+        ],
+        [
+         "pay_to_receive",
+         "Bas registration fee pandrah sau rupaye hai, wo aaj bharni hogi tabhi ID banegi."
+        ],
+        [
+         "discourages_verification",
+         "Bete ko kya poochna, aaj last slot hai."
+        ],
+        [
+         "payment_to_personal_account",
+         "Is UPI pe bhej dijiye, earnhome.task at ybl."
+        ]
+       ],
+       "legitSignals": []
+      },
+      "hospital-en-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.85,
+       "redFlags": [],
+       "legitSignals": [
+        [
+         "offers_official_verification",
+         "You can also call the hospital main number to check."
+        ],
+        [
+         "official_channel_only",
+         "No sir, nothing on the phone. Any bills are paid at the hospital counter when you come."
+        ],
+        [
+         "no_request",
+         "No sir, nothing on the phone. Any bills are paid at the hospital counter when you come. Please come when you are ready."
+        ]
+       ]
+      },
+      "hospital-en-scam": {
+       "verdict": "scam",
+       "type": "family_emergency",
+       "confidence": 0.85,
+       "redFlags": [
+        [
+         "emotional_emergency",
+         "Your son had a serious accident, he is in the operation theatre now."
+        ],
+        [
+         "urgency_deadline",
+         "We need fifty thousand rupees for the surgery immediately, otherwise we cannot start."
+        ],
+        [
+         "discourages_verification",
+         "There is no time, do not waste time calling anyone."
+        ]
+       ],
+       "legitSignals": []
+      },
+      "fraud-alert-en-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.75,
+       "redFlags": [],
+       "legitSignals": [
+        [
+         "offers_official_verification",
+         "Please hang up and call the number on the back of your card, they will confirm the block."
+        ],
+        [
+         "no_request",
+         "You do not need to do anything else."
+        ]
+       ]
+      },
+      "fraud-alert-en-scam": {
+       "verdict": "scam",
+       "type": "fake_customer_care",
+       "confidence": 0.89,
+       "redFlags": [
+        [
+         "asks_secret_credential",
+         "You will get an OTP on your phone, read it to me quickly so I can cancel the transaction."
+        ],
+        [
+         "urgency_deadline",
+         "Sir there is no time to check, if you hang up the money will be gone. Just tell me the OTP now."
+        ],
+        [
+         "discourages_verification",
+         "Sir there is no time to check, if you hang up the money will be gone."
+        ]
+       ],
+       "legitSignals": []
+      },
+      "emi-hinglish-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.85,
+       "redFlags": [],
+       "legitSignals": [
+        [
+         "official_channel_only",
+         "Aap Tata Capital app se ya branch mein bhar dijiye."
+        ],
+        [
+         "accepts_refusal",
+         "Haan ji, bilkul. Koi pareshani ho toh customer care pe phone kar lijiye."
+        ],
+        [
+         "offers_official_verification",
+         "Koi pareshani ho toh customer care pe phone kar lijiye."
+        ]
+       ]
+      },
+      "emi-hinglish-scam": {
+       "verdict": "scam",
+       "type": "loan_app",
+       "confidence": 0.94,
+       "redFlags": [
+        [
+         "payment_to_personal_account",
+         "Abhi aath hazaar is UPI pe bhejo, quickcash.recovery at ybl, warna aapki photos aapke saare contacts ko bhej denge."
+        ],
+        [
+         "urgency_deadline",
+         "Ek ghante mein paise nahi aaye toh police case karwa denge."
+        ],
+        [
+         "discourages_verification",
+         "Bank ko beech mein mat lao."
+        ],
+        [
+         "arrest_or_legal_threat",
+         "Ek ghante mein paise nahi aaye toh police case karwa denge."
+        ]
+       ],
+       "legitSignals": []
+      },
+      "lpg-hi-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.85,
+       "redFlags": [],
+       "legitSignals": [
+        [
+         "no_request",
+         "आपकी सिलेंडर बुकिंग कन्फ़र्म हो गई है।"
+        ],
+        [
+         "accepts_refusal",
+         "हाँ जी, ज़रूर, नंबर आपकी गैस बुक पर लिखा है। धन्यवाद।"
+        ],
+        [
+         "offers_official_verification",
+         "हाँ जी, ज़रूर, नंबर आपकी गैस बुक पर लिखा है।"
+        ]
+       ]
+      },
+      "lpg-hi-scam": null,
+      "invest-en-legit": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.85,
+       "redFlags": [],
+       "legitSignals": [
+        [
+         "offers_official_verification",
+         "We can sit together at the branch, your son is welcome too."
+        ],
+        [
+         "accepts_refusal",
+         "Sure sir, no hurry at all. If you do nothing, it will simply renew as usual. Thank you."
+        ],
+        [
+         "no_request",
+         "If you do nothing, it will simply renew as usual. Thank you."
+        ]
+       ]
+      },
+      "invest-en-scam": {
+       "verdict": "scam",
+       "type": "investment_trading",
+       "confidence": 0.91,
+       "redFlags": [
+        [
+         "too_good_to_be_true",
+         "Our members are earning forty percent returns every month."
+        ],
+        [
+         "link_or_unofficial_channel",
+         "Join our WhatsApp group, our expert gives tips."
+        ],
+        [
+         "secrecy_or_isolation",
+         "Do not tell your son, young people do not understand these things."
+        ],
+        [
+         "discourages_verification",
+         "Do not tell your son, young people do not understand these things."
+        ]
+       ],
+       "legitSignals": []
+      },
+      "late-kyc-en": {
+       "verdict": "scam",
+       "type": "bank_kyc_block",
+       "confidence": 0.9,
+       "redFlags": [
+        [
+         "remote_access_or_install",
+         "Just install the app called AnyDesk from the Play Store and tell me the code, I will fill everything for you."
+        ],
+        [
+         "asks_secret_credential",
+         "Then tell me the OTP that comes."
+        ]
+       ],
+       "legitSignals": [
+        [
+         "offers_official_verification",
+         "You can come to the branch sir, that is fine."
+        ]
+       ]
+      },
+      "late-loan-hinglish": {
+       "verdict": "scam",
+       "type": "loan_app",
+       "confidence": 0.9,
+       "redFlags": [
+        [
+         "pay_to_receive",
+         "Bas loan aaj release karne ke liye pehle chaubees sau ki processing fee is UPI pe bhejni hogi, hdfcloan.desk at okicici."
+        ],
+        [
+         "payment_to_personal_account",
+         "Bas loan aaj release karne ke liye pehle chaubees sau ki processing fee is UPI pe bhejni hogi, hdfcloan.desk at okicici."
+        ]
+       ],
+       "legitSignals": [
+        [
+         "offers_official_verification",
+         "Haan ji, zaroor pooch lijiye, koi dikkat nahi."
+        ]
+       ]
+      },
+      "late-courier-hi": {
+       "verdict": "scam",
+       "type": "courier_parcel",
+       "confidence": 0.87,
+       "redFlags": [
+        [
+         "link_or_unofficial_channel",
+         "मैं एक लिंक भेज रहा हूँ"
+        ],
+        [
+         "asks_secret_credential",
+         "कार्ड नंबर, एक्सपायरी और सीवीवी डालकर"
+        ]
+       ],
+       "legitSignals": []
+      },
+      "late-insure-en": {
+       "verdict": "scam",
+       "type": "lottery_prize",
+       "confidence": 0.95,
+       "redFlags": [
+        [
+         "pay_to_receive",
+         "There is a bonus of two lakh on your policy, but you must deposit eleven thousand tax to my account first."
+        ],
+        [
+         "payment_to_personal_account",
+         "you must deposit eleven thousand tax to my account first."
+        ],
+        [
+         "secrecy_or_isolation",
+         "And do not tell your family, they may try to stop you."
+        ]
+       ],
+       "legitSignals": [
+        [
+         "offers_official_verification",
+         "Yes sir, the branch can confirm your policy details any time."
+        ]
+       ]
+      },
+      "benign-wrong-number-en": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.75,
+       "redFlags": [],
+       "legitSignals": [
+        [
+         "no_request",
+         "Oh, sorry uncle, I must have dialled wrongly. Sorry to disturb you."
+        ],
+        [
+         "accepts_refusal",
+         "Oh, sorry uncle, I must have dialled wrongly. Sorry to disturb you."
+        ]
+       ]
+      },
+      "benign-family-hinglish": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.65,
+       "redFlags": [],
+       "legitSignals": [
+        [
+         "no_request",
+         "Main theek hoon. Sunday ko bachchon ko le kar aaungi, aap kuch mangwana ho toh bata dena."
+        ]
+       ]
+      },
+      "benign-doctor-en": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.65,
+       "redFlags": [],
+       "legitSignals": [
+        [
+         "no_request",
+         "A reminder that your check-up is tomorrow at eleven."
+        ]
+       ]
+      },
+      "benign-society-hi": {
+       "verdict": "legitimate",
+       "type": "not_scam",
+       "confidence": 0.75,
+       "redFlags": [],
+       "legitSignals": [
+        [
+         "official_channel_only",
+         "आप ऑफ़िस में आकर दे दीजिए या सोसाइटी के ऐप से भर दीजिए, रसीद मिल जाएगी।"
+        ],
+        [
+         "offers_official_verification",
+         "आप ऑफ़िस में आकर दे दीजिए या सोसाइटी के ऐप से भर दीजिए, रसीद मिल जाएगी।"
+        ]
+       ]
+      }
+     },
+     "stream": {
+      "loan-en-legit": [
+       "undetermined",
+       "legitimate",
+       "legitimate",
+       "legitimate"
+      ],
+      "loan-en-scam": [
+       "undetermined",
+       "scam",
+       "scam",
+       "scam"
+      ],
+      "kyc-hinglish-legit": [
+       "undetermined",
+       "legitimate",
+       "legitimate"
+      ],
+      "kyc-hinglish-scam": [
+       "undetermined",
+       "scam",
+       "scam"
+      ],
+      "card-en-legit": [
+       "undetermined",
+       "legitimate",
+       "legitimate"
+      ],
+      "card-en-scam": [
+       "undetermined",
+       "scam",
+       "scam"
+      ],
+      "acct-en-legit": [
+       "undetermined",
+       "undetermined",
+       "legitimate",
+       "legitimate"
+      ],
+      "acct-en-scam": [
+       "undetermined",
+       "undetermined",
+       "scam"
+      ],
+      "sim-hi-legit": [
+       "undetermined",
+       "legitimate",
+       "legitimate"
+      ],
+      "sim-hi-scam": [
+       "undetermined",
+       "scam",
+       "scam"
+      ],
+      "power-hinglish-legit": [
+       "undetermined",
+       "legitimate",
+       "legitimate"
+      ],
+      "power-hinglish-scam": [
+       "undetermined",
+       "scam",
+       "scam"
+      ],
+      "courier-en-legit": [
+       "undetermined",
+       "legitimate",
+       "legitimate"
+      ],
+      "courier-en-scam": [
+       "undetermined",
+       "scam",
+       "scam"
+      ],
+      "insure-en-legit": [
+       "undetermined",
+       "legitimate",
+       "legitimate"
+      ],
+      "insure-en-scam": [
+       "undetermined",
+       "scam",
+       "scam"
+      ],
+      "pension-hi-legit": [
+       "undetermined",
+       "legitimate",
+       "legitimate"
+      ],
+      "pension-hi-scam": [
+       "undetermined",
+       "scam",
+       "scam"
+      ],
+      "tax-en-legit": [
+       "undetermined",
+       "legitimate",
+       "legitimate"
+      ],
+      "tax-en-scam": [
+       "undetermined",
+       "scam",
+       "scam"
+      ],
+      "job-hinglish-legit": [
+       "undetermined",
+       "legitimate",
+       "legitimate"
+      ],
+      "job-hinglish-scam": [
+       "undetermined",
+       "scam",
+       "scam"
+      ],
+      "hospital-en-legit": [
+       "undetermined",
+       "legitimate",
+       "legitimate"
+      ],
+      "hospital-en-scam": [
+       "undetermined",
+       "scam",
+       "scam"
+      ],
+      "fraud-alert-en-legit": [
+       "undetermined",
+       "legitimate",
+       "legitimate"
+      ],
+      "fraud-alert-en-scam": [
+       "undetermined",
+       "scam",
+       "scam"
+      ],
+      "emi-hinglish-legit": [
+       "undetermined",
+       "legitimate",
+       "legitimate"
+      ],
+      "emi-hinglish-scam": [
+       "undetermined",
+       "scam",
+       "scam"
+      ],
+      "lpg-hi-legit": [
+       "undetermined",
+       "legitimate",
+       "legitimate"
+      ],
+      "lpg-hi-scam": [
+       "undetermined",
+       "scam",
+       "scam"
+      ],
+      "invest-en-legit": [
+       "undetermined",
+       "legitimate",
+       "legitimate"
+      ],
+      "invest-en-scam": [
+       "undetermined",
+       "scam",
+       "scam"
+      ],
+      "late-kyc-en": [
+       "undetermined",
+       "legitimate",
+       "scam"
+      ],
+      "late-loan-hinglish": [
+       "undetermined",
+       "legitimate",
+       "scam"
+      ],
+      "late-courier-hi": [
+       "undetermined",
+       "scam"
+      ],
+      "late-insure-en": [
+       "undetermined",
+       "legitimate",
+       "scam"
+      ],
+      "benign-wrong-number-en": [
+       "undetermined",
+       "legitimate"
+      ],
+      "benign-family-hinglish": [
+       "undetermined",
+       "legitimate"
+      ],
+      "benign-doctor-en": [
+       "undetermined",
+       "legitimate"
+      ],
+      "benign-society-hi": [
+       "undetermined",
+       "legitimate"
+      ]
+     }
+    }
+   ]
+  }
+ }
+}

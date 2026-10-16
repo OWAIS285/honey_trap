@@ -6,7 +6,8 @@ to build or tune the decoy persona or the family-drill scripts. Run `python eval
     python eval/detection_eval.py --runs 3 --static-per-domain 28 --stream-per-domain 8
 
 What is measured (all on the SYNTHETIC test split, which is 99.5% fraud, so specificity rests on only 12 legitimate calls):
-  1. static: is the whole call flagged as a scam (any type except not_scam)?
+  1. static: is the whole call flagged as a scam (verdict == scam from the deterministic rule over Gemini's quoted
+     red flags; undetermined counts as not flagged)?
   2. plausible type: does the predicted scam type fit the call's ICFD domain (mapping below is ours)?
   3. streaming: after how many seconds of the call does the classifier flag it, compared with the dataset's own
      chunk labels?
@@ -116,7 +117,9 @@ async def static_run(sample: list[dict], sem: asyncio.Semaphore, latencies: list
     results = await asyncio.gather(*[classify(r["turns"], sem, latencies) for r in sample])
     return [
         {"id": r["id"], "domain": r["domain"], "fraud": r["fraud"], "error": res is None,
-         "type": res.scam_type if res else None, "confidence": res.confidence if res else None}
+         "verdict": res.verdict if res else None,
+         "type": analysis.verdict_label(res.verdict, res.scam_type) if res else None,
+         "confidence": res.confidence if res else None}
         for r, res in zip(sample, results)
     ]
 
@@ -126,6 +129,7 @@ async def streaming_run(sample: list[dict], sem: asyncio.Semaphore, latencies: l
         end = row["turns"][-1]["t"] if row["turns"] else 0
         found = None
         kw_found = None
+        state = analysis.VerdictState()
         for i, turn in enumerate(row["turns"]):
             if turn["speaker"] != "caller":
                 continue
@@ -134,7 +138,9 @@ async def streaming_run(sample: list[dict], sem: asyncio.Semaphore, latencies: l
                 kw_found = turn["t"]
             if found is None:
                 res = await classify(prefix, sem, latencies)
-                if res and res.scam_type != "not_scam" and res.confidence >= 0.7:
+                if res:
+                    state.merge(res)
+                if state.summary(sum(1 for t in prefix if t["speaker"] == "caller"))["verdict"] == "scam":
                     found = turn["t"]
             if found is not None and kw_found is not None:
                 break
@@ -179,9 +185,10 @@ async def main() -> None:
     for i in range(args.runs):
         out = await static_run(sample, sem, latencies)
         ok = [o for o in out if not o["error"]]
-        m = metrics([(o["fraud"], o["type"] != "not_scam") for o in ok])
-        plausible = [o["type"] in PLAUSIBLE[o["domain"]] for o in ok if o["fraud"] and o["type"] != "not_scam"]
+        m = metrics([(o["fraud"], o["verdict"] == "scam") for o in ok])
+        plausible = [o["type"] in PLAUSIBLE[o["domain"]] for o in ok if o["fraud"] and o["verdict"] == "scam"]
         m["errors"] = len(out) - len(ok)
+        m["undetermined"] = sum(1 for o in ok if o["verdict"] == "undetermined")
         m["plausible_type_rate"] = round(sum(plausible) / len(plausible), 3) if plausible else None
         runs.append({"metrics": m, "predictions": out})
         print(f"run {i + 1}", m)

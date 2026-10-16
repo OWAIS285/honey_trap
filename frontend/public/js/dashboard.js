@@ -1,7 +1,7 @@
 // Live analysis dashboard: scam-type gauge, script stage, caught details (confirmed vs heard) and transcript.
 // It only consumes server events, so the same component drives live calls, chat and the replay.
 
-import { DETAIL_META, SOURCE_LABELS, STAGES, clear, flipMove, fmtClock, h, humanize, icon, scamLabel } from "./util.js";
+import { DETAIL_META, SIGNAL_LABELS, SOURCE_LABELS, STAGES, clear, flipMove, fmtClock, h, humanize, icon, scamLabel, verdictTitle } from "./util.js";
 
 const CIRCUMFERENCE = 2 * Math.PI * 52;
 
@@ -66,6 +66,14 @@ export function createDashboard({ callerLabel = "Caller", personaLabel = "Ramesh
   // ----- details panel -----
   const confirmedList = h("div", { class: "d-list" });
   const heardList = h("div", { class: "d-list" });
+  const recordText = h("p", { class: "muted" });
+  const recordRow = h(
+    "div",
+    { class: "decoy-row", hidden: true },
+    h("h4", { class: "lane-h" }, icon("lock"), "Ramesh's bank records"),
+    recordText,
+    h("small", { class: "muted" }, "He never says these. A genuine bank has them on screen, so to play one, tell him the last four digits; a scammer usually cannot."),
+  );
   const detailsEmpty = h("div", { class: "empty-note" }, icon("shield"), h("p", {}, "Nothing caught yet. Account numbers, UPI IDs, links and names show up here the moment the caller says them."));
   const confirmedHead = h("h4", { class: "lane-h ok", hidden: true }, icon("check"), "Confirmed by two checks");
   const heardHead = h("h4", { class: "lane-h", hidden: true }, icon("eye"), "Heard, waiting for a second check");
@@ -78,6 +86,7 @@ export function createDashboard({ callerLabel = "Caller", personaLabel = "Ramesh
     confirmedList,
     heardHead,
     heardList,
+    recordRow,
   );
 
   // ----- transcript panel -----
@@ -190,7 +199,32 @@ export function createDashboard({ callerLabel = "Caller", personaLabel = "Ramesh
     updateCounts();
   }
 
+  function signalChip(item, tone) {
+    const text = SIGNAL_LABELS[item.signal] || humanize(item.signal);
+    const tip = [item.label, item.quote ? `Caller: “${item.quote}”` : ""].filter(Boolean).join("\n");
+    return h("span", { class: `chip ${tone}`, title: tip }, text);
+  }
+
   function onClassification(ev) {
+    if (!ev.verdict) return onLegacyClassification(ev);
+    const confidence = Math.max(0, Math.min(1, ev.confidence || 0));
+    fill.setAttribute("stroke-dashoffset", String(CIRCUMFERENCE * (1 - confidence)));
+    pctEl.textContent = ev.verdict === "undetermined" ? "—" : `${Math.round(confidence * 100)}%`;
+    typeEl.textContent = verdictTitle(ev.verdict, ev.scamType);
+    const who = ev.impersonatedEntity;
+    if (ev.verdict === "scam") entityEl.textContent = who ? `Pretending to be: ${who}` : "Caller's claimed identity not clear yet.";
+    else if (ev.verdict === "legitimate") entityEl.textContent = who ? `Genuine caller from: ${who}. No scam sign.` : "No scam sign. Looks like a genuine call.";
+    else entityEl.textContent = who ? `Says they are from: ${who}. No clear scam sign yet.` : "No clear scam sign yet. Still listening.";
+    setTone(ev.verdict === "scam" ? "danger" : ev.verdict === "legitimate" ? "safe" : "watch");
+    clear(triggersEl);
+    for (const flag of ev.redFlags || []) triggersEl.append(signalChip(flag, "danger"));
+    for (const signal of ev.legitSignals || []) triggersEl.append(signalChip(signal, "ok"));
+    if (ev.verdict === "scam") for (const phrase of (ev.triggerPhrases || []).slice(0, 2)) triggersEl.append(h("span", { class: "chip trigger" }, `“${phrase}”`));
+    if (ev.stage) onStage(ev.stage);
+  }
+
+  // Recorded replays made before the verdict existed only carry a scam type.
+  function onLegacyClassification(ev) {
     const confidence = Math.max(0, Math.min(1, ev.confidence || 0));
     fill.setAttribute("stroke-dashoffset", String(CIRCUMFERENCE * (1 - confidence)));
     pctEl.textContent = `${Math.round(confidence * 100)}%`;
@@ -200,6 +234,12 @@ export function createDashboard({ callerLabel = "Caller", personaLabel = "Ramesh
     clear(triggersEl);
     for (const phrase of (ev.triggerPhrases || []).slice(0, 4)) triggersEl.append(h("span", { class: "chip trigger" }, `“${phrase}”`));
     if (ev.stage) onStage(ev.stage);
+  }
+
+  function onRecord(ev) {
+    const last4 = ev.last4 || {};
+    recordText.textContent = `${ev.bank}, ${ev.branch} branch · account ends ${last4.account} · Aadhaar ends ${last4.aadhaar} · debit card ends ${last4.card} · UPI on ${ev.upiApp}`;
+    recordRow.hidden = false;
   }
 
   function onStage(stage) {
@@ -260,6 +300,9 @@ export function createDashboard({ callerLabel = "Caller", personaLabel = "Ramesh
       case "stage":
         onStage(ev.stage);
         break;
+      case "record":
+        onRecord(ev);
+        break;
       case "latency":
         latencyEl.textContent = `${ev.p50 ?? ev.ms} / ${ev.p90 ?? ev.ms} ms`;
         latencySub.textContent = `last reply ${ev.ms} ms`;
@@ -271,7 +314,9 @@ export function createDashboard({ callerLabel = "Caller", personaLabel = "Ramesh
         settleLive();
         stopClock();
         if (ev.durationSec != null) setClock(ev.durationSec);
-        showBanner("Call ended. Evidence and strain card are ready.", "ok");
+        if (ev.verdict === "legitimate") showBanner("Call ended. It looked genuine, so no strain card was made.", "ok");
+        else if (ev.verdict === "undetermined") showBanner("Call ended without a clear scam sign, so no strain card was made.", "info");
+        else showBanner("Call ended. Evidence and strain card are ready.", "ok");
         break;
       case "error":
         showBanner(ev.message || "Something went wrong.", "error");
@@ -296,6 +341,8 @@ export function createDashboard({ callerLabel = "Caller", personaLabel = "Ramesh
     typeEl.textContent = "Listening…";
     entityEl.textContent = "Waiting for the caller to say something.";
     clear(triggersEl);
+    recordText.textContent = "";
+    recordRow.hidden = true;
     setTone("idle");
     stageNodes.forEach((node) => node.classList.remove("done", "active"));
     latencyEl.textContent = "—";

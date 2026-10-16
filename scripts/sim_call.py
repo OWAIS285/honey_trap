@@ -24,6 +24,21 @@ LINES = {
         "UPI ID hai rahul dot sharma at okaxis. Dobara bataiye jo maine bola.",
         "Haan sahi hai. Account number hai nau aath saat chhe paanch char teen do ek shunya, IFSC SBIN0001234.",
     ],
+    # Genuine callers on scam-like topics: the decoy should end with not_scam and no strain card.
+    # {account} is filled from the "record" event, the way a real bank has the account ending on screen.
+    "legit-loan": [
+        "Good morning sir, this is Priya from Kotak Mahindra Bank. You have a pre-approved personal loan offer on your savings account.",
+        "There is no obligation sir. Please call the number in your passbook or visit your branch, they will show you the same offer.",
+        "Of course sir, I can see your record here: your savings account ends in {account}.",
+        "Never share any OTP or PIN with anyone, including me. The offer is valid till the end of the month.",
+        "No problem at all sir, take your time. Thank you, have a good day.",
+    ],
+    "legit-account": [
+        "Good afternoon sir, Rakesh from Bajaj Finance about the gold loan you applied for at our Hazratganj branch. It is sanctioned.",
+        "For disbursal we need the account number where the money should go. Could you confirm your full account number?",
+        "Of course sir, you can bring your passbook to the branch instead, or call the branch on the number on your loan papers. There is no fee.",
+        "Very good sir, we will keep the file ready. Thank you.",
+    ],
 }
 
 
@@ -40,6 +55,7 @@ async def main() -> None:
     lines = LINES[args.lang]
     client_id = uuid.uuid4().hex
     events: list[dict] = []
+    record: dict[str, str] = {}
     audio_bytes = 0
     persona_finals = 0
     sent = 0
@@ -67,7 +83,7 @@ async def main() -> None:
                         await ws.send(json.dumps({"type": "end"}))
                         sent += 1
                     elif persona_finals > sent and sent < len(lines) and time.monotonic() - last_final > 1.5:
-                        await ws.send(json.dumps({"type": "text", "text": lines[sent]}))
+                        await ws.send(json.dumps({"type": "text", "text": lines[sent].format(**record)}))
                         print(f"  >> caller typed line {sent + 1}")
                         sent += 1
                     elif time.monotonic() - started > 120:
@@ -79,6 +95,10 @@ async def main() -> None:
                 event = json.loads(msg)
                 events.append({"t": round(time.monotonic() - started, 1), **event})
                 kind = event.get("type")
+                if kind == "record":
+                    record.update(event.get("last4", {}))
+                    print(f"  RECORD {event.get('bank')} ends {record}")
+                    continue
                 if kind == "transcript" and event.get("final"):
                     print(f"[{event['speaker']:7}] {event['text']}")
                     last_final = time.monotonic()
@@ -88,7 +108,10 @@ async def main() -> None:
                     d = event["detail"]
                     print(f"  DETAIL {d['type']:20} {d['normalizedValue']:30} valid={d['valid']} confirmed={d['confirmed']} via={d['sources']}")
                 elif kind == "classification":
-                    print(f"  CLASS  {event['scamType']} {event['confidence']} stage={event['stage']} triggers={event['triggerPhrases']}")
+                    flags = [f["signal"] for f in event.get("redFlags", [])]
+                    signals = [s["signal"] for s in event.get("legitSignals", [])]
+                    print(f"  CLASS  {event.get('verdict')} {event['scamType']} {event['confidence']} stage={event['stage']} "
+                          f"red={flags} legit={signals}")
                 elif kind in ("ready", "error", "ended", "stage", "time_limit"):
                     brief = {k: v for k, v in event.items() if k not in ("strain", "playToken")}
                     print(f"  {kind.upper()} {json.dumps(brief, ensure_ascii=False)[:300]}")

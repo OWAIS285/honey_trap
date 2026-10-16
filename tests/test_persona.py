@@ -16,7 +16,7 @@ def test_prompt_carries_the_profile_and_keeps_the_safety_rules():
     profile = CallProfile(random.Random(1))
     prompt = build_persona(profile)
     assert profile.mood in prompt and profile.greeting in prompt
-    assert "NEVER give any real personal" in prompt
+    assert "NEVER say any number or digit of your own" in prompt
     assert "record_detail" in prompt
 
 
@@ -53,3 +53,10 @@ def test_english_deployment_greets_in_english():
 
 def test_english_replies_may_not_use_hindi_words():
     assert "No Hindi words at all" in build_persona(CallProfile(random.Random(5)))
+
+
+def test_persona_tests_the_caller_before_calling_it_a_scam():
+    prompt = build_persona(CallProfile(random.Random(6)))
+    assert "decide by what the caller ASKS FOR, never by the topic" in prompt
+    assert "ring back on the number printed on your passbook" in prompt
+    assert "end_call and reason not_scam" in prompt

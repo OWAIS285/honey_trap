@@ -1,6 +1,6 @@
 import { api } from "../api.js";
 import { emptyState, errorState, pageHeader, skeletons } from "../components.js";
-import { fmtDate, fmtDuration, h, icon, observeReveal, scamLabel } from "../util.js";
+import { fmtDate, fmtDuration, h, icon, observeReveal, scamLabel, verdictTitle } from "../util.js";
 
 export function HistoryView() {
   const el = h("div", { class: "page" }, pageHeader("Your calls", "Every call from this browser. Recordings are kept privately for 14 days."), skeletons(3));
@@ -36,11 +36,11 @@ export function HistoryView() {
           "div",
           { class: "cc-top" },
           h("span", { class: "cc-icon" }, icon(call.mode === "text" ? "chat" : "phone")),
-          h("div", {}, h("h3", {}, call.scamType ? scamLabel(call.scamType) : live ? "In progress or unfinished" : "Unclassified"), h("small", { class: "muted" }, fmtDate(call.startedAt))),
+          h("div", {}, h("h3", {}, call.scamType ? scamLabel(call.scamType) : live ? "In progress or unfinished" : call.verdict ? verdictTitle(call.verdict) : "Unclassified"), h("small", { class: "muted" }, fmtDate(call.startedAt))),
           h("span", { class: "grow" }),
           call.recording ? h("span", { class: "chip ok" }, icon("volume"), "Recording") : null,
         ),
-        call.impersonatedEntity ? h("p", { class: "muted" }, "Pretending to be ", h("b", {}, call.impersonatedEntity)) : null,
+        call.impersonatedEntity ? h("p", { class: "muted" }, call.verdict && call.verdict !== "scam" ? "Says they are from " : "Pretending to be ", h("b", {}, call.impersonatedEntity)) : null,
         h(
           "div",
           { class: "cc-metrics" },

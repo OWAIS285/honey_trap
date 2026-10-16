@@ -1,0 +1,298 @@
+{
+ "description": "Hand-written, fully fictional call transcripts for telling genuine calls from scams on the SAME topic. 'pair' records come in twos (same topic and language, one legitimate, one scam), 'late_turn' records start like a genuine call and turn into a scam at caller turn scam_from_turn, 'benign' records are ordinary calls with no scam topic. Speakers: caller and persona (the decoy). No real person, account, UPI ID or phone number appears.",
+ "calls": [
+  {"id": "loan-en-legit", "pair": "loan-en", "topic": "personal loan offer", "lang": "en", "kind": "pair", "label": "legitimate", "turns": [
+   ["caller", "Good morning sir, this is Priya calling from Kotak Mahindra Bank. You have a pre-approved personal loan offer of up to three lakh rupees on your savings account."],
+   ["persona", "Loan? I did not ask for any loan. How did you get my number?"],
+   ["caller", "Sir, you are an existing customer, that is why the offer is there. There is no obligation at all, I am only informing you."],
+   ["persona", "I am not sure about all this. Can I ring the bank myself on the number printed in my passbook?"],
+   ["caller", "Yes sir, absolutely, please call the number in your passbook or visit your home branch, they will show you the same offer. Please never share any OTP or PIN with anyone, including me."],
+   ["persona", "Alright, I will go to the branch on Monday."],
+   ["caller", "That is perfectly fine sir. The offer is valid till the end of the month. Thank you for your time, have a good day."]
+  ]},
+  {"id": "loan-en-scam", "pair": "loan-en", "topic": "personal loan offer", "lang": "en", "kind": "pair", "label": "scam", "turns": [
+   ["caller", "Good morning sir, this is Priya calling from Kotak Mahindra Bank. You have a pre-approved personal loan offer of up to three lakh rupees on your savings account."],
+   ["persona", "Loan? I did not ask for any loan. How did you get my number?"],
+   ["caller", "Sir, it is approved already, the money can be in your account today itself. Only a small processing fee of two thousand nine hundred ninety nine rupees has to be paid first."],
+   ["persona", "Can I ring the bank myself on the number printed in my passbook?"],
+   ["caller", "No sir, no need, the branch will not know about this special offer, it is only from our head office. If you delay the offer will lapse in one hour."],
+   ["persona", "Where do I pay this fee then?"],
+   ["caller", "Send it by UPI to loandesk.kmb at okaxis, then the three lakh will be released immediately."]
+  ]},
+
+  {"id": "kyc-hinglish-legit", "pair": "kyc-hinglish", "topic": "KYC update", "lang": "hinglish", "kind": "pair", "label": "legitimate", "turns": [
+   ["caller", "Namaste uncle ji, main Bank of Baroda Aliganj branch se Sunita bol rahi hoon. Aapke account ka re-KYC due ho gaya hai."],
+   ["persona", "Achha, KYC? Ye kya karna padega mujhe?"],
+   ["caller", "Kuch khaas nahi, aap jab free ho branch aa jaiye Aadhaar aur PAN ki copy le kar, ya bob World app mein khud update kar sakte hain. Phone par main aapse koi detail nahi maangungi."],
+   ["persona", "Main pehle branch ke landline pe phone karke confirm kar loon?"],
+   ["caller", "Bilkul uncle ji, zaroor kijiye, number aapki passbook ke peeche likha hai. Agle mahine tak kabhi bhi aa sakte hain, koi jaldi nahi hai."]
+  ]},
+  {"id": "kyc-hinglish-scam", "pair": "kyc-hinglish", "topic": "KYC update", "lang": "hinglish", "kind": "pair", "label": "scam", "turns": [
+   ["caller", "Namaste uncle ji, main Bank of Baroda head office se bol raha hoon. Aapke account ka KYC pending hai."],
+   ["persona", "Achha, KYC? Ye kya karna padega mujhe?"],
+   ["caller", "Aaj raat tak update nahi hua toh aapka account band ho jayega aur pension bhi ruk jayegi. Main aapko SMS mein ek link bhej raha hoon, usme apni details bhariye."],
+   ["persona", "Main pehle branch ke landline pe phone karke confirm kar loon?"],
+   ["caller", "Uncle branch walon ko is system ka pata nahi hota, time waste mat kijiye. Link khol ke bhariye, phir aapke phone pe ek OTP aayega, wo mujhe bata dena."]
+  ]},
+
+  {"id": "card-en-legit", "pair": "card-en", "topic": "credit card upgrade", "lang": "en", "kind": "pair", "label": "legitimate", "turns": [
+   ["caller", "Hello sir, I am Arjun from SBI Card. Your card is eligible for a free upgrade to the Prime variant with airport lounge access."],
+   ["persona", "Upgrade? What do I have to do for that?"],
+   ["caller", "Nothing on this call sir. If you are interested you can accept it in the SBI Card app under offers, or call the customer care number on the back of your card. Just to make sure I have the right customer, may I confirm the last four digits of your card end in 4417?"],
+   ["persona", "I would rather not say anything on the phone."],
+   ["caller", "That is completely fine sir, you are right to be careful. The offer will stay in your app, you can look at it whenever you like. Thank you."]
+  ]},
+  {"id": "card-en-scam", "pair": "card-en", "topic": "credit card upgrade", "lang": "en", "kind": "pair", "label": "scam", "turns": [
+   ["caller", "Hello sir, I am Arjun from SBI Card. Your card is eligible for a free upgrade to the Prime variant with airport lounge access."],
+   ["persona", "Upgrade? What do I have to do for that?"],
+   ["caller", "I will do it for you right now sir. Please read out the sixteen digit number on the front of your card and the expiry date."],
+   ["persona", "I would rather not say anything on the phone."],
+   ["caller", "Sir it is for your benefit only. Also tell me the three digit CVV on the back, and the OTP that comes now, otherwise the upgrade will be cancelled today."]
+  ]},
+
+  {"id": "acct-en-legit", "pair": "acct-en", "topic": "loan disbursal needs account number", "lang": "en", "kind": "pair", "label": "legitimate", "turns": [
+   ["caller", "Good afternoon sir, this is Rakesh from Bajaj Finance about the gold loan you applied for at our Hazratganj branch last week. It has been sanctioned."],
+   ["persona", "Yes, my son helped me apply for that."],
+   ["caller", "For disbursal we need the account number where the money should go. Could you confirm your full account number for me?"],
+   ["persona", "I do not like giving numbers on the phone. Can I come to the branch instead?"],
+   ["caller", "Of course sir, no problem at all. Please bring your passbook to the Hazratganj branch any day this week, or you can also call the branch on the number on your loan papers. There is no fee to pay."],
+   ["persona", "Then I will come tomorrow with my son."],
+   ["caller", "Very good sir, we will keep the file ready. Thank you."]
+  ]},
+  {"id": "acct-en-scam", "pair": "acct-en", "topic": "loan disbursal needs account number", "lang": "en", "kind": "pair", "label": "scam", "turns": [
+   ["caller", "Good afternoon sir, this is Rakesh from Bajaj Finance. A gold loan has been sanctioned in your name."],
+   ["persona", "Loan? My son helped me with some form, maybe."],
+   ["caller", "For disbursal I need your full account number and your Aadhaar number right now."],
+   ["persona", "I do not like giving numbers on the phone. Can I come to the branch instead?"],
+   ["caller", "Sir branch will take fifteen days, this is direct from head office. If you do not confirm in the next ten minutes the sanction will be cancelled permanently. Do not waste time calling anyone."]
+  ]},
+
+  {"id": "sim-hi-legit", "pair": "sim-hi", "topic": "SIM re-verification", "lang": "hi", "kind": "pair", "label": "legitimate", "turns": [
+   ["caller", "नमस्ते जी, मैं एयरटेल स्टोर, कपूरथला से बोल रहा हूँ। आपके सिम का री-वेरिफिकेशन बाकी है।"],
+   ["persona", "री-वेरिफिकेशन? इसमें क्या करना होगा?"],
+   ["caller", "आप जब सुविधा हो, अपना आधार कार्ड लेकर हमारे स्टोर पर आ जाइए। अंगूठा लगाकर दो मिनट में हो जाएगा। फ़ोन पर कुछ नहीं बताना है।"],
+   ["persona", "मैं पहले एयरटेल के कस्टमर केयर नंबर पर पूछ लूँ?"],
+   ["caller", "जी ज़रूर पूछ लीजिए, एक सौ इक्कीस पर फ़ोन कीजिए, वो भी यही बताएँगे। कोई जल्दी नहीं है।"]
+  ]},
+  {"id": "sim-hi-scam", "pair": "sim-hi", "topic": "SIM re-verification", "lang": "hi", "kind": "pair", "label": "scam", "turns": [
+   ["caller", "नमस्ते, मैं ट्राई के दिल्ली दफ़्तर से बोल रहा हूँ। आपके आधार पर लिया गया एक सिम गैरकानूनी कामों में इस्तेमाल हुआ है।"],
+   ["persona", "गैरकानूनी? मैंने तो कुछ नहीं किया।"],
+   ["caller", "आपका नंबर दो घंटे में बंद हो जाएगा और मुंबई पुलिस आपके खिलाफ़ केस दर्ज कर रही है। मैं आपको साइबर क्राइम अधिकारी से जोड़ रहा हूँ।"],
+   ["persona", "मैं पहले कस्टमर केयर पर पूछ लूँ?"],
+   ["caller", "किसी को फ़ोन मत कीजिए, यह गोपनीय जाँच है। अपने परिवार को भी मत बताइए, नहीं तो आपको गिरफ़्तार किया जाएगा।"]
+  ]},
+
+  {"id": "power-hinglish-legit", "pair": "power-hinglish", "topic": "electricity bill", "lang": "hinglish", "kind": "pair", "label": "legitimate", "turns": [
+   ["caller", "Namaskar, main UPPCL ke Indira Nagar sub-division office se bol raha hoon. Aapka is mahine ka bijli bill bees tareekh tak due hai."],
+   ["persona", "Haan, bill aaya tha. Kaise bharna hai?"],
+   ["caller", "Aap UPPCL ki official website ya app se bhar sakte hain, ya office ke counter pe aa kar. Bees tareekh ke baad niyam ke hisaab se late fee lagegi, bas yahi batana tha."],
+   ["persona", "Main office ke number pe phone karke check kar loon?"],
+   ["caller", "Haan ji bilkul, number aapke bill pe neeche likha hai. Dhanyavaad."]
+  ]},
+  {"id": "power-hinglish-scam", "pair": "power-hinglish", "topic": "electricity bill", "lang": "hinglish", "kind": "pair", "label": "scam", "turns": [
+   ["caller", "Namaskar, main bijli vibhag se bol raha hoon. Aapka pichle mahine ka bill update nahi hua hai."],
+   ["persona", "Par maine toh bill bhar diya tha."],
+   ["caller", "System mein nahi dikh raha. Aaj raat saadhe nau baje aapki bijli kaat di jayegi. Abhi turant hamara support app download kijiye, main naam bata raha hoon, QuickSupport."],
+   ["persona", "Main office ke number pe phone karke check kar loon?"],
+   ["caller", "Office band ho chuka hai, sirf main hi madad kar sakta hoon. App kholiye aur jo code dikhe wo mujhe bataiye."]
+  ]},
+
+  {"id": "courier-en-legit", "pair": "courier-en", "topic": "courier delivery", "lang": "en", "kind": "pair", "label": "legitimate", "turns": [
+   ["caller", "Hello sir, Blue Dart delivery here. I have a parcel for you from Amazon, I am near your colony gate."],
+   ["persona", "Parcel? I am not sure I ordered anything."],
+   ["caller", "It says prepaid, so nothing to pay sir. Will you be at home in ten minutes, or should I come back tomorrow?"],
+   ["persona", "Can I check with my son first? He orders things for me."],
+   ["caller", "Sure sir, no problem, ask him. If you do not want it you can simply refuse it at the door and it goes back."]
+  ]},
+  {"id": "courier-en-scam", "pair": "courier-en", "topic": "courier delivery", "lang": "en", "kind": "pair", "label": "scam", "turns": [
+   ["caller", "Hello sir, this is FedEx Mumbai. A parcel booked in your name to Taiwan has been stopped by customs."],
+   ["persona", "Parcel? I am not sure I sent anything."],
+   ["caller", "It contains five passports, three credit cards and two hundred grams of drugs. I am transferring your call to the Mumbai Police cyber cell, an FIR is being registered."],
+   ["persona", "Can I check with my son first?"],
+   ["caller", "No sir, do not tell your son or anyone, this is a confidential investigation. Stay on this call, if you disconnect you will be arrested."]
+  ]},
+
+  {"id": "insure-en-legit", "pair": "insure-en", "topic": "insurance premium", "lang": "en", "kind": "pair", "label": "legitimate", "turns": [
+   ["caller", "Namaste sir, I am Meena, your LIC agent from the Aminabad branch. Your policy premium is due on the twenty-eighth."],
+   ["persona", "Oh, is it that time already?"],
+   ["caller", "Yes sir. You can pay it at the branch, on the LIC website or through the LIC app, whichever is easy. I can also post the premium notice to your home."],
+   ["persona", "I will go to the branch myself, I think."],
+   ["caller", "That is the best, sir. Please take your policy number with you. Thank you, take care."]
+  ]},
+  {"id": "insure-en-scam", "pair": "insure-en", "topic": "insurance premium", "lang": "en", "kind": "pair", "label": "scam", "turns": [
+   ["caller", "Namaste sir, I am calling from the LIC head office. Your old policy has matured with a bonus of four lakh twenty thousand rupees."],
+   ["persona", "Bonus? That is a lot of money."],
+   ["caller", "Yes sir, but to release it a GST charge of eighteen thousand five hundred must be deposited first."],
+   ["persona", "I will go to the branch myself, I think."],
+   ["caller", "Sir the branch cannot release head office bonus. Deposit the GST in my account, account number one two three four five six seven eight nine zero, then the money will come."]
+  ]},
+
+  {"id": "pension-hi-legit", "pair": "pension-hi", "topic": "pension life certificate", "lang": "hi", "kind": "pair", "label": "legitimate", "turns": [
+   ["caller", "नमस्कार शर्मा जी, मैं स्टेट बैंक की पेंशन शाखा से बोल रहा हूँ। नवंबर में आपका जीवन प्रमाण पत्र जमा होना है।"],
+   ["persona", "हाँ, हर साल करता हूँ। इस बार कैसे करना है?"],
+   ["caller", "आप शाखा में आ जाइए या किसी जीवन प्रमाण केंद्र पर जाइए। आधार और पेंशन बुक साथ लाइए। फ़ोन पर मुझे कोई जानकारी नहीं चाहिए।"],
+   ["persona", "ठीक है, मैं सोमवार को शाखा आ जाऊँगा।"],
+   ["caller", "बहुत अच्छा, नवंबर के आख़िर तक कभी भी आ सकते हैं। धन्यवाद।"]
+  ]},
+  {"id": "pension-hi-scam", "pair": "pension-hi", "topic": "pension life certificate", "lang": "hi", "kind": "pair", "label": "scam", "turns": [
+   ["caller", "नमस्कार, मैं पेंशन विभाग से बोल रहा हूँ। आपका जीवन प्रमाण पत्र रिजेक्ट हो गया है।"],
+   ["persona", "रिजेक्ट? मैंने तो पिछले महीने जमा किया था।"],
+   ["caller", "अगर आज ऑनलाइन अपडेट नहीं हुआ तो आपकी पेंशन बंद हो जाएगी। अपने फ़ोन में एनीडेस्क ऐप डाउनलोड कीजिए, मैं ख़ुद अपडेट कर दूँगा।"],
+   ["persona", "मैं सोमवार को शाखा आ जाऊँ?"],
+   ["caller", "शाखा जाने की ज़रूरत नहीं है, वो आपको लाइन में खड़ा रखेंगे। ऐप में जो नौ अंकों का कोड आए वो मुझे बताइए।"]
+  ]},
+
+  {"id": "tax-en-legit", "pair": "tax-en", "topic": "income tax return", "lang": "en", "kind": "pair", "label": "legitimate", "turns": [
+   ["caller", "Hello uncle, this is Neha from Gupta and Associates, your CA's office. Your income tax return for this year still has to be filed."],
+   ["persona", "Oh, Mr Gupta's office. What do you need?"],
+   ["caller", "Just your Form 16 from the pension office and the interest certificate from your bank. You can drop them at our office or your son can email them to the office address."],
+   ["persona", "I will ask my son to bring them."],
+   ["caller", "Perfect uncle. The deadline is the thirty-first of July, so there is still time. Thank you."]
+  ]},
+  {"id": "tax-en-scam", "pair": "tax-en", "topic": "income tax refund", "lang": "en", "kind": "pair", "label": "scam", "turns": [
+   ["caller", "Hello sir, I am calling from the Income Tax Department. A refund of twenty-four thousand rupees is pending in your name."],
+   ["persona", "A refund? For me?"],
+   ["caller", "Yes sir. I have sent a link on your WhatsApp. Open it and log in with your net banking user ID and password, the refund will be credited at once."],
+   ["persona", "I will ask my son to look at it."],
+   ["caller", "Sir the link will expire in thirty minutes. Do it yourself now, there is no need to involve your son."]
+  ]},
+
+  {"id": "job-hinglish-legit", "pair": "job-hinglish", "topic": "job offer", "lang": "hinglish", "kind": "pair", "label": "legitimate", "turns": [
+   ["caller", "Hello, main Infosys Mysore campus HR se Kavya bol rahi hoon. Aapke bete Rohit ka interview shortlist hua hai, unka number band aa raha tha."],
+   ["persona", "Achha! Rohit abhi bahar gaya hai. Kya batana hai usko?"],
+   ["caller", "Unko bata dijiye ki interview Thursday ko office mein hai, poori jaankari unke email pe official Infosys address se aa chuki hai. Koi fees nahi hai."],
+   ["persona", "Theek hai, main usko bol dunga. Wo aapko wapas phone kar sakta hai?"],
+   ["caller", "Haan bilkul, careers website pe jo HR number hai uspe call kar lein. Dhanyavaad."]
+  ]},
+  {"id": "job-hinglish-scam", "pair": "job-hinglish", "topic": "job offer", "lang": "hinglish", "kind": "pair", "label": "scam", "turns": [
+   ["caller", "Hello, main ek online company se bol rahi hoon. Ghar baithe part time job hai, sirf YouTube videos like karne hain aur roz paanch hazaar kamaiye."],
+   ["persona", "Paanch hazaar roz? Sirf like karne ke?"],
+   ["caller", "Haan ji, bilkul pakka. Bas registration fee pandrah sau rupaye hai, wo aaj bharni hogi tabhi ID banegi."],
+   ["persona", "Main pehle apne bete se pooch loon?"],
+   ["caller", "Bete ko kya poochna, aaj last slot hai. Is UPI pe bhej dijiye, earnhome.task at ybl."]
+  ]},
+
+  {"id": "hospital-en-legit", "pair": "hospital-en", "topic": "family member in hospital", "lang": "en", "kind": "pair", "label": "legitimate", "turns": [
+   ["caller", "Hello, is this Mr Sharma? I am calling from the reception of Medanta hospital in Lucknow. Your son Amit was brought in after a small scooter fall. He is fine, it is a minor fracture."],
+   ["persona", "Oh God. Is he really alright? Can I speak to him?"],
+   ["caller", "Yes, he is conscious and talking, he asked us to call you. He is in the plaster room now, he will call you himself in half an hour. You can also call the hospital main number to check."],
+   ["persona", "Do I need to send money or anything?"],
+   ["caller", "No sir, nothing on the phone. Any bills are paid at the hospital counter when you come. Please come when you are ready."]
+  ]},
+  {"id": "hospital-en-scam", "pair": "hospital-en", "topic": "family member in hospital", "lang": "en", "kind": "pair", "label": "scam", "turns": [
+   ["caller", "Hello, Mr Sharma? I am Dr Mehta. Your son had a serious accident, he is in the operation theatre now."],
+   ["persona", "Oh God. Is he alright? Can I speak to him?"],
+   ["caller", "He cannot talk, he is critical. We need fifty thousand rupees for the surgery immediately, otherwise we cannot start."],
+   ["persona", "Let me call his wife first."],
+   ["caller", "There is no time, do not waste time calling anyone. Send the money now to this UPI, citycare.ot at paytm, every minute counts."]
+  ]},
+
+  {"id": "fraud-alert-en-legit", "pair": "fraud-alert-en", "topic": "bank fraud alert", "lang": "en", "kind": "pair", "label": "legitimate", "turns": [
+   ["caller", "Hello sir, this is the fraud monitoring team of ICICI Bank. We stopped a card transaction of twelve thousand rupees at an online store a few minutes ago. Was that you?"],
+   ["persona", "No! I did not buy anything. What happened?"],
+   ["caller", "Then we have already blocked the card for your safety, nothing was debited. A new card will be sent to your registered address. We will never ask you for an OTP or PIN on a call."],
+   ["persona", "How do I know you are really from the bank?"],
+   ["caller", "Very good question sir. Please hang up and call the number on the back of your card, they will confirm the block. You do not need to do anything else."]
+  ]},
+  {"id": "fraud-alert-en-scam", "pair": "fraud-alert-en", "topic": "bank fraud alert", "lang": "en", "kind": "pair", "label": "scam", "turns": [
+   ["caller", "Hello sir, this is the fraud department of ICICI Bank. Someone is trying to use your card for twelve thousand rupees right now."],
+   ["persona", "No! I did not buy anything. What happened?"],
+   ["caller", "To stop it I am sending a reversal request. You will get an OTP on your phone, read it to me quickly so I can cancel the transaction."],
+   ["persona", "How do I know you are really from the bank?"],
+   ["caller", "Sir there is no time to check, if you hang up the money will be gone. Just tell me the OTP now."]
+  ]},
+
+  {"id": "emi-hinglish-legit", "pair": "emi-hinglish", "topic": "loan EMI overdue", "lang": "hinglish", "kind": "pair", "label": "legitimate", "turns": [
+   ["caller", "Namaste Sharma ji, main Tata Capital se bol rahi hoon. Aapke consumer loan ki EMI paanch tareekh ko due thi, wo abhi tak nahi aayi."],
+   ["persona", "Achha? Mujhe laga auto-debit ho jata hai."],
+   ["caller", "Shayad account mein balance kam tha. Aap Tata Capital app se ya branch mein bhar dijiye. Agar pehle hi bhar di hai toh ignore kar dijiye."],
+   ["persona", "Main bank se pata karke phir bharta hoon."],
+   ["caller", "Haan ji, bilkul. Koi pareshani ho toh customer care pe phone kar lijiye. Dhanyavaad."]
+  ]},
+  {"id": "emi-hinglish-scam", "pair": "emi-hinglish", "topic": "loan EMI overdue", "lang": "hinglish", "kind": "pair", "label": "scam", "turns": [
+   ["caller", "Sharma ji, aapne CashNow app se loan liya tha, EMI overdue hai. Main recovery department se bol raha hoon."],
+   ["persona", "Maine toh koi app se loan nahi liya."],
+   ["caller", "Bahana mat banao. Abhi aath hazaar is UPI pe bhejo, quickcash.recovery at ybl, warna aapki photos aapke saare contacts ko bhej denge."],
+   ["persona", "Main bank se pata karke phir bharta hoon."],
+   ["caller", "Bank ko beech mein mat lao. Ek ghante mein paise nahi aaye toh police case karwa denge."]
+  ]},
+
+  {"id": "lpg-hi-legit", "pair": "lpg-hi", "topic": "LPG subsidy and delivery", "lang": "hi", "kind": "pair", "label": "legitimate", "turns": [
+   ["caller", "नमस्ते जी, मैं इंडेन गैस एजेंसी, अलीगंज से बोल रहा हूँ। आपकी सिलेंडर बुकिंग कन्फ़र्म हो गई है।"],
+   ["persona", "अच्छा, कब आएगा?"],
+   ["caller", "कल सुबह डिलीवरी हो जाएगी। पैसे डिलीवरी के समय दीजिए और रसीद ले लीजिए। सब्सिडी अपने आप आपके खाते में आ जाती है।"],
+   ["persona", "ठीक है, मैं एजेंसी के नंबर पर एक बार पूछ लूँ?"],
+   ["caller", "हाँ जी, ज़रूर, नंबर आपकी गैस बुक पर लिखा है। धन्यवाद।"]
+  ]},
+  {"id": "lpg-hi-scam", "pair": "lpg-hi", "topic": "LPG subsidy and delivery", "lang": "hi", "kind": "pair", "label": "scam", "turns": [
+   ["caller", "नमस्ते जी, मैं गैस सब्सिडी विभाग से बोल रहा हूँ। आपकी तीन हज़ार पाँच सौ रुपये की सब्सिडी रुकी हुई है।"],
+   ["persona", "अच्छा, वो कैसे मिलेगी?"],
+   ["caller", "मैं आपको व्हाट्सऐप पर एक क्यूआर कोड भेज रहा हूँ। उसे स्कैन करके एक रुपया भेजिए, तभी सब्सिडी आपके खाते में आएगी।"],
+   ["persona", "मैं एजेंसी के नंबर पर एक बार पूछ लूँ?"],
+   ["caller", "एजेंसी को इसका पता नहीं होता, यह सीधा सरकार से है। स्कैन करके यूपीआई पिन डालिए, बस।"]
+  ]},
+
+  {"id": "invest-en-legit", "pair": "invest-en", "topic": "investment advice", "lang": "en", "kind": "pair", "label": "legitimate", "turns": [
+   ["caller", "Good evening sir, I am Vikram, the relationship manager at your Axis Bank branch. Your fixed deposit matures next week, I wanted to discuss options."],
+   ["persona", "What options? I usually just renew it."],
+   ["caller", "Renewing is perfectly fine sir. If you like, I can also explain mutual funds, but they are market linked and nothing is guaranteed. We can sit together at the branch, your son is welcome too."],
+   ["persona", "I will think about it and maybe come with my son."],
+   ["caller", "Sure sir, no hurry at all. If you do nothing, it will simply renew as usual. Thank you."]
+  ]},
+  {"id": "invest-en-scam", "pair": "invest-en", "topic": "investment advice", "lang": "en", "kind": "pair", "label": "scam", "turns": [
+   ["caller", "Good evening sir, I am Vikram from a SEBI registered trading group. Our members are earning forty percent returns every month."],
+   ["persona", "Forty percent a month? Is that possible?"],
+   ["caller", "Guaranteed sir, zero risk. Join our WhatsApp group, our expert gives tips. Start with one lakh, transfer it to our trading account and you will get one lakh forty next month."],
+   ["persona", "I will think about it and maybe ask my son."],
+   ["caller", "Sir the offer is only for today, seats are limited. Do not tell your son, young people do not understand these things."]
+  ]},
+
+  {"id": "late-kyc-en", "topic": "KYC update", "lang": "en", "kind": "late_turn", "label": "scam", "scam_from_turn": 3, "turns": [
+   ["caller", "Hello sir, I am calling from Punjab National Bank regarding your KYC update."],
+   ["persona", "KYC? Should I come to the branch?"],
+   ["caller", "You can come to the branch sir, that is fine. Or I can help you finish it on the phone now so you do not have to stand in the line."],
+   ["persona", "On the phone? How?"],
+   ["caller", "Just install the app called AnyDesk from the Play Store and tell me the code, I will fill everything for you. Then tell me the OTP that comes."]
+  ]},
+  {"id": "late-loan-hinglish", "topic": "personal loan offer", "lang": "hinglish", "kind": "late_turn", "label": "scam", "scam_from_turn": 3, "turns": [
+   ["caller", "Namaste ji, main HDFC Bank se Rohan bol raha hoon. Aapke liye ek pre-approved loan offer hai."],
+   ["persona", "Main bank ke number pe phone karke pooch sakta hoon?"],
+   ["caller", "Haan ji, zaroor pooch lijiye, koi dikkat nahi. Offer aapke account pe dikh raha hai."],
+   ["persona", "Achha. Aur kya karna hoga?"],
+   ["caller", "Bas loan aaj release karne ke liye pehle chaubees sau ki processing fee is UPI pe bhejni hogi, hdfcloan.desk at okicici."]
+  ]},
+  {"id": "late-courier-hi", "topic": "courier delivery", "lang": "hi", "kind": "late_turn", "label": "scam", "scam_from_turn": 2, "turns": [
+   ["caller", "नमस्ते जी, मैं इंडिया पोस्ट से बोल रहा हूँ, आपका एक पार्सल आया है।"],
+   ["persona", "पार्सल? किसने भेजा?"],
+   ["caller", "पता अधूरा है इसलिए डिलीवरी रुकी है। मैं एक लिंक भेज रहा हूँ, उसमें पाँच रुपये का शुल्क अपने कार्ड से भरिए, कार्ड नंबर, एक्सपायरी और सीवीवी डालकर।"]
+  ]},
+  {"id": "late-insure-en", "topic": "insurance premium", "lang": "en", "kind": "late_turn", "label": "scam", "scam_from_turn": 3, "turns": [
+   ["caller", "Hello sir, I am calling from Max Life Insurance about your policy."],
+   ["persona", "Can I check with the branch first?"],
+   ["caller", "Yes sir, the branch can confirm your policy details any time."],
+   ["persona", "What is the call about, then?"],
+   ["caller", "There is a bonus of two lakh on your policy, but you must deposit eleven thousand tax to my account first. And do not tell your family, they may try to stop you."]
+  ]},
+
+  {"id": "benign-wrong-number-en", "topic": "wrong number", "lang": "en", "kind": "benign", "label": "legitimate", "turns": [
+   ["caller", "Hello, is this Gupta Electricals? I wanted to ask about a ceiling fan repair."],
+   ["persona", "No, this is a house. You have the wrong number."],
+   ["caller", "Oh, sorry uncle, I must have dialled wrongly. Sorry to disturb you."]
+  ]},
+  {"id": "benign-family-hinglish", "topic": "family chat", "lang": "hinglish", "kind": "benign", "label": "legitimate", "turns": [
+   ["caller", "Papa, main Neha. Dawai le li aapne aaj?"],
+   ["persona", "Haan beta, le li. Tum kaisi ho?"],
+   ["caller", "Main theek hoon. Sunday ko bachchon ko le kar aaungi, aap kuch mangwana ho toh bata dena."]
+  ]},
+  {"id": "benign-doctor-en", "topic": "appointment reminder", "lang": "en", "kind": "benign", "label": "legitimate", "turns": [
+   ["caller", "Good morning, this is the reception at Dr Kapoor's eye clinic. A reminder that your check-up is tomorrow at eleven."],
+   ["persona", "Tomorrow? Yes, I remember."],
+   ["caller", "Please bring your old glasses and the previous report. If you need to change the time, just call the clinic. Thank you."]
+  ]},
+  {"id": "benign-society-hi", "topic": "housing society maintenance", "lang": "hi", "kind": "benign", "label": "legitimate", "turns": [
+   ["caller", "नमस्ते शर्मा जी, मैं सोसाइटी ऑफ़िस से बोल रहा हूँ। इस तिमाही का मेंटेनेंस अभी बाकी है।"],
+   ["persona", "अच्छा, कितना है?"],
+   ["caller", "बाईस सौ रुपये। आप ऑफ़िस में आकर दे दीजिए या सोसाइटी के ऐप से भर दीजिए, रसीद मिल जाएगी। कोई जल्दी नहीं, महीने के आख़िर तक।"]
+  ]}
+ ]
+}

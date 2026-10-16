@@ -17,13 +17,13 @@ log = logging.getLogger("honeytrap.text")
 
 
 class TextSession:
-    def __init__(self, ws: WebSocket, handler) -> None:
+    def __init__(self, ws: WebSocket, handler, profile: CallProfile | None = None) -> None:
         self.ws = ws
         self.handler = handler
         self._lock = asyncio.Lock()
         self.stop_reason = "ended"
         self.client_gone = False
-        self.persona_prompt = build_persona_text(CallProfile())
+        self.persona_prompt = build_persona_text(profile or CallProfile())
         self.replies: list[str] = []
 
     async def send(self, event: dict) -> None:

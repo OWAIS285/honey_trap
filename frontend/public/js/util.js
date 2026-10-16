@@ -142,6 +142,33 @@ export const STAGES = [
 
 export const SOURCE_LABELS = { live_tool: "heard live", verifier: "second check" };
 
+// Short names for the behaviours that decide the verdict (the server sends the full definition and the quote).
+export const SIGNAL_LABELS = {
+  asks_secret_credential: "Asked for OTP / PIN / password",
+  remote_access_or_install: "Asked to install an app",
+  pay_to_receive: "Pay first to receive",
+  payment_to_personal_account: "Money to a personal account",
+  arrest_or_legal_threat: "Threat of arrest or case",
+  secrecy_or_isolation: "Told to keep it secret",
+  urgency_deadline: "Threatening deadline",
+  discourages_verification: "Refused a callback",
+  asks_full_identifier: "Wanted a full ID number",
+  link_or_unofficial_channel: "Link or unofficial channel",
+  too_good_to_be_true: "Too good to be true",
+  emotional_emergency: "Family emergency pressure",
+  identity_inconsistency: "Story does not add up",
+  offers_official_verification: "Offered official callback",
+  partial_identifier_only: "Asked only partial details",
+  official_channel_only: "Official channel only",
+  accepts_refusal: "Accepted a no",
+  no_request: "Asked for nothing",
+  knows_customer_record: "Knew his account's last 4 digits",
+};
+
+export const VERDICT_LABELS = { scam: "Scam", legitimate: "Not a scam", undetermined: "Not sure yet" };
+
+export const verdictTitle = (verdict, scamType) => (verdict === "scam" ? scamLabel(scamType) : VERDICT_LABELS[verdict] || scamLabel(scamType));
+
 export const scamLabel = (id) => SCAM_LABELS[id] || (id ? humanize(id) : "Listening…");
 
 export function humanize(text) {
