@@ -13,7 +13,7 @@ import config
 from clients import flash, text_client
 from persona import OPENING_CUE, PERSONA_TOOLS, CallProfile, build_persona_text, turn_note
 
-log = logging.getLogger("honeytrap.text")
+log = logging.getLogger("stallwart.text")
 
 
 class TextSession:

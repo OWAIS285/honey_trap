@@ -8,11 +8,11 @@ param(
 
 $envVars = "^|^GOOGLE_GENAI_USE_VERTEXAI=true|GOOGLE_CLOUD_PROJECT=$ProjectId|LIVE_LOCATION=$LiveLocation|TEXT_LOCATION=$TextLocation|ALLOWED_ORIGINS=$AllowedOrigins"
 
-gcloud run deploy honeytrap-api `
+gcloud run deploy stallwart-api `
     --project $ProjectId `
     --region $Region `
     --source backend `
-    --service-account "honeytrap-run@$ProjectId.iam.gserviceaccount.com" `
+    --service-account "stallwart-run@$ProjectId.iam.gserviceaccount.com" `
     --allow-unauthenticated `
     --max-instances 3 `
     --timeout 900 `

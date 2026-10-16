@@ -4,9 +4,9 @@ import { api } from "../api.js";
 import { Visualizer } from "../audio.js";
 import { strainCard } from "../components.js";
 import { createDashboard } from "../dashboard.js";
-import { scriptPanel } from "../scripts.js";
 import { CallSession } from "../session.js";
 import { setEnergy } from "../fx.js";
+import { createOrb } from "../orb3d.js";
 import { fmtClock, fmtDuration, h, icon, toast, verdictTitle } from "../util.js";
 
 export function CallView({ mode }) {
@@ -32,6 +32,11 @@ export function CallView({ mode }) {
     h("span", { class: "ring r3" }),
     h("div", { class: "avatar" }, h("span", {}, "RS")),
   );
+  const glCanvas = h("canvas", { class: "orb-gl", "aria-hidden": "true" });
+  orb.append(glCanvas);
+  const orb3d = createOrb(glCanvas, { pointer: false });
+  orb.classList.toggle("gl", !!orb3d);
+  const BASE_ENERGY = { idle: 0.08, connecting: 0.45, listening: 0.18, speaking: 0.3, ended: 0 };
   const canvas = voice ? h("canvas", { class: "viz", "aria-hidden": "true" }) : null;
   const timerEl = h("div", { class: "call-timer" }, "00:00");
   const maxEl = h("span", {}, " / 05:00");
@@ -75,7 +80,7 @@ export function CallView({ mode }) {
 
   const summarySlot = h("div", { class: "slot" });
   const strainSlot = h("div", { class: "slot" });
-  const left = h("div", { class: "call-left" }, phone, summarySlot, scriptPanel({ onSend: sendLine }), strainSlot);
+  const left = h("div", { class: "call-left" }, phone, summarySlot, strainSlot);
   const el = h("div", { class: `call-page ${voice ? "voice" : "text"}`, "data-state": "idle" }, left, dash.el);
   const modeSwitch = h(
     "div",
@@ -92,6 +97,7 @@ export function CallView({ mode }) {
     const target = session ? Math.max(session.personaLevel(), session.micLevel() * 0.8) : 0;
     level += (target - level) * 0.3;
     orb.style.setProperty("--level", level.toFixed(3));
+    orb3d?.setEnergy((BASE_ENERGY[orb.dataset.state] ?? 0.1) + level * 1.1);
     setEnergy(level * 1.4);
     raf = requestAnimationFrame(frame);
   };
@@ -298,6 +304,7 @@ export function CallView({ mode }) {
     destroy() {
       cancelAnimationFrame(raf);
       setEnergy(0);
+      orb3d?.destroy();
       stopTimer();
       viz?.stop();
       dash.stopClock();

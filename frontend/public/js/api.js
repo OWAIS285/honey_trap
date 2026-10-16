@@ -1,14 +1,14 @@
 // Backend access: REST (X-Client-Id header), WebSocket URLs and the anonymous client id.
 
-const DEFAULT_BASE = (window.HT_CONFIG && window.HT_CONFIG.backendUrl) || "";
+const DEFAULT_BASE = (window.SW_CONFIG && window.SW_CONFIG.backendUrl) || "";
 
 function resolveBase() {
   // A ?api=<url> override is honoured only on localhost, so a crafted link cannot point the app at another server.
   const local = ["localhost", "127.0.0.1"].includes(location.hostname);
   if (local) {
     const fromQuery = new URLSearchParams(location.search).get("api");
-    if (fromQuery) localStorage.setItem("ht_api", fromQuery);
-    const stored = localStorage.getItem("ht_api");
+    if (fromQuery) localStorage.setItem("sw_api", fromQuery);
+    const stored = localStorage.getItem("sw_api");
     if (stored) return stored.replace(/\/$/, "");
   }
   return DEFAULT_BASE.replace(/\/$/, "");
@@ -18,11 +18,11 @@ export const BASE = resolveBase();
 export const WS_BASE = BASE.replace(/^http/, "ws");
 
 export function clientId() {
-  let id = localStorage.getItem("ht_client_id");
+  let id = localStorage.getItem("sw_client_id");
   if (!id || !/^[A-Za-z0-9_-]{16,64}$/.test(id)) {
     const bytes = crypto.getRandomValues(new Uint8Array(16));
     id = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
-    localStorage.setItem("ht_client_id", id);
+    localStorage.setItem("sw_client_id", id);
   }
   return id;
 }

@@ -116,9 +116,11 @@ export function ReplayView({ lang } = {}) {
     };
     player = createAudioPlayer({ blob, callerLabel: "Scammer", personaLabel: "Ramesh", onFrame: advance, onEnded: finish });
     body.replaceChildren(
-      head,
-      h("button", { class: "btn primary lg block", type: "button", onClick: () => player.play().catch(() => {}) }, icon("play"), "Play the replay"),
-      highlights.length ? h("div", {}, h("small", { class: "muted" }, "Jump to a key moment"), chips) : null,
+      ...[
+        head,
+        h("button", { class: "btn primary lg block", type: "button", onClick: () => player.play().catch(() => {}) }, icon("play"), "Play the replay"),
+        highlights.length ? h("div", {}, h("small", { class: "muted" }, "Jump to a key moment"), chips) : null,
+      ].filter(Boolean),
     );
     left.insertBefore(player.el, strainSlot);
     advance(0);

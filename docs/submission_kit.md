@@ -14,7 +14,7 @@ Items marked **TEAM** need information only the team has.
 
 **3. Brief about the idea**
 - India lost ₹22,495 crore to cyber fraud in 2025 (NCRP data). Scam calls such as "digital arrest", KYC and courier scams end in a payment to a *mule account*.
-- Mirage is an AI decoy that answers those calls in English, Hindi and Hinglish, wastes the scammer's time and catches the UPI ID or bank account they ask for, confirmed twice.
+- Stallwart is an AI decoy that answers those calls in English, Hindi and Hinglish, wastes the scammer's time and catches the UPI ID or bank account they ask for, confirmed twice.
 - **Trap**: decoy call with live extraction. **Strain**: the captured script becomes a redacted card. **Vaccine**: that script becomes a consented practice call for a parent, who is stopped before sharing anything.
 - Why now: the RBI has published a *draft* SOP for suspected mule accounts (debit holds, proposed from 1 April 2027). Banks will need evidence leads.
 
@@ -57,7 +57,7 @@ Copy the tables from `eval/results/summary.md` (also in the README). Say plainly
 Limitations (browser instead of telephony, two languages of speech, a few seconds of latency, mis-hearing risk, synthetic benchmark). Roadmap: telco SIP diversion, bank and NCRP integration for evidence packs, more Indian languages, lower latency, human review of evidence. Safety: evidence is a lead, not a verdict; consent-first drills.
 
 **14. Links**
-GitHub repo (make it public first): https://github.com/OWAIS285/honey_trap (branch `prototype-v0.1`, merge to `main` before submitting). Live product: https://honeytrap-aibc-2026.web.app. Demo video: **TEAM** (paste after upload).
+GitHub repo (make it public first): https://github.com/OWAIS285/stallwart (branch `prototype-v0.1`, merge to `main` before submitting). Live product: https://stallwart.web.app. Demo video: **TEAM** (paste after upload).
 
 ## Video, 3:00 hard cap (aim for 2:45)
 
@@ -69,6 +69,6 @@ Record the screen at 1080p. Narrate in English. If any Hindi is audible, add Eng
 | 0:20 to 1:30 | Live call page. A teammate reads the English or Hindi script aloud. Show the orb, the transcript, the UPI ID and bank account appearing, moving from "heard" to "confirmed" after Ramesh reads them back, the gauge reaching "Digital arrest" with trigger phrases. (If the microphone misbehaves, use the Replay page instead.) | "Ramesh, a worried 68-year-old, keeps the caller talking. He asks the questions a frightened person would and makes the caller repeat every number, so the caller says it again. A second AI pass and strict validators must both agree before a detail is confirmed." |
 | 1:30 to 2:00 | Call review: play the recording, click a transcript line, show the evidence pack and the disclaimer. Then the strain card, then the drill invitation and the parent's phone screen. | "Each call becomes an evidence pack for the bank, and a redacted strain. The strain becomes a practice call for a parent. The coach stops the moment she shares a detail." |
 | 2:00 to 2:30 | README evaluation tables | "Honest numbers: detection on a synthetic benchmark against a keyword baseline, three runs; extraction on planted tests; thirty hostile prompts against the persona." |
-| 2:30 to 2:45 | Architecture diagram, then the live URL | "Built on Gemini Live and Flash, Cloud Run, Firebase, Firestore and Vertex AI. Trap, Strain, Vaccine. Try it at honeytrap-aibc-2026.web.app." |
+| 2:30 to 2:45 | Architecture diagram, then the live URL | "Built on Gemini Live and Flash, Cloud Run, Firebase, Firestore and Vertex AI. Trap, Strain, Vaccine. Try it at stallwart.web.app." |
 
 Tips: record the replay page as a backup take, turn off notifications, and keep the browser zoom at 100%.

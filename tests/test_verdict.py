@@ -90,7 +90,8 @@ def test_label_shows_topic_only_for_scams():
     assert verdict_label("scam", "loan_app") == "loan_app"
     assert verdict_label("scam", "not_scam") == "other_scam"
     assert verdict_label("legitimate", "loan_app") == "not_scam"
-    assert verdict_label("undetermined", "loan_app") is None
+    assert verdict_label("undetermined", "loan_app") == "undetermined"
+    assert verdict_label("scam", "undetermined") == "other_scam"
 
 
 # ----- evidence grounding -----
@@ -175,7 +176,7 @@ def test_state_summary_carries_labels_and_quotes():
     t = turns("Please read out your full account number for verification.")
     state.merge(result_for(t, red=[("asks_full_identifier", "read out your full account number")]))
     summary = state.summary(1)
-    assert summary["verdict"] == "undetermined" and summary["scamType"] is None and summary["stage"] is None
+    assert summary["verdict"] == "undetermined" and summary["scamType"] == "undetermined" and summary["stage"] is None
     flag = summary["redFlags"][0]
     assert flag["severity"] == "soft" and flag["quote"] == "read out your full account number"
     assert flag["label"] == analysis.RED_FLAGS["asks_full_identifier"]

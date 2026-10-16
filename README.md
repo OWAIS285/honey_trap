@@ -1,14 +1,14 @@
-# Mirage
+# Stallwart
 
 **An AI decoy that answers scam calls in English, Hindi and Hinglish, wastes the scammer's time, catches the UPI IDs and bank accounts they ask victims to pay, and turns every captured script into a practice call that protects the next family.**
 
-Built for the Google Cloud AI Builder Cup JAPAC 2026, BFSI theme (Intelligent Risk, Fraud and Financial Experiences). The product was renamed from its working title; the deployed URLs and Google Cloud resource ids keep the original `honeytrap` project id.
+Built for the Google Cloud AI Builder Cup JAPAC 2026, BFSI theme (Intelligent Risk, Fraud and Financial Experiences).
 
 | | |
 |---|---|
-| Live app | https://honeytrap-aibc-2026.web.app |
-| Watch without a microphone | https://honeytrap-aibc-2026.web.app/#/replay |
-| Backend health | https://honeytrap-api-378992821239.asia-south1.run.app/health |
+| Live app | https://stallwart.web.app |
+| Watch without a microphone | https://stallwart.web.app/#/replay |
+| Backend health | https://stallwart-api-378992821239.asia-south1.run.app/health |
 
 All names, numbers, UPI IDs and accounts in the demo are **fictional**. This is a prototype: a browser stands in for a phone line (see [Limitations](#limitations)).
 
@@ -82,7 +82,7 @@ Cloud Run, Firebase Hosting, Firestore (TTL on `expiresAt`), Cloud Storage (life
 
 ## Safety, privacy and responsible use
 
-- The persona never says any number of its own, in full or in part, not even to a genuine bank. Each call gives Ramesh a private record (bank, branch, UPI app and only the **last four digits** of his account, Aadhaar and card; no full number exists anywhere). He uses it the way a careful customer would: a caller who says they are his bank must tell *him* the last four digits, and he only says whether they match, never which digits are right. The match is also checked in code and counts as a legitimacy signal (it can never outweigh a red flag). When UPI comes up he does not just refuse: he asks whether money is coming in or going out and why a PIN would be needed to receive, which exposes collect-request scams. The persona never reveals it is an AI or a trap, never insults or threatens, and ends the call if the caller is clearly not a scammer. See the red-team results below.
+- The persona answers ordinary questions like a normal person: its name, age, area, bank name, the date and time, and the general knowledge a retired teacher would have. The persona never says any number of its own, in full or in part, not even to a genuine bank. Each call gives Ramesh a private record (bank, branch, UPI app and only the **last four digits** of his account, Aadhaar and card; no full number exists anywhere). He uses it the way a careful customer would: a caller who says they are his bank must tell *him* the last four digits, and he only says whether they match, never which digits are right. The match is also checked in code and counts as a legitimacy signal (it can never outweigh a red flag). When UPI comes up he does not just refuse: he asks whether money is coming in or going out and why a PIN would be needed to receive, which exposes collect-request scams. The persona never reveals it is an AI or a trap, never insults or threatens, and ends the call if the caller is clearly not a scammer. See the red-team results below.
 - Family drills require explicit consent, only ever ask for made-up details, and stop at the first sign of risk.
 - Evidence packs carry the disclaimer: details were stated by an unverified caller and may be mis-heard or belong to an innocent third party. The RBI mule-account SOP is a **draft**; this project does not claim it is in force.
 - ICFD-31k is licensed for defensive research. It is used **only** to evaluate the classifier, never for the persona or drill scripts, and it is not stored in this repository.
@@ -105,8 +105,9 @@ Deploy (needs a Google Cloud project with billing; see the scripts for the exact
 ```powershell
 .\scripts\setup_gcp.ps1 -ProjectId <project>
 .\scripts\setup_storage.ps1 -ProjectId <project>
-.\scripts\deploy_backend.ps1 -ProjectId <project> -AllowedOrigins https://<project>.web.app
-firebase deploy --only hosting,firestore --project <project>
+.\scripts\deploy_backend.ps1 -ProjectId <project> -AllowedOrigins https://stallwart.web.app
+firebase use <project>     # writes .firebaserc (git-ignored); hosting site id is set in firebase.json
+firebase deploy --only hosting,firestore
 ```
 
 Useful scripts: `scripts/sim_call.py` (typed or silent-mic simulated caller), `scripts/sim_drill.py` (drill scenarios), `scripts/make_replay.py` (records the English or Hindi replay: an AI scammer talks to the real decoy, then the audio is assembled turn by turn so voices never overlap and the length lands between 1:45 and 2:00), `eval/variety_eval.py` (how repetitive the decoy is), `scripts/stop_billing.ps1`.

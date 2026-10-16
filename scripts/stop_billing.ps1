@@ -1,5 +1,5 @@
 param(
-    [string]$ProjectId = "honeytrap-aibc-2026"
+    [string]$ProjectId = (gcloud config get-value project 2>$null)
 )
 
 # Emergency stop: Cloud Run, Firestore and Vertex AI calls stop working until billing is re-linked.

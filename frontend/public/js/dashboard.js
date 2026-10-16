@@ -229,8 +229,14 @@ export function createDashboard({ callerLabel = "Caller", personaLabel = "Ramesh
     fill.setAttribute("stroke-dashoffset", String(CIRCUMFERENCE * (1 - confidence)));
     pctEl.textContent = `${Math.round(confidence * 100)}%`;
     typeEl.textContent = scamLabel(ev.scamType);
-    entityEl.textContent = ev.impersonatedEntity ? `Pretending to be: ${ev.impersonatedEntity}` : ev.scamType ? "Caller's claimed identity not clear yet." : "Waiting for the caller to say something.";
-    setTone(!ev.scamType ? "idle" : ev.scamType === "not_scam" ? "safe" : "danger");
+    const harmless = ev.scamType === "not_scam";
+    const unclear = !ev.scamType || ev.scamType === "undetermined";
+    entityEl.textContent = ev.impersonatedEntity
+      ? `Pretending to be: ${ev.impersonatedEntity}`
+      : harmless ? "Sounds like an ordinary call."
+      : unclear ? "Not enough said yet to judge this call."
+      : "Caller's claimed identity not clear yet.";
+    setTone(unclear ? "idle" : harmless ? "safe" : "danger");
     clear(triggersEl);
     for (const phrase of (ev.triggerPhrases || []).slice(0, 4)) triggersEl.append(h("span", { class: "chip trigger" }, `“${phrase}”`));
     if (ev.stage) onStage(ev.stage);
@@ -266,8 +272,9 @@ export function createDashboard({ callerLabel = "Caller", personaLabel = "Ramesh
       transcriptEmpty.hidden = true;
       if (!ev.final) liveBubbles[speaker] = bubble;
     }
-    bubble.querySelector(".b-text").textContent = ev.text;
+    bubble.querySelector(".b-text").textContent = ev.translating && !ev.final ? "Translating to English…" : ev.text;
     bubble.classList.toggle("partial", !ev.final);
+    bubble.classList.toggle("translating", Boolean(ev.translating) && !ev.final);
     if (ev.final) {
       delete liveBubbles[speaker];
       if (ev.tSec != null) bubble.querySelector("time").textContent = ` · ${fmtClock(ev.tSec)}`;

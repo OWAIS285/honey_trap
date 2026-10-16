@@ -1,11 +1,11 @@
-# CLAUDE.md — Project "Honey Trap" (working name)
+# CLAUDE.md — Project "Stallwart"
 
 > Read this whole file before doing anything. It is the single source of truth for this project.
 > Deadline: **prototype submission Sunday 18 Oct 2026** (the organisers publish no timezone → **submit by Sunday MORNING IST**; have everything uploaded and link-tested by Saturday night). Today is Wed 14 Oct 2026.
 > Event: **Google Cloud AI Builder Cup JAPAC 2026** (Hack2skill × Google Cloud). Theme: **BFSI: Intelligent Risk, Fraud & Financial Experiences**.
 > §0 and the model/API facts in §4 were checked against the official site, T&C, RBI and Google docs on 14 Oct 2026. Items marked **VERIFY** are not confirmed yet.
 >
-> **Status 15 Oct 2026:** backend (live voice, text chat, two-layer extraction, classification, strain, drills, recordings), the animated web app, the recorded replay and the evaluation harness are built and deployed (https://honeytrap-aibc-2026.web.app). Still open: final eval numbers in the README, deck from the official template, 3-minute video, public repo, real-device mic test, roster/Discord confirmation, 50+ redacted real scam messages.
+> **Status 15 Oct 2026:** backend (live voice, text chat, two-layer extraction, classification, strain, drills, recordings), the animated web app, the recorded replay and the evaluation harness are built and deployed (https://stallwart.web.app). Still open: final eval numbers in the README, deck from the official template, 3-minute video, public repo, real-device mic test, roster/Discord confirmation, 50+ redacted real scam messages.
 
 ---
 
@@ -308,8 +308,8 @@ If a dataset is unavailable: use the others plus a clearly-labelled synthetic In
 3. Enable APIs: `run`, `cloudbuild`, `artifactregistry`, `aiplatform`, `firestore`, `secretmanager`, `firebase`, `logging`, `monitoring`.
 4. Cloud Run service account with `roles/aiplatform.user`, `roles/datastore.user`, `roles/logging.logWriter` (add `roles/secretmanager.secretAccessor` only if a secret is needed).
 5. Firebase on the same project: Firestore (Native mode, `asia-south1`), Authentication → Anonymous, Hosting site.
-6. Repo `OWAIS285/honey_trap` (origin already set): make it **public**; add LICENSE (MIT or Apache-2.0), `.gitignore` (`.env`, key/service-account JSON, `eval/datasets/`), `.env.example`, README skeleton.
-7. Hello-world: FastAPI `/health` (Cloud Run reserves `/healthz`) + WebSocket echo, then `gcloud run deploy honeytrap-api --source backend --region asia-south1 --allow-unauthenticated --max-instances 3 --timeout 900`; static page via `firebase deploy --only hosting`.
+6. Repo `OWAIS285/stallwart` (origin already set): make it **public**; add LICENSE (MIT or Apache-2.0), `.gitignore` (`.env`, key/service-account JSON, `eval/datasets/`), `.env.example`, README skeleton.
+7. Hello-world: FastAPI `/health` (Cloud Run reserves `/healthz`) + WebSocket echo, then `gcloud run deploy stallwart-api --source backend --region asia-south1 --allow-unauthenticated --max-instances 3 --timeout 900`; static page via `firebase deploy --only hosting`.
 8. Live API spike (~45 min): `genai.Client(vertexai=True, ...)` → `gemini-3.8-live`; check working locations, latency from India, Hinglish quality, digit read-back, transcription config, one function-call round-trip; keep the API-key path as fallback.
 9. Write the results of every VERIFY item back into §4.
 
@@ -362,4 +362,4 @@ The T&C also ask for a **business case**: put buyers (banks, UPI apps/fintech, t
 - Are Google Cloud credits provided for the event?
 - **VERIFY:** transcription config for native-audio; Kaggle dataset size/language/licence; MuleHunter.AI and DoT FRI descriptions. (Resolved: model locations, see §4.)
 - Optional: use ADK (Agent Development Kit) streaming for the Live session if it helps the "Best Use of Google Cloud AI Tools" prize without costing time; default is the plain `google-genai` SDK.
-- Public name: "honey trap" often means a sexual-lure scam, so consider a different public-facing name before the deck and video (working name is fine internally).
+- Public name: **Stallwart** (decided).

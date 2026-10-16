@@ -2,7 +2,7 @@
 
 import { api } from "../api.js";
 import { BRAND } from "../brand.js";
-import { errorState, pageHeader, skeletons, strainCard } from "../components.js";
+import { backLink, errorState, pageHeader, skeletons, strainCard } from "../components.js";
 import { createAudioPlayer } from "../player.js";
 import { DETAIL_META, SIGNAL_LABELS, SOURCE_LABELS, downloadBlob, fmtClock, fmtDate, fmtDuration, h, humanize, icon, observeReveal, scamLabel, toast, verdictTitle } from "../util.js";
 
@@ -10,7 +10,8 @@ export const DISCLAIMER =
   "Details were stated by an unverified caller during an automated decoy call and may be mis-heard or belong to an innocent third party. This pack is a lead for investigators, not a finding that any account is fraudulent.";
 
 export function ReviewView({ id }) {
-  const el = h("div", { class: "page review" }, pageHeader("Call review", "Loading…"), skeletons(2));
+  const back = backLink("#/history", "History");
+  const el = h("div", { class: "page review" }, back, pageHeader("Call review", "Loading…"), skeletons(2));
   let player = null;
   let destroyed = false;
 
@@ -21,7 +22,7 @@ export function ReviewView({ id }) {
     try {
       data = await api.call(id);
     } catch (err) {
-      el.replaceChildren(pageHeader("Call review"), errorState(err.status === 404 ? "This call was not found in this browser's history. It may be older than 14 days." : err.message, err.status === 404 ? null : load));
+      el.replaceChildren(back, pageHeader("Call review"), errorState(err.status === 404 ? "This call was not found in this browser's history. It may be older than 14 days." : err.message, err.status === 404 ? null : load));
       return;
     }
     if (destroyed) return;
@@ -64,7 +65,7 @@ export function ReviewView({ id }) {
         "button",
         { class: `line ${turn.speaker}`, type: "button", onClick: () => seekTo(start - 0.4), "aria-label": `Play from ${fmtClock(start)}` },
         h("span", { class: "who" }, turn.speaker === "caller" ? "Caller" : "Ramesh", h("time", {}, ` · ${fmtClock(turn.tSec || 0)}`)),
-        h("span", { class: "txt" }, turn.text),
+        h("span", { class: "txt" }, turn.textEn || turn.text),
       );
       seekers.push({ row, start, end: turn.tSec || start + 1 });
       return row;
@@ -137,6 +138,7 @@ export function ReviewView({ id }) {
     const playerSlot = h("div", { class: "slot no-print" });
     el.replaceChildren(
       printHead,
+      back,
       pageHeader(title, `${fmtDate(call.startedAt)} · ${call.mode === "text" ? "text chat" : "voice call"}`, ...actions),
       tiles,
       playerSlot,

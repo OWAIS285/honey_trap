@@ -71,6 +71,13 @@ def test_payment_demand_detection_english_hinglish_hindi():
     assert not analysis.looks_like_payment_demand("A parcel in your name was caught with illegal items.")
 
 
+def test_hindi_and_hinglish_lines_are_marked_for_translation():
+    assert analysis.needs_translation("\u0939\u0948\u0932\u094b, \u0915\u094c\u0928 \u092c\u094b\u0932 \u0930\u0939\u093e \u0939\u0948?")
+    assert analysis.needs_translation("Aap ka account number kya hai?")
+    assert not analysis.needs_translation("A parcel in your name was caught with illegal items.")
+    assert not analysis.needs_translation("Yes, hello, Sharma speaking.")
+
+
 def test_percentile():
     assert percentile([], 50) is None
     assert percentile([100, 200, 300, 400, 500], 50) == 300
@@ -89,7 +96,7 @@ def test_evidence_pack_separates_confirmed_and_carries_disclaimer():
     assert [d["value"] for d in pack["unconfirmedDetails"]] == ["9876543210"]
     assert pack["confirmedDetails"][0]["quote"].startswith("UPI ID hai")
     assert "not a finding" in pack["disclaimer"]
-    assert pack["schema"] == "honeytrap.evidence.v1"
+    assert pack["schema"] == "stallwart.evidence.v1"
 
 
 def test_demo_strain_has_three_red_flags_and_no_identifiers():

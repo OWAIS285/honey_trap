@@ -16,7 +16,7 @@ from normalizer import normalize_digits
 from persona import DETAIL_TYPES, STAGES
 from validators import validate_detail
 
-log = logging.getLogger("honeytrap.analysis")
+log = logging.getLogger("stallwart.analysis")
 
 TAXONOMY = [
     "digital_arrest",
@@ -32,7 +32,9 @@ TAXONOMY = [
     "loan_app",
     "other_scam",
     "not_scam",
+    "undetermined",
 ]
+NON_SCAM = ("not_scam", "undetermined")
 
 DISCLAIMER = (
     "Details were stated by an unverified caller during an automated decoy call and may be mis-heard or belong to "
@@ -143,13 +145,16 @@ def _catalogue(items: dict[str, str]) -> str:
     return "\n".join(f"  - {key}: {text}" for key, text in items.items())
 
 
-VERIFIER_PROMPT = f"""You analyse a phone call between a CALLER (unknown intent: may be a scammer, may be a genuine bank,
-lender, insurer, courier, government office, a wrong number or family) and a PERSONA (an elderly man who answered).
+VERIFIER_PROMPT = f"""You review a phone call between a CALLER and a PERSONA (an elderly man who picked up).
+The CALLER is an unknown person. Most callers are ordinary (a wrong number, family, a genuine bank, lender, insurer,
+courier, government office, shop or survey) and a few are scammers, so do not assume a scam.
 Only the CALLER's words count as evidence. Do not judge by topic: genuine banks and lenders also call about loans,
-KYC, accounts, cards and Aadhaar. Report only behaviour the caller actually showed, never what they might do later.
+KYC, accounts, cards and Aadhaar. A name, city, phone number, bank name or account number is never a red flag by
+itself, and neither is one word such as 'bank', 'UPI' or 'police'. Report only behaviour the caller actually showed,
+never what they might do later. A false scam alert on a genuine caller is a serious error.
 Return JSON with:
 - scam_type: the pattern this call resembles, one of {', '.join(TAXONOMY)}. Use not_scam when the call matches
-  no scam pattern at all. This is a label for the topic, not a verdict.
+  no scam pattern at all, undetermined when there is too little to tell. This is a label for the topic, not a verdict.
 - impersonated_entity: the organisation the caller says they are from, or an empty string
 - stage: one of {', '.join(STAGES)} (use hook if nothing risky has happened yet)
 - red_flags: one entry per flag the CALLER clearly showed, each with signal (an id below) and quote (the caller's
@@ -351,10 +356,10 @@ def decide_verdict(red_flags, legit_signals, caller_turns: int, persona_not_scam
 def verdict_label(verdict: str, topic: str | None) -> str | None:
     """The scam-type label shown to users: the topic only once the behaviour says scam."""
     if verdict == "scam":
-        return topic if topic in TAXONOMY and topic != "not_scam" else "other_scam"
+        return topic if topic in TAXONOMY and topic not in NON_SCAM else "other_scam"
     if verdict == "legitimate":
         return "not_scam"
-    return None
+    return "undetermined"
 
 
 class VerdictState:
@@ -374,7 +379,7 @@ class VerdictState:
             self.red.setdefault(item.signal, item.quote)
         for item in result.legit_signals:
             self.legit.setdefault(item.signal, item.quote)
-        if result.scam_type in TAXONOMY and (result.scam_type != "not_scam" or self.topic is None):
+        if result.scam_type in TAXONOMY and (result.scam_type not in NON_SCAM or self.topic is None):
             self.topic = result.scam_type
         if result.impersonated_entity:
             self.entity = result.impersonated_entity
@@ -405,6 +410,45 @@ def _transcript(turns: list[dict], limit: int) -> str:
     )
 
 
+_DEVANAGARI = re.compile(r"[\u0900-\u097F]")
+# Words that are Hindi and never English, to spot Roman-script Hindi and Hinglish.
+_ROMAN_HINDI = re.compile(
+    r"\b(hai|hain|nahi|nahin|kya|aap|aapka|aapke|aapki|mera|meri|mere|mujhe|kaun|kyun|kaise|abhi|jaldi|beta|haan|"
+    r"achha|accha|paisa|paise|rupaye|bhej|bhejo|batao|bataiye|bolo|boliye|karo|kijiye|sahab|sahib|arre|arey|theek|"
+    r"thik|samajh|matlab|ghar|bhai|suniye|suno|dekhiye|namaste|dhanyavaad|shukriya)\b",
+    re.IGNORECASE,
+)
+
+
+def needs_translation(text: str) -> bool:
+    """True when a transcript line is Hindi (Devanagari or Roman letters) or Hinglish, so the display needs English."""
+    return bool(_DEVANAGARI.search(text) or _ROMAN_HINDI.search(text))
+
+
+TRANSLATE_PROMPT = (
+    "Translate this line from a phone call into plain, natural English, keeping the speaker's tone. Keep names, "
+    "numbers, UPI IDs, IFSC codes and acronyms (CBI, UPI, OTP) exactly as written, with spoken digits written as digits. "
+    "Output only the translation: no quotes, notes or explanations.\n\nLINE:\n"
+)
+
+
+async def to_english(client, text: str) -> str | None:
+    """English version of a Hindi or Hinglish line, or None when the translation fails (the caller keeps the original)."""
+    try:
+        response = await flash(
+            client,
+            contents=TRANSLATE_PROMPT + text,
+            cfg=types.GenerateContentConfig(temperature=0.0, thinking_config=types.ThinkingConfig(thinking_budget=0)),
+            attempts=3,
+            model=config.TRANSLATE_MODEL,
+        )
+        english = " ".join((response.text or "").split())
+    except Exception:  # noqa: BLE001 - a missing translation must never break the call
+        log.warning("translation failed")
+        return None
+    return english if english and not _DEVANAGARI.search(english) else None
+
+
 async def verify(client, turns: list[dict]) -> VerifierResult | None:
     """Second, independent extraction layer: Gemini Flash over the recent turns with a strict JSON schema."""
     if not any(t["speaker"] == "caller" for t in turns):
@@ -412,7 +456,7 @@ async def verify(client, turns: list[dict]) -> VerifierResult | None:
     try:
         response = await flash(
             client,
-            contents=VERIFIER_PROMPT + "\n\nTRANSCRIPT:\n" + _transcript(turns, 10),
+            contents=VERIFIER_PROMPT + "\n\nTRANSCRIPT:\n" + _transcript(turns, 16),
             cfg=types.GenerateContentConfig(
                 response_mime_type="application/json",
                 response_schema=VerifierExtraction,
@@ -462,7 +506,8 @@ async def build_strain(client, turns: list[dict], scam_type: str) -> dict | None
     try:
         response = await flash(
             client,
-            contents=STRAIN_PROMPT.format(taxonomy=", ".join(TAXONOMY)) + "\n\nTRANSCRIPT:\n" + _transcript(turns, 40),
+            contents=STRAIN_PROMPT.format(taxonomy=", ".join(t for t in TAXONOMY if t not in NON_SCAM))
+            + "\n\nTRANSCRIPT:\n" + _transcript(turns, 40),
             cfg=types.GenerateContentConfig(
                 response_mime_type="application/json",
                 response_schema=StrainCard,
@@ -477,7 +522,7 @@ async def build_strain(client, turns: list[dict], scam_type: str) -> dict | None
     flags = [f.strip() for f in card.red_flags if f.strip()][:3]
     flags += [f for f in DEFAULT_RED_FLAGS if f not in flags][: 3 - len(flags)]
     return {
-        "scamType": card.scam_type if card.scam_type in TAXONOMY else scam_type,
+        "scamType": card.scam_type if card.scam_type in TAXONOMY and card.scam_type not in NON_SCAM else scam_type,
         "impersonatedEntity": card.impersonated_entity,
         "steps": [s.strip() for s in card.steps if s.strip()][:6],
         "redFlags": flags,
@@ -508,7 +553,7 @@ def build_evidence(call: dict, turns: list[dict], details: list[dict], strain: d
 
     ordered = sorted(details, key=lambda d: (not d["confirmed"], d["type"]))
     return {
-        "schema": "honeytrap.evidence.v1",
+        "schema": "stallwart.evidence.v1",
         "generatedAt": now_iso(),
         "callId": call.get("callId"),
         "mode": call.get("mode"),
@@ -525,7 +570,8 @@ def build_evidence(call: dict, turns: list[dict], details: list[dict], strain: d
         "confirmedDetails": [row(d) for d in ordered if d["confirmed"]],
         "unconfirmedDetails": [row(d) for d in ordered if not d["confirmed"]],
         "transcript": [
-            {"turn": t["n"], "speaker": t["speaker"], "text": t["text"], "tSec": t.get("tSec")} for t in turns
+            {"turn": t["n"], "speaker": t["speaker"], "text": t["text"], "textEn": t.get("textEn"), "tSec": t.get("tSec")}
+            for t in turns
         ],
         "strain": strain,
         "recordingAvailable": bool(call.get("recording")),
