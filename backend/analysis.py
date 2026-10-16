@@ -60,6 +60,8 @@ HARD_FLAGS = {
     "instead of the organisation's own official channel",
     "arrest_or_legal_threat": "Threatens arrest, police, court, a warrant, a case or 'digital arrest' over the phone",
     "secrecy_or_isolation": "Tells the listener not to tell family or the bank, or to stay on the call or video",
+    "extortion_threat": "Threatens to shame, expose or harm the listener unless they pay: sending their photos or "
+    "messages to their contacts, telling their family or employer, or violence",
 }
 SOFT_FLAGS = {
     "urgency_deadline": "Pressure to act right now under threat of loss: account, card, SIM or power blocked today, a "

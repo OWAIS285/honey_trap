@@ -152,6 +152,7 @@ export const SIGNAL_LABELS = {
   payment_to_personal_account: "Money to a personal account",
   arrest_or_legal_threat: "Threat of arrest or case",
   secrecy_or_isolation: "Told to keep it secret",
+  extortion_threat: "Threat to shame or harm",
   urgency_deadline: "Threatening deadline",
   discourages_verification: "Refused a callback",
   asks_full_identifier: "Wanted a full ID number",
