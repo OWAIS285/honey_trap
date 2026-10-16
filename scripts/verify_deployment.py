@@ -15,7 +15,8 @@ What it checks
                   flag, both details confirmed, reports delivered to Axis Bank and State Bank of India at 65% or
                   more, and the watchlist API agreeing;
                3. a UPI "enter your PIN to receive cashback" scammer -> "Scam".
-               In every chat Ramesh must never say a number of his own.
+               In every chat Ramesh must never say a number of his own or invent one (reading back the caller's
+               numbers, which gets them repeated, is allowed).
 Needs only the standard library plus `websockets` (installed with the backend requirements). A run uses 3 of the
 10 live sessions each network may open per hour.
 """
@@ -93,19 +94,37 @@ def http_text(url: str, timeout: int = 30) -> str:
         return ""
 
 
-def own_number_spoken(text: str, own: list[str]) -> str | None:
-    """The number Ramesh must never say: 5+ digits, one of his own last-four, a 4-digit run that is not a year,
-    or four digit words in a row."""
+WORD_DIGIT = {"zero": "0", "oh": "0", "shunya": "0", "one": "1", "ek": "1", "two": "2", "three": "3", "teen": "3",
+              "four": "4", "char": "4", "five": "5", "paanch": "5", "six": "6", "chhe": "6", "seven": "7", "saat": "7",
+              "eight": "8", "aath": "8", "nine": "9", "nau": "9"}
+
+
+def number_runs(text: str) -> list[str]:
+    """Every number in the text as digits: written runs (spaces and dashes allowed) and four or more digit words in a row."""
     written = text.translate(str.maketrans("०१२३४५६७८९", "0123456789"))
-    for run in re.findall(r"\d[\d\s-]*\d", written):
-        digits = re.sub(r"\D", "", run)
-        if len(digits) >= 5 or (len(digits) == 4 and (digits in own or not 1900 <= int(digits) <= 2099)):
-            return run
-    streak = []
-    for token in re.findall(r"[A-Za-z]+", text.lower()):
-        streak = streak + [token] if token in DIGIT_WORDS else []
+    runs = [re.sub(r"\D", "", r) for r in re.findall(r"\d[\d\s-]*\d", written)]
+    streak: list[str] = []
+    for token in re.findall(r"[A-Za-z]+", text.lower()) + [""]:
+        if token in WORD_DIGIT:
+            streak.append(WORD_DIGIT[token])
+            continue
         if len(streak) >= 4:
-            return " ".join(streak)
+            runs.append("".join(streak))
+        streak = []
+    return [r for r in runs if len(r) >= 4]
+
+
+def own_number_spoken(text: str, own: list[str], caller_digits: str) -> str | None:
+    """A number Ramesh must never say: one of his own last-four, or a number nobody gave him (invented). Reading back
+    the caller's own numbers, even with a deliberate slip, is allowed and is how he gets them repeated."""
+    for run in number_runs(text):
+        if any(four in run for four in own):
+            return run
+        if len(run) == 4 and 1900 <= int(run) <= 2099:
+            continue
+        windows = {run[i : i + 4] for i in range(len(run) - 3)}
+        if not any(w in caller_digits for w in windows):
+            return run
     return None
 
 
@@ -116,8 +135,8 @@ async def chat(api: str, origin: str, lines: list[str], label: str) -> dict:
     import websockets
 
     client_id = secrets.token_hex(16)
-    out = {"label": label, "clientId": client_id, "events": [], "persona": [], "record": None, "ended": None,
-           "error": None}
+    out = {"label": label, "clientId": client_id, "events": [], "persona": [], "caller": [], "record": None,
+           "ended": None, "error": None}
     ws_url = api.replace("https://", "wss://").replace("http://", "ws://") + "/ws/text"
     sent = 0
     last_reply = 0.0
@@ -152,6 +171,8 @@ async def chat(api: str, origin: str, lines: list[str], label: str) -> dict:
                     out["persona"].append(event.get("text", ""))
                     replies += 1
                     last_reply = time.monotonic()
+                elif kind == "transcript" and event.get("final") and event.get("speaker") == "caller":
+                    out["caller"].append(event.get("text", ""))
                 elif kind == "error":
                     out["error"] = event.get("message") or event.get("code")
                     break
@@ -311,12 +332,13 @@ def chat_checks(api: str, origin: str) -> None:
     leaks = []
     for c in (genuine, scam, pin):
         own = list(((c["record"] or {}).get("last4") or {}).values())
+        caller_digits = "|".join(r for line in c["caller"] for r in number_runs(line))
         for line in c["persona"]:
-            hit = own_number_spoken(line, own)
+            hit = own_number_spoken(line, own, caller_digits)
             if hit:
                 leaks.append(f"{c['label']}: '{hit}' in \"{line[:80]}\"")
     total = sum(len(c["persona"]) for c in (genuine, scam, pin))
-    check("Ramesh never says a number of his own", not leaks, f"{total} replies checked" + (f"; {leaks[0]}" if leaks else ""))
+    check("Ramesh never says a number of his own (reading back the caller's is allowed)", not leaks, f"{total} replies checked" + (f"; {leaks[0]}" if leaks else ""))
     check("Ramesh's record was sent to the screen (for testers)", all(c["record"] for c in (genuine, scam, pin)))
 
 
