@@ -2,22 +2,24 @@
 
 import { api } from "../api.js";
 import { backLink, emptyState, errorState, pageHeader, skeletons } from "../components.js";
-import { BANK_DECISIONS, DELIVERY_LABELS, DETAIL_META, ROUTED_BY_LABELS, fmtDate, h, humanize, icon, observeReveal, scamLabel, toast } from "../util.js";
+import { BANK_DECISIONS, DELIVERY_LABELS, DETAIL_META, ROUTED_BY_LABELS, bankItemState, fmtDate, pct, h, humanize, icon, observeReveal, scamLabel, toast } from "../util.js";
 
 const INTRO =
-  "Every confirmed UPI ID or account number from a scam call is routed to the bank that can act on it: the IFSC names the bank, a UPI handle names the bank that runs it. Each report is signed and delivered the moment the detail is confirmed. These inboxes are proxies for the real banks; nothing is sent to an actual bank.";
+  "Every UPI ID or account number from a scam call gets a confidence score (how sure we are the call is a scam x how sure we caught the detail right). At 65% or more it is routed to the bank that can act on it and a signed report is delivered at once. Between 45% and 65% it waits on the watchlist; every later call that gives the same detail raises the score. These inboxes are proxies; nothing is sent to an actual bank.";
 
 export function BanksView() {
   const el = h("div", { class: "page" }, pageHeader("Bank inboxes", INTRO), skeletons(3));
 
   async function load() {
     let data;
+    let watch;
     try {
-      data = await api.banks();
+      [data, watch] = await Promise.all([api.banks(), api.watchlist()]);
     } catch (err) {
       el.replaceChildren(pageHeader("Bank inboxes"), errorState(err.message, load));
       return;
     }
+    const watchCard = watchlistCard(watch);
     const withReports = data.banks.filter((b) => b.reports > 0);
     const header = pageHeader("Bank inboxes", INTRO);
     if (!withReports.length) {
@@ -29,6 +31,7 @@ export function BanksView() {
           text: "Take a call as a scammer and give Ramesh a UPI ID or an account number with its IFSC. Once the call is judged a scam and the detail is confirmed, the report lands in that bank's inbox here.",
           action: h("a", { class: "btn primary", href: "#/call" }, icon("phone"), "Take a call"),
         }),
+        watchCard,
         bankDirectory(data.banks),
       );
       observeReveal(el);
@@ -48,12 +51,44 @@ export function BanksView() {
         ),
       ),
     );
-    el.replaceChildren(header, h("div", { class: "grid cards" }, cards), apiNote(data.apiEnabled), bankDirectory(data.banks));
+    el.replaceChildren(header, h("div", { class: "grid cards" }, cards), watchCard, apiNote(data.apiEnabled), bankDirectory(data.banks));
     observeReveal(el);
   }
 
   load();
   return { el };
+}
+
+function watchlistCard({ items, reportAt }) {
+  if (!items.length) return null;
+  const rows = items.map((item) => {
+    const meta = DETAIL_META[item.type] || { label: humanize(item.type), icon: "hash" };
+    const state = bankItemState(item);
+    const fill = Math.min(100, Math.round(((item.confidence || 0) / reportAt) * 100));
+    return h(
+      "article",
+      { class: "ev-row" },
+      h(
+        "div",
+        { class: "ev-head" },
+        h("span", { class: "ev-type" }, icon(item.stage === "reported" ? "bank" : "eye"), meta.label),
+        h("span", { class: `badge ${state.tone}` }, state.label),
+        h("span", { class: "chip" }, `${item.sightings} call${item.sightings === 1 ? "" : "s"}`),
+        h("span", { class: "grow" }),
+        item.bankName ? h("small", { class: "muted" }, item.bankName) : h("small", { class: "muted" }, "bank not known yet"),
+      ),
+      h("div", { class: "ev-value mono" }, item.value),
+      h("div", { class: "watch-bar", title: `${pct(item.confidence)} of the ${pct(reportAt)} needed` }, h("i", { style: `width:${fill}%` })),
+      h("small", { class: "muted" }, item.stage === "reported" ? `${pct(item.confidence)} confidence, reported to the bank.` : `${pct(item.confidence)} confidence. Reported automatically at ${pct(reportAt)}, if another call gives it again.`),
+    );
+  });
+  return h(
+    "section",
+    { class: "card section-gap reveal" },
+    h("div", { class: "card-h" }, icon("eye"), "Watchlist from your calls"),
+    h("p", { class: "muted" }, "Details from your scam calls that were not certain enough to report on their own, and what happened to them."),
+    h("div", { class: "ev-list" }, rows),
+  );
 }
 
 function apiNote(enabled) {
@@ -113,6 +148,7 @@ export function BankInboxView({ code }) {
     const decision = r.bankStatus !== "reported" ? r.bankStatus : r.simulatedDecision || "reported";
     const status = BANK_DECISIONS[decision] || BANK_DECISIONS.reported;
     const statusBadge = h("span", { class: `badge ${status.tone}` }, status.label);
+    const confidence = r.currentConfidence ?? r.confidence;
     const buttons = bank.code === "UNRESOLVED"
       ? null
       : h(
@@ -132,6 +168,7 @@ export function BankInboxView({ code }) {
         h("span", { class: `badge ${r.status === "delivered" ? "ok" : r.status === "failed" ? "bad" : "warn"}` }, DELIVERY_LABELS[r.status] || r.status),
         statusBadge,
         r.recommendedAction === "review_for_freeze" ? h("span", { class: "chip danger" }, "Review for freeze") : h("span", { class: "chip" }, "Monitor"),
+        confidence != null ? h("span", { class: "chip ok" }, `${pct(confidence)} confidence`) : null,
         h("span", { class: "grow" }),
         h("small", { class: "muted" }, fmtDate(r.sentAt)),
       ),

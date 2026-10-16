@@ -76,6 +76,7 @@ export const api = {
   drills: () => request("/api/drills"),
   drill: (id) => request(`/api/drills/${encodeURIComponent(id)}`),
   banks: () => request("/api/banks"),
+  watchlist: () => request("/api/watchlist"),
   bankReports: (code) => request(`/api/banks/${encodeURIComponent(code)}/reports`),
   bankDecision: (code, reportId, decision) =>
     request(`/api/banks/${encodeURIComponent(code)}/reports/${encodeURIComponent(reportId)}/decision`, { method: "POST", body: { decision } }),

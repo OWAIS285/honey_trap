@@ -20,7 +20,15 @@ All names, numbers, UPI IDs and accounts in the demo are **fictional**. This is 
 
 For banks the by-product is an **evidence pack**: confirmed and unconfirmed payee details with quotes, timestamps and confidence, plus the stereo recording. It is a *lead, not a verdict* and says so on every page.
 
-**Automatic mule-account reports.** The moment a UPI ID or account number is confirmed in a call judged to be a scam, it is routed to the bank that can act on it and delivered as a signed report, with no human in the loop:
+**Automatic mule-account reports.** Every UPI ID and account number from a call judged to be a scam gets a confidence score: how sure we are the call is a scam (the verdict's confidence) times how sure we caught the detail right (its two-check confidence). With no human in the loop:
+
+| Confidence | What happens |
+|---|---|
+| 65% or more | A signed report goes to the bank that can act on it, straight away |
+| 45% to 65% | Kept on a watchlist. Every later call that gives the same UPI ID or account adds its own score, combined as independent evidence (two 50% calls make 75%), and the bank is told as soon as it reaches 65% |
+| below 45% | Ignored |
+
+A detail heard once in a strong scam call (50% x 97% = 48%) waits on the watchlist; the same detail confirmed by both checks in that call (75% x 97% = 73%) is reported. One call never counts twice, and the decision runs in a Firestore transaction so two calls finishing together cannot double-send. Both thresholds are settings (`BANK_REPORT_CONFIDENCE`, `BANK_WATCH_CONFIDENCE`). Banks only ever see reported identifiers, never the watchlist. The bank is chosen like this:
 
 | What the scammer said | Which bank gets the report | Why |
 |---|---|---|
@@ -30,7 +38,7 @@ For banks the by-product is an **evidence pack**: confirmed and unconfirmed paye
 | account `123456789012` and "my Kotak account", no IFSC | Kotak Mahindra Bank | named in the same sentence (only at the end of the call, so an IFSC given later wins) |
 | an unknown handle, or an account with no bank at all | Unresolved queue | a person (in production, an NPCI or I4C lookup) has to tie it to a bank |
 
-Each report (`stallwart.mule_report.v1`) carries the identifier, how it was routed, the caller's own words, the call's verdict and red flags, the other details the same caller gave (another bank's accounts only masked to the last four characters), a bank-wide sighting count across calls and a recommended action (`review_for_freeze` when a decisive red flag was heard and the detail passed two checks, otherwise `monitor`). It is signed with HMAC-SHA256 per bank, timestamped and idempotent, retried on failure, and delivered to that bank's **proxy inbox** (no real bank is contacted). Banks read their inbox through a keyed API and send back a decision (monitoring, frozen, dismissed), which rides on every later report of that account. Nothing is ever sent for a genuine or undetermined call, nor for a detail that was heard only once.
+Each report (`stallwart.mule_report.v1`) carries the identifier, how it was routed, the caller's own words, the call's verdict and red flags, the other details the same caller gave (another bank's accounts only masked to the last four characters), the confidence (this call, all calls combined, and whether it was promoted from the watchlist), how many calls gave it, and a recommended action (`review_for_freeze` at 80% or more, otherwise `monitor`). A bank route found in an earlier call (an IFSC, say) is reused when a later call repeats the account without it. It is signed with HMAC-SHA256 per bank, timestamped and idempotent, retried on failure, and delivered to that bank's **proxy inbox** (no real bank is contacted). Banks read their inbox through a keyed API and send back a decision (monitoring, frozen, dismissed), which rides on every later report of that account. Nothing is ever scored, stored or sent for a genuine or undetermined call.
 
 ## Try it
 
@@ -41,7 +49,7 @@ Each report (`stallwart.mule_report.v1`) carries the identifier, how it was rout
 | **Replay** (`#/replay`, Hindi at `#/replay/hi`) | A recorded call of about two minutes, in English or in Hindi, with both sides speaking the same language. An AI scammer (Gemini script-writer, Gemini text-to-speech voice) answers what the decoy actually says; the decoy side is the real pipeline. No microphone, no backend, click to seek, jump to key moments. |
 | **Review** (`#/history`) | Every call from this browser: recording with click-to-seek transcript, evidence pack (JSON or print to PDF), strain card. |
 | **Family drill** (`#/strains`) | Create a consented drill, share the link on WhatsApp. The parent opens a big bilingual "Incoming call" page. |
-| **Bank inboxes** (`#/banks`) | The proxy inbox of every bank your calls reported to: each mule account, how it was routed, how many calls gave it, and buttons to play the bank (monitor, freeze, dismiss). |
+| **Bank inboxes** (`#/banks`) | The proxy inbox of every bank your calls reported to (each mule account, its confidence, how it was routed, how many calls gave it, buttons to play the bank) and the watchlist of details from your calls still below 65%. |
 
 ## Architecture
 

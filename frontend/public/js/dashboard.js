@@ -1,7 +1,7 @@
 // Live analysis dashboard: scam-type gauge, script stage, caught details (confirmed vs heard) and transcript.
 // It only consumes server events, so the same component drives live calls, chat and the replay.
 
-import { DELIVERY_LABELS, DETAIL_META, ROUTED_BY_LABELS, SIGNAL_LABELS, SOURCE_LABELS, STAGES, clear, flipMove, fmtClock, h, humanize, icon, scamLabel, verdictTitle } from "./util.js";
+import { DETAIL_META, ROUTED_BY_LABELS, bankItemState, pct, SIGNAL_LABELS, SOURCE_LABELS, STAGES, clear, flipMove, fmtClock, h, humanize, icon, scamLabel, verdictTitle } from "./util.js";
 
 const CIRCUMFERENCE = 2 * Math.PI * 52;
 
@@ -79,9 +79,9 @@ export function createDashboard({ callerLabel = "Caller", personaLabel = "Ramesh
   const bankSection = h(
     "div",
     { class: "decoy-row", hidden: true },
-    h("h4", { class: "lane-h ok" }, icon("bank"), "Reported to banks"),
+    h("h4", { class: "lane-h ok" }, icon("bank"), "Banks"),
     bankList,
-    h("small", { class: "muted" }, "Sent automatically to each bank's proxy inbox, signed, the moment a payee detail is confirmed in a scam call."),
+    h("small", { class: "muted" }, "At 65% confidence or more a signed report goes to the bank automatically. Between 45% and 65% the detail is kept on a watchlist; if another call gives it again, the confidence goes up and the bank is told."),
   );
   const detailsEmpty = h("div", { class: "empty-note" }, icon("shield"), h("p", {}, "Nothing caught yet. Account numbers, UPI IDs, links and names show up here the moment the caller says them."));
   const confirmedHead = h("h4", { class: "lane-h ok", hidden: true }, icon("check"), "Confirmed by two checks");
@@ -253,20 +253,24 @@ export function createDashboard({ callerLabel = "Caller", personaLabel = "Ramesh
   }
 
   function onBankReport(ev) {
-    let row = bankRows.get(ev.reportId);
+    let row = bankRows.get(ev.key);
     if (!row) {
-      row = h("a", { class: "bank-row", href: `#/banks/${ev.bankCode}` });
-      bankRows.set(ev.reportId, row);
+      row = h("a", { class: "bank-row" });
+      bankRows.set(ev.key, row);
       bankList.append(row);
     }
     const meta = DETAIL_META[ev.detailType] || { label: humanize(ev.detailType), icon: "hash" };
-    const tone = ev.status === "delivered" ? "ok" : ev.status === "failed" ? "bad" : "warn";
-    const seen = ev.sightings > 1 ? h("span", { class: "chip danger" }, `seen in ${ev.sightings} calls`) : null;
+    const state = bankItemState(ev);
+    const watching = ev.stage !== "reported";
+    row.href = ev.bankCode && !watching ? `#/banks/${ev.bankCode}` : "#/banks";
+    row.classList.toggle("watch", watching);
+    const where = ev.bankName ? `${ev.bankName} · ${ROUTED_BY_LABELS[ev.routedBy] || ev.routedBy}` : "bank not known yet";
     row.replaceChildren(
-      h("span", { class: "bank-i" }, icon("bank")),
-      h("div", { class: "bank-main" }, h("b", {}, ev.bankName), h("small", { class: "muted" }, `${meta.label} ${ev.value} · ${ROUTED_BY_LABELS[ev.routedBy] || ev.routedBy}`)),
-      seen,
-      h("span", { class: `badge ${tone}` }, DELIVERY_LABELS[ev.status] || ev.status),
+      h("span", { class: "bank-i" }, icon(watching ? "eye" : "bank")),
+      h("div", { class: "bank-main" }, h("b", {}, `${meta.label} ${ev.value}`), h("small", { class: "muted" }, watching ? `${where} · needs 65% to report` : where)),
+      h("span", { class: `chip ${watching ? "" : "ok"}`, title: "Confidence: this call and any earlier call that gave it" }, pct(ev.confidence)),
+      ev.sightings > 1 ? h("span", { class: "chip danger" }, `${ev.sightings} calls`) : null,
+      h("span", { class: `badge ${state.tone}` }, state.label),
     );
     row.title = ev.reason || "";
     bankSection.hidden = false;

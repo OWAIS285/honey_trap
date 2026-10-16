@@ -1,4 +1,4 @@
-"""Mule-account reporting: bank identification, the scam-only gate, routing, signing, delivery and the bank API."""
+"""Mule-account reporting: bank identification, the confidence gate and watchlist, routing, signing, delivery, API."""
 
 import asyncio
 import json
@@ -12,7 +12,7 @@ import bank_reports
 import call_handler
 import config
 import main
-from bank_reports import BankReporter, mask, route_detail, sign, verify_signature
+from bank_reports import BankReporter, apply_sighting, combine, mask, mule_key, route_detail, sign, verify_signature
 from call_handler import CallHandler
 from store import Store
 
@@ -33,13 +33,10 @@ class FakeStore:
         doc = self.docs.get(path)
         return dict(doc) if doc else None
 
-    async def record_sighting(self, path, data, call_id):
-        doc = self.docs.setdefault(path, {"sightings": 0, "callIds": [], "status": "reported"})
-        doc.update(data)
-        doc["sightings"] += 1
-        if call_id not in doc["callIds"]:
-            doc["callIds"].append(call_id)
-        return dict(doc)
+    async def transact(self, path, step):
+        new, result = step(dict(self.docs[path]) if path in self.docs else None)
+        self.docs[path] = new
+        return result
 
     def _collection(self, name):
         prefix = name + "/"
@@ -72,10 +69,10 @@ async def _no_sleep(*_):
     return None
 
 
-def detail(dtype, value, turn=1, confirmed=True, valid=True, evidence="", sources=("live_tool", "verifier")):
+def detail(dtype, value, turn=1, confidence=0.9, valid=True, evidence="", sources=("live_tool", "verifier")):
     return {"id": f"{dtype}-{value}", "type": dtype, "normalizedValue": value, "rawValue": value, "valid": valid,
-            "confirmed": confirmed, "sources": list(sources), "turns": [turn], "evidence": evidence,
-            "confidence": 0.9, "firstSeenSec": 4.0, "flags": []}
+            "confirmed": confidence >= 0.65, "sources": list(sources), "turns": [turn], "evidence": evidence,
+            "confidence": confidence, "firstSeenSec": 4.0, "flags": []}
 
 
 # ----- bank identification -----
@@ -160,48 +157,183 @@ def test_mask_keeps_last_four():
     assert mask("123456789012") == "••••••••9012"
 
 
+# ----- confidence and the watchlist (pure) -----
+
+
+def test_independent_calls_combine():
+    assert combine({"a": 0.5}) == 0.5
+    assert combine({"a": 0.5, "b": 0.5}) == 0.75
+    assert combine({"a": 0.45, "b": 0.45}) == 0.7
+    assert combine({}) == 0.0
+
+
+def sight(doc, call, conf, route=None, final=False, dtype="upi_id", value="x@ybl"):
+    from datetime import datetime, timezone
+    now = datetime(2026, 10, 16, tzinfo=timezone.utc)
+    return apply_sighting(doc, key="k", detail_type=dtype, value=value, call_id=call, confidence=conf, route=route,
+                          final=final, now=now, expires=now)
+
+
+YBL = {"bankCode": "YESB", "bankName": "Yes Bank", "routedBy": "upi_handle", "reason": "r", "ifsc": "", "upiApp": None}
+SBI = {"bankCode": "SBIN", "bankName": "State Bank of India", "routedBy": "ifsc", "reason": "r", "ifsc": "SBIN0001234",
+       "upiApp": None}
+UNRES = {"bankCode": "UNRESOLVED", "bankName": "Unresolved", "routedBy": "unresolved", "reason": "r", "ifsc": "",
+         "upiApp": None}
+
+
+def test_one_call_at_report_level_sends():
+    doc, out = sight(None, "c1", 0.7, YBL)
+    assert out["send"] and doc["stage"] == "reported" and doc["reportedCalls"] == ["c1"] and doc["status"] == "reported"
+
+
+def test_watch_level_is_kept_then_a_second_call_pushes_it_over():
+    doc, out = sight(None, "c1", 0.5, YBL)
+    assert not out["send"] and doc["stage"] == "watching" and doc["confidence"] == 0.5 and "status" not in doc
+    doc, out = sight(doc, "c2", 0.5, YBL)
+    assert out["send"] and out["previousCalls"] == ["c1"] and doc["confidence"] == 0.75 and doc["sightings"] == 2
+
+
+def test_the_same_call_never_counts_twice():
+    doc, _ = sight(None, "c1", 0.5, YBL)
+    doc, out = sight(doc, "c1", 0.55, YBL)
+    assert not out["send"] and doc["confidence"] == 0.55 and doc["calls"] == {"c1": 0.55}
+    doc, _ = sight(doc, "c1", 0.4, YBL)
+    assert doc["calls"] == {"c1": 0.55}
+
+
+def test_one_report_per_call_and_follow_ups_from_new_calls():
+    doc, first = sight(None, "c1", 0.8, YBL)
+    doc, again = sight(doc, "c1", 0.9, YBL)
+    doc, later = sight(doc, "c2", 0.5, YBL)
+    assert first["send"] and not again["send"] and later["send"]
+    assert doc["reportedCalls"] == ["c1", "c2"]
+
+
+def test_a_route_from_an_earlier_call_is_reused():
+    doc, _ = sight(None, "c1", 0.5, SBI, dtype="bank_account", value="123456789012")
+    doc, out = sight(doc, "c2", 0.5, None, dtype="bank_account", value="123456789012")
+    assert out["send"] and out["route"]["bankCode"] == "SBIN"
+
+
+def test_a_better_route_replaces_the_unresolved_queue():
+    doc, _ = sight(None, "c1", 0.5, UNRES, final=True, dtype="bank_account", value="123456789012")
+    doc, out = sight(doc, "c2", 0.5, SBI, dtype="bank_account", value="123456789012")
+    assert out["route"]["bankCode"] == "SBIN" and doc["bankCode"] == "SBIN"
+
+
+def test_an_account_waits_for_its_bank_until_the_end_of_the_call():
+    doc, out = sight(None, "c1", 0.8, None, dtype="bank_account", value="123456789012")
+    assert not out["send"] and doc["confidence"] == 0.8
+    doc, out = sight(doc, "c1", 0.8, UNRES, final=False, dtype="bank_account", value="123456789012")
+    assert not out["send"]
+    doc, out = sight(doc, "c1", 0.8, UNRES, final=True, dtype="bank_account", value="123456789012")
+    assert out["send"] and out["route"]["bankCode"] == "UNRESOLVED"
+
+
+def test_thresholds_come_from_config(monkeypatch):
+    monkeypatch.setattr(config, "BANK_REPORT_CONFIDENCE", 0.9)
+    _, out = sight(None, "c1", 0.8, YBL)
+    assert not out["send"]
+
+
+def test_identifier_key_ignores_bank_and_case():
+    assert mule_key("upi_id", "Rahul@OKAXIS") == mule_key("upi_id", "rahul@okaxis") != mule_key("bank_account", "rahul@okaxis")
+
+
 # ----- the reporter -----
 
 
-def make_reporter(fs, verdict="scam"):
+def make_reporter(fs, verdict="scam", confidence=0.97, call_id="c1"):
     events, tasks = [], []
 
     async def emit(event):
         events.append(event)
 
-    context = {"callId": "c1", "startedAt": "2026-10-16T08:00:00Z", "verdict": verdict, "scamType": "digital_arrest",
+    context = {"callId": call_id, "startedAt": "2026-10-16T08:00:00Z", "verdict": verdict, "scamType": "digital_arrest",
                "impersonatedEntity": "CBI", "redFlags": [{"signal": "arrest_or_legal_threat", "label": "x",
                                                           "severity": "hard", "quote": "arrest warrant"}],
                "details": {}, "turns": []}
-    reporter = BankReporter(call_id="c1", owner="owner-a", emit=emit, spawn=lambda c: tasks.append(asyncio.ensure_future(c)),
-                            context=lambda: context)
-    reporter.set_verdict(verdict)
+    reporter = BankReporter(call_id=call_id, owner="owner-a", emit=emit,
+                            spawn=lambda c: tasks.append(asyncio.ensure_future(c)), context=lambda: context)
+    reporter.set_verdict(verdict, confidence)
     return reporter, events, tasks, context
 
 
-def test_nothing_is_reported_before_the_call_is_judged_a_scam(fake):
+async def drain(tasks):
+    while tasks:
+        batch = list(tasks)
+        tasks.clear()
+        await asyncio.gather(*batch)
+
+
+def reports(fs):
+    return [d for p, d in fs.docs.items() if p.startswith("bank_reports/")]
+
+
+def test_nothing_is_scored_before_the_call_is_judged_a_scam(fake):
     async def go():
-        reporter, events, tasks, _ = make_reporter(fake, verdict="undetermined")
+        reporter, events, tasks, _ = make_reporter(fake, verdict="undetermined", confidence=0.0)
         details = {"u": detail("upi_id", "rahul.sharma@okaxis")}
         await reporter.sweep(details, [])
-        assert not events and not reporter.sent
-        reporter.set_verdict("scam")
+        assert not events and not tasks
+        reporter.set_verdict("scam", 0.97)
         await reporter.sweep(details, [])
-        await asyncio.gather(*tasks)
+        await drain(tasks)
         return events
     events = asyncio.run(go())
     assert [e["status"] for e in events] == ["pending", "delivered"]
-    assert events[-1]["bankCode"] == "UTIB" and events[-1]["sightings"] == 1
+    assert events[-1]["bankCode"] == "UTIB" and events[-1]["confidence"] == 0.87 and events[-1]["stage"] == "reported"
 
 
-def test_unconfirmed_or_invalid_details_are_never_reported(fake):
+def test_below_watch_level_is_ignored_and_watch_level_is_only_stored(fake):
+    async def go():
+        reporter, events, tasks, _ = make_reporter(fake, confidence=0.85)
+        details = {"low": detail("upi_id", "low@ybl", confidence=0.5),        # 0.5 x 0.85 = 0.43 -> ignored
+                   "mid": detail("upi_id", "mid@ybl", confidence=0.75),       # 0.64 -> watchlist
+                   "bad": detail("upi_id", "bad@ybl", valid=False),
+                   "phone": detail("phone_number", "9876543210")}
+        await reporter.sweep(details, [], final=True)
+        await drain(tasks)
+        return events
+    events = asyncio.run(go())
+    assert [(e["value"], e["stage"], e["confidence"]) for e in events] == [("mid@ybl", "watching", 0.64)]
+    assert reports(fake) == []
+    mule = fake.docs[f"mule_accounts/{mule_key('upi_id', 'mid@ybl')}"]
+    assert mule["stage"] == "watching" and mule["calls"] == {"c1": 0.64}
+    assert f"mule_accounts/{mule_key('upi_id', 'low@ybl')}" not in fake.docs
+    assert fake.docs[f"watch_sightings/c1-{mule_key('upi_id', 'mid@ybl')}"]["ownerHash"] == "owner-a"
+
+
+def test_a_watched_detail_is_reported_when_a_later_call_gives_it_again(fake):
+    async def call(call_id):
+        reporter, events, tasks, _ = make_reporter(fake, call_id=call_id)
+        await reporter.sweep({"u": detail("upi_id", "mule@ybl", confidence=0.5)}, [])   # 0.5 x 0.97 = 0.48 each
+        await drain(tasks)
+        return events
+
+    async def go():
+        return await call("call-1"), await call("call-2")
+    first, second = asyncio.run(go())
+    assert [e["stage"] for e in first] == ["watching"] and first[0]["confidence"] == 0.48
+    assert second[-1]["status"] == "delivered" and second[-1]["confidence"] == 0.73 and second[-1]["sightings"] == 2
+    (report,) = reports(fake)
+    assert report["callId"] == "call-2" and report["bankCode"] == "YESB"
+    assert report["payload"]["confidence"]["promotedFromWatchlist"] is True
+    assert report["payload"]["aggregate"]["callCount"] == 2
+
+
+def test_a_watched_detail_grows_into_a_report_within_the_same_call(fake):
     async def go():
         reporter, events, tasks, _ = make_reporter(fake)
-        details = {"a": detail("upi_id", "a@okaxis", confirmed=False), "b": detail("upi_id", "b@ybl", valid=False),
-                   "c": detail("phone_number", "9876543210")}
-        await reporter.sweep(details, [], final=True)
+        await reporter.sweep({"u": detail("upi_id", "mule@ybl", confidence=0.5)}, [])
+        await drain(tasks)
+        await reporter.sweep({"u": detail("upi_id", "mule@ybl", confidence=0.75)}, [])
+        await drain(tasks)
         return events
-    assert asyncio.run(go()) == []
+    events = asyncio.run(go())
+    assert [(e["stage"], e.get("status")) for e in events] == [("watching", None), ("reported", "pending"),
+                                                               ("reported", "delivered")]
+    assert len(reports(fake)) == 1
 
 
 def test_each_detail_is_reported_once_per_call_and_delivered_signed(fake):
@@ -213,48 +345,27 @@ def test_each_detail_is_reported_once_per_call_and_delivered_signed(fake):
         context["details"] = details
         for _ in range(3):
             await reporter.sweep(details, [])
-        await asyncio.gather(*tasks)
+        await drain(tasks)
         return reporter, events
     reporter, events = asyncio.run(go())
-    banks = sorted(e["bankCode"] for e in events if e["status"] == "delivered")
+    banks = sorted(e["bankCode"] for e in events if e.get("status") == "delivered")
     assert banks == ["SBIN", "UTIB", "YESB"]
-    reports = {d["bankCode"]: d for p, d in fake.docs.items() if p.startswith("bank_reports/")}
-    sbi = reports["SBIN"]
+    by_bank = {d["bankCode"]: d for d in reports(fake)}
+    sbi = by_bank["SBIN"]
     assert sbi["status"] == "delivered" and sbi["verified"] and sbi["ownerHash"] == "owner-a"
     payload = sbi["payload"]
     assert payload["schema"] == "stallwart.mule_report.v1"
     assert payload["subject"] == {**payload["subject"], "type": "bank_account", "value": "123456789012",
                                   "ifsc": "SBIN0001234", "routedBy": "ifsc"}
+    assert payload["confidence"]["report"] == 0.87 and payload["confidence"]["threshold"] == 0.65
     assert payload["recommendedAction"] == "review_for_freeze"
-    linked = {(l["type"], l.get("value") or l.get("valueMasked")) for l in payload["linkedDetails"]}
+    linked = {(link["type"], link.get("value")) for link in payload["linkedDetails"]}
     assert ("phone_number", "9876543210") in linked
     # Other banks' identifiers are linked by bank and last four characters, never in full.
-    others = {l["valueMasked"]: l["bank"] for l in payload["linkedDetails"] if "valueMasked" in l}
+    others = {link["valueMasked"]: link["bank"] for link in payload["linkedDetails"] if "valueMasked" in link}
     assert others == {mask("rahul.sharma@okaxis"): "Axis Bank", mask("other@ybl"): "Yes Bank"}
-    assert all(l.get("value") not in ("rahul.sharma@okaxis", "other@ybl") for l in payload["linkedDetails"])
-
-
-def test_the_same_account_from_two_calls_counts_two_sightings(fake):
-    async def one_call(call_id):
-        events, tasks = [], []
-
-        async def emit(e):
-            events.append(e)
-        ctx = {"callId": call_id, "verdict": "scam", "redFlags": [], "details": {}, "turns": []}
-        r = BankReporter(call_id=call_id, owner="o", emit=emit, spawn=lambda c: tasks.append(asyncio.ensure_future(c)),
-                         context=lambda: ctx)
-        r.set_verdict("scam")
-        await r.sweep({"u": detail("upi_id", "mule@ybl")}, [])
-        await asyncio.gather(*tasks)
-        return events[-1]
-
-    async def go():
-        await one_call("call-1")
-        return await one_call("call-2")
-    last = asyncio.run(go())
-    assert last["sightings"] == 2 and last["recommendedAction"] == "monitor"
-    mule = fake.docs[f"mule_accounts/{last['muleKey']}"]
-    assert mule["callIds"] == ["call-1", "call-2"]
+    assert all(link.get("value") not in ("rahul.sharma@okaxis", "other@ybl") for link in payload["linkedDetails"])
+    assert len(reporter.summary()) == 3 and all("routeKnown" not in s for s in reporter.summary())
 
 
 def test_receiver_rejects_bad_signatures_and_ignores_duplicates(fake):
@@ -288,7 +399,7 @@ def stubbed_call(fake, monkeypatch):
     return fake
 
 
-def test_call_handler_reports_once_the_scam_verdict_lands(stubbed_call):
+def test_call_handler_watches_then_reports_as_the_scam_evidence_grows(stubbed_call):
     async def go():
         h = CallHandler(client_id="t" * 20, ip="127.0.0.1", mode="text")
         events = []
@@ -300,14 +411,19 @@ def test_call_handler_reports_once_the_scam_verdict_lands(stubbed_call):
         await h._upsert("upi_id", "fraud.desk@okaxis", "live_tool", quote="fraud.desk@okaxis")
         await h._upsert("upi_id", "fraud.desk@okaxis", "verifier", quote="fraud.desk@okaxis")
         before = [e for e in events if e["type"] == "bank_report"]
-        h.verdict.red["asks_secret_credential"] = "tell me the OTP"
+        h.verdict.red["asks_secret_credential"] = "tell me the OTP"          # one hard flag: 0.85 x 0.75 = 0.64
+        await h._publish_verdict()
+        await asyncio.gather(*list(h._bg))
+        watching = [e for e in events if e["type"] == "bank_report"]
+        h.verdict.red["secrecy_or_isolation"] = "tell nobody"                # two hard flags: 0.90 x 0.75 = 0.68
         await h._publish_verdict()
         summary = await h.finish("caller_ended")
-        return before, events, summary
-    before, events, summary = asyncio.run(go())
-    assert before == []  # confirmed, but the call was not yet a scam
-    assert [r["bankCode"] for r in summary["bankReports"]] == ["UTIB"]
-    assert summary["bankReports"][0]["status"] == "delivered"
+        return before, watching, events, summary
+    before, watching, events, summary = asyncio.run(go())
+    assert before == []  # heard twice, but the call was not yet a scam
+    assert [(e["stage"], e["confidence"]) for e in watching] == [("watching", 0.64)]
+    (item,) = summary["bankReports"]
+    assert item["bankCode"] == "UTIB" and item["status"] == "delivered" and item["confidence"] == 0.68
     ended = [e for e in events if e["type"] == "ended"][0]
     assert ended["bankReports"][0]["bankName"] == "Axis Bank"
 
@@ -317,8 +433,8 @@ def test_portal_and_bank_api(fake, monkeypatch):
 
     async def seed():
         reporter, events, tasks, _ = make_reporter(fake)
-        await reporter.sweep({"u": detail("upi_id", "mule@okaxis")}, [])
-        await asyncio.gather(*tasks)
+        await reporter.sweep({"u": detail("upi_id", "mule@okaxis"), "w": detail("upi_id", "watch@okaxis", confidence=0.5)}, [])
+        await drain(tasks)
     asyncio.run(seed())
     client = TestClient(main.app)
     owner_id = "x" * 20
@@ -343,7 +459,14 @@ def test_portal_and_bank_api(fake, monkeypatch):
     reports = client.get("/bank-api/v1/UTIB/reports", headers={"X-Bank-Key": key}).json()["reports"]
     assert reports[0]["subject"]["value"] == "mule@okaxis"
     mules = client.get("/bank-api/v1/UTIB/mule-accounts", headers={"X-Bank-Key": key}).json()["muleAccounts"]
-    assert mules[0]["callCount"] == 1 and "callIds" not in mules[0]
+    assert [m["value"] for m in mules] == ["mule@okaxis"]  # the watched one is never shown to the bank
+    assert mules[0]["callCount"] == 1 and "calls" not in mules[0] and mules[0]["confidence"] == 0.87
+    watched_key = mule_key("upi_id", "watch@okaxis")
+    assert client.post(f"/bank-api/v1/UTIB/mule-accounts/{watched_key}/status", json={"decision": "frozen"},
+                       headers={"X-Bank-Key": key}).status_code == 404
+    watch = client.get("/api/watchlist", headers={"X-Client-Id": owner_id}).json()
+    assert [(i["value"], i["stage"]) for i in watch["items"]] == [("watch@okaxis", "watching"), ("mule@okaxis", "reported")]
+    assert watch["reportAt"] == 0.65 and watch["watchAt"] == 0.45
     status = client.post(f"/bank-api/v1/UTIB/mule-accounts/{mules[0]['muleKey']}/status", json={"decision": "frozen"},
                          headers={"X-Bank-Key": key})
     assert status.status_code == 200 and fake.docs[f"mule_accounts/{mules[0]['muleKey']}"]["status"] == "frozen"
@@ -368,4 +491,4 @@ def test_webhook_endpoint_accepts_a_signed_report(fake):
 
 
 def test_real_store_has_the_new_methods():
-    assert hasattr(Store, "record_sighting") and hasattr(Store, "list_where")
+    assert hasattr(Store, "transact") and hasattr(Store, "list_where")

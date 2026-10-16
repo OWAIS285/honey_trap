@@ -1,14 +1,15 @@
-"""Automatic mule-account reports: route each confirmed payee detail to its bank and deliver a signed report.
+"""Automatic mule-account reports with a confidence gate and a cross-call watchlist.
 
-Flow for one call:
-1. A UPI ID or account number becomes confirmed (two checks, valid format) in a call whose verdict is scam.
-   Nothing is ever sent for a genuine or undetermined call.
-2. bank_registry decides the bank (IFSC, UPI handle, or a bank the caller named); an account number with no IFSC
-   waits until the end of the call before falling back to a named bank or the UNRESOLVED queue.
-3. The detail is counted on its bank-wide aggregate (mule_accounts/{key}): every call that gives it adds a sighting.
-4. A report (schema stallwart.mule_report.v1) is signed with HMAC-SHA256 and delivered to the bank's proxy inbox,
-   once per detail per call, with retries. The receiver checks the signature, the timestamp and the idempotency key.
-5. Banks read their inbox through the bank API (X-Bank-Key) and send back a decision: monitoring, frozen or dismissed.
+Confidence of one sighting = how sure we are the call is a scam x how sure we caught the identifier right
+(the scam verdict's confidence x the detail's two-check confidence). Nothing counts for a genuine or undetermined call.
+
+- Below BANK_WATCH_CONFIDENCE (45%): ignored.
+- From 45%: stored on the identifier's record (mule_accounts/{key}, one per UPI ID or account number, across calls).
+- Every call that gives the same identifier adds its own sighting; the record's confidence combines independent calls
+  as 1 - (1 - c1)(1 - c2)..., so two 50% calls make 75%. One call never counts twice.
+- At BANK_REPORT_CONFIDENCE (65%) or more, a signed report goes to the bank (once per identifier per call), routed by
+  IFSC, UPI handle or a bank the caller named; a route found in any earlier call is reused.
+The decision runs inside a Firestore transaction, so two calls finishing together cannot both miss or double-send it.
 """
 
 from __future__ import annotations
@@ -28,7 +29,7 @@ import httpx
 import analysis
 import bank_registry as registry
 import config
-from store import store
+from store import expiry, store
 
 log = logging.getLogger("stallwart.banks")
 
@@ -80,8 +81,9 @@ def check_bank_key(code: str, key: str | None) -> bool:
 # ----- routing -----
 
 
-def mule_key(code: str, detail_type: str, value: str) -> str:
-    return f"{code}-{hashlib.sha256(f'{detail_type}:{value.lower()}'.encode()).hexdigest()[:20]}"
+def mule_key(detail_type: str, value: str) -> str:
+    """One key per identifier across every call and bank, so a later call finds the earlier sightings."""
+    return hashlib.sha256(f"{detail_type}:{value.lower()}".encode()).hexdigest()[:24]
 
 
 def mask(value: str) -> str:
@@ -120,6 +122,66 @@ def route_detail(detail: dict, details: dict[str, dict], turns: list[dict], fina
     return registry.Route(registry.UNRESOLVED, registry.UNRESOLVED_NAME, "unresolved", reason)
 
 
+# ----- confidence and the watchlist -----
+
+_ROUTE_RANK = {"ifsc": 3, "upi_handle": 3, "bank_named": 2, "unresolved": 1}
+
+
+def sighting_confidence(detail: dict, scam_confidence: float) -> float:
+    if not detail.get("valid"):
+        return 0.0
+    return round(float(detail.get("confidence") or 0) * scam_confidence, 2)
+
+
+def combine(calls: dict[str, float]) -> float:
+    """Independent calls corroborate each other: the chance that every one of them is wrong shrinks."""
+    miss = 1.0
+    for confidence in calls.values():
+        miss *= 1.0 - confidence
+    return round(1.0 - miss, 2)
+
+
+def route_dict(route: registry.Route | None) -> dict | None:
+    if route is None:
+        return None
+    return {"bankCode": route.bank_code, "bankName": route.bank_name, "routedBy": route.routed_by,
+            "reason": route.reason, "ifsc": route.ifsc, "upiApp": route.upi_app}
+
+
+def better_route(a: dict | None, b: dict | None) -> dict | None:
+    if not a or not b:
+        return a or b
+    return b if _ROUTE_RANK.get(b["routedBy"], 0) >= _ROUTE_RANK.get(a["routedBy"], 0) else a
+
+
+def apply_sighting(doc: dict | None, *, key: str, detail_type: str, value: str, call_id: str, confidence: float,
+                   route: dict | None, final: bool, now: datetime, expires: datetime) -> tuple[dict, dict]:
+    """Pure: the identifier record after this call's sighting, and whether this call must send a report now."""
+    doc = dict(doc or {})
+    calls = {k: float(v) for k, v in (doc.get("calls") or {}).items()}
+    previous = [c for c in calls if c != call_id]
+    calls[call_id] = max(confidence, calls.get(call_id, 0.0))
+    combined = combine(calls)
+    best = better_route(doc.get("route"), route)
+    reported_calls = list(doc.get("reportedCalls") or [])
+    # An account number may still get its IFSC later in this call, so the unresolved queue only takes it at the end.
+    routable = best is not None and (best["routedBy"] != "unresolved" or final or detail_type == "upi_id")
+    send = combined >= config.BANK_REPORT_CONFIDENCE and call_id not in reported_calls and routable
+    if send:
+        reported_calls.append(call_id)
+    new = {**doc, "muleKey": key, "type": detail_type, "value": value, "calls": calls, "confidence": combined,
+           "sightings": len(calls), "reportedCalls": reported_calls,
+           "stage": "reported" if reported_calls else "watching", "lastSeenAt": now, "expiresAt": expires}
+    new.setdefault("firstSeenAt", now)
+    if best:
+        new.update(route=best, bankCode=best["bankCode"], bankName=best["bankName"], routedBy=best["routedBy"])
+    if send:
+        new.setdefault("status", "reported")
+    return new, {"send": send, "combined": combined, "calls": calls, "previousCalls": previous, "route": best,
+                 "stage": new["stage"], "bankStatus": new.get("status", "reported"),
+                 "firstSeenAt": new["firstSeenAt"]}
+
+
 # ----- the report -----
 
 
@@ -131,13 +193,13 @@ def _jlog(message: str, **fields) -> None:
     print(json.dumps({"severity": "INFO", "message": message, **fields}), flush=True)
 
 
-def build_payload(*, report_id: str, route: registry.Route, detail: dict, context: dict, aggregate: dict) -> dict:
+def build_payload(*, report_id: str, route: dict, detail: dict, context: dict, outcome: dict, this_call: float) -> dict:
     details = context.get("details", {})
-    hard = [f for f in context.get("redFlags", []) if f.get("severity") == "hard"]
-    two_checks = len(detail.get("sources", [])) >= 2 or len(detail.get("turns", [])) >= 2
+    combined = outcome["combined"]
     linked = []
     for other in details.values():
-        if other is detail or not other.get("valid"):
+        same = other["type"] == detail["type"] and other["normalizedValue"] == detail["normalizedValue"]
+        if same or not other.get("valid"):
             continue
         if other["type"] in CONTEXT_TYPES:
             linked.append({"type": other["type"], "value": other["normalizedValue"]})
@@ -154,19 +216,19 @@ def build_payload(*, report_id: str, route: registry.Route, detail: dict, contex
         "confidence": detail.get("confidence"),
         "callerQuote": detail.get("evidence", ""),
         "firstSeenSec": detail.get("firstSeenSec"),
-        "routedBy": route.routed_by,
-        "routingReason": route.reason,
+        "routedBy": route["routedBy"],
+        "routingReason": route["reason"],
     }
-    if route.ifsc:
-        subject["ifsc"] = route.ifsc
-    if route.upi_app:
-        subject["upiApp"] = route.upi_app
+    if route.get("ifsc"):
+        subject["ifsc"] = route["ifsc"]
+    if route.get("upiApp"):
+        subject["upiApp"] = route["upiApp"]
     return {
         "schema": SCHEMA,
         "reportId": report_id,
         "sentAt": analysis.now_iso(),
         "reportedBy": "Stallwart decoy line (prototype)",
-        "bank": {"code": route.bank_code, "name": route.bank_name},
+        "bank": {"code": route["bankCode"], "name": route["bankName"]},
         "subject": subject,
         "call": {
             "callId": context.get("callId"),
@@ -178,13 +240,20 @@ def build_payload(*, report_id: str, route: registry.Route, detail: dict, contex
                          for f in context.get("redFlags", [])],
         },
         "linkedDetails": linked,
-        "aggregate": {
-            "sightings": aggregate.get("sightings", 1),
-            "callCount": len(aggregate.get("callIds", [])) or 1,
-            "firstSeenAt": _iso(aggregate.get("firstSeenAt")),
-            "bankStatus": aggregate.get("status", "reported"),
+        "confidence": {
+            "report": combined,
+            "thisCall": this_call,
+            "threshold": config.BANK_REPORT_CONFIDENCE,
+            "method": "per call: scam-verdict confidence x detail confidence; across calls: 1 - product(1 - c)",
+            "promotedFromWatchlist": bool(outcome["previousCalls"]),
         },
-        "recommendedAction": "review_for_freeze" if hard and two_checks else "monitor",
+        "aggregate": {
+            "sightings": len(outcome["calls"]),
+            "callCount": len(outcome["calls"]),
+            "firstSeenAt": _iso(outcome.get("firstSeenAt")),
+            "bankStatus": outcome.get("bankStatus", "reported"),
+        },
+        "recommendedAction": "review_for_freeze" if combined >= 0.8 else "monitor",
         "disclaimer": analysis.DISCLAIMER,
     }
 
@@ -239,7 +308,8 @@ async def deliver(code: str, body: bytes, report_id: str, attempts: int = 3) -> 
 
 
 class BankReporter:
-    """One per call. Reports each confirmed payee detail to its bank once, the moment the call is judged a scam."""
+    """One per call. Scores each UPI ID and account number, keeps 45-65% ones on the watchlist, and reports to the
+    bank once the identifier's confidence (this call plus earlier calls) reaches 65%."""
 
     def __init__(self, *, call_id: str, owner: str, emit: Callable[[dict], Awaitable[None]],
                  spawn: Callable[[Awaitable], None], context: Callable[[], dict]) -> None:
@@ -248,65 +318,96 @@ class BankReporter:
         self.emit = emit
         self.spawn = spawn
         self.context = context
-        self.active = False
-        self.sent: dict[str, dict] = {}
+        self.scam_confidence = 0.0
+        self.items: dict[str, dict] = {}
+        self._locks: dict[str, asyncio.Lock] = {}
 
-    def set_verdict(self, verdict: str | None) -> None:
-        # Verdicts never go back from scam (red flags are cumulative), so this only ever switches on.
-        self.active = self.active or verdict == "scam"
+    def set_verdict(self, verdict: str | None, confidence: float | None = None) -> None:
+        # Red flags are cumulative, so a scam verdict and its confidence only ever grow during a call.
+        if verdict == "scam":
+            self.scam_confidence = max(self.scam_confidence, float(confidence or 0))
 
     async def sweep(self, details: dict[str, dict], turns: list[dict], final: bool = False) -> None:
-        if not self.active:
+        if self.scam_confidence <= 0:
             return
         for detail in list(details.values()):
-            if detail["type"] not in REPORTABLE or not (detail.get("confirmed") and detail.get("valid")):
+            if detail["type"] not in REPORTABLE:
                 continue
+            confidence = sighting_confidence(detail, self.scam_confidence)
+            if confidence < config.BANK_WATCH_CONFIDENCE:
+                continue
+            key = mule_key(detail["type"], detail["normalizedValue"])
             route = route_detail(detail, details, turns, final=final)
-            if route is None:
+            item = self.items.get(key)
+            if item is None:
+                item = self.items[key] = {
+                    "key": key, "detailType": detail["type"], "value": detail["normalizedValue"],
+                    "stage": "watching", "status": None, "thisCall": 0.0, "confidence": 0.0, "sightings": 0,
+                    "routeKnown": False, "finalChecked": False, "sent": False, "tSec": detail.get("firstSeenSec"),
+                }
+            waiting = not item["sent"] and ((route is not None and not item["routeKnown"]) or
+                                            (final and not item["finalChecked"]))
+            if confidence <= item["thisCall"] and not waiting:
                 continue
-            key = mule_key(route.bank_code, detail["type"], detail["normalizedValue"])
-            if key in self.sent:
-                continue
-            entry = {
-                "reportId": secrets.token_hex(8),
-                "muleKey": key,
-                "bankCode": route.bank_code,
-                "bankName": route.bank_name,
-                "detailType": detail["type"],
-                "value": detail["normalizedValue"],
-                "routedBy": route.routed_by,
-                "reason": route.reason,
-                "status": "pending",
-                "tSec": detail.get("firstSeenSec"),
-            }
-            self.sent[key] = entry
-            await self.emit({"type": "bank_report", **entry})
-            self.spawn(self._send(entry, route, detail))
+            item["thisCall"] = max(item["thisCall"], confidence)
+            item["routeKnown"] = item["routeKnown"] or route is not None
+            item["finalChecked"] = item["finalChecked"] or final
+            self.spawn(self._update(key, dict(detail), confidence, route_dict(route), final))
 
-    async def _send(self, entry: dict, route: registry.Route, detail: dict) -> None:
-        aggregate = await store.record_sighting(
-            f"mule_accounts/{entry['muleKey']}",
-            {"muleKey": entry["muleKey"], "bankCode": route.bank_code, "bankName": route.bank_name,
-             "type": detail["type"], "value": detail["normalizedValue"], "routedBy": route.routed_by},
-            self.call_id,
-        ) or {}
+    async def _update(self, key: str, detail: dict, confidence: float, route: dict | None, final: bool) -> None:
+        lock = self._locks.setdefault(key, asyncio.Lock())
+        async with lock:
+            now = datetime.now(timezone.utc)
+            outcome = await store.transact(f"mule_accounts/{key}", lambda doc: apply_sighting(
+                doc, key=key, detail_type=detail["type"], value=detail["normalizedValue"], call_id=self.call_id,
+                confidence=confidence, route=route, final=final, now=now, expires=expiry()))
+            if outcome is None:
+                return
+            item = self.items[key]
+            best = outcome["route"] or {}
+            item.update(confidence=outcome["combined"], sightings=len(outcome["calls"]), stage=outcome["stage"],
+                        bankCode=best.get("bankCode"), bankName=best.get("bankName"), routedBy=best.get("routedBy"),
+                        reason=best.get("reason"), bankStatus=outcome["bankStatus"])
+            await store.put(f"watch_sightings/{self.call_id}-{key}", {
+                "muleKey": key, "callId": self.call_id, "ownerHash": self.owner, "type": item["detailType"],
+                "value": item["value"], "thisCall": item["thisCall"], "seenAt": analysis.now_iso(),
+            })
+            if outcome["send"]:
+                item["sent"] = True
+                await self._send(item, detail, best, outcome)
+            else:
+                await self.emit(self._event(item))
+
+    async def _send(self, item: dict, detail: dict, route: dict, outcome: dict) -> None:
+        report_id = secrets.token_hex(8)
         context = self.context()
-        payload = build_payload(report_id=entry["reportId"], route=route, detail=detail, context=context,
-                                aggregate=aggregate)
-        await store.put(f"bank_reports/{entry['reportId']}", {
-            **{k: entry[k] for k in ("reportId", "muleKey", "bankCode", "bankName", "detailType", "value", "routedBy")},
+        item.update(reportId=report_id, status="pending",
+                    recommendedAction="review_for_freeze" if outcome["combined"] >= 0.8 else "monitor")
+        await self.emit(self._event(item))
+        payload = build_payload(report_id=report_id, route=route, detail=detail, context=context, outcome=outcome,
+                                this_call=item["thisCall"])
+        await store.put(f"bank_reports/{report_id}", {
+            "reportId": report_id, "muleKey": item["key"], "bankCode": route["bankCode"], "bankName": route["bankName"],
+            "detailType": item["detailType"], "value": item["value"], "routedBy": route["routedBy"],
             "callId": self.call_id, "ownerHash": self.owner, "status": "pending", "sentAt": payload["sentAt"],
-            "scamType": context.get("scamType"), "recommendedAction": payload["recommendedAction"], "payload": payload,
+            "scamType": context.get("scamType"), "recommendedAction": payload["recommendedAction"],
+            "confidence": outcome["combined"], "payload": payload,
         })
         body = json.dumps(payload, ensure_ascii=False, sort_keys=True).encode()
-        ok = await deliver(route.bank_code, body, entry["reportId"])
+        ok = await deliver(route["bankCode"], body, report_id)
         if not ok:
-            await store.update(f"bank_reports/{entry['reportId']}", {"status": "failed"})
-        entry.update(status="delivered" if ok else "failed", sightings=payload["aggregate"]["sightings"],
-                     bankStatus=payload["aggregate"]["bankStatus"], recommendedAction=payload["recommendedAction"])
-        _jlog("bank_report", callId=self.call_id, bank=route.bank_code, type=detail["type"], status=entry["status"],
-              sightings=entry["sightings"], routedBy=route.routed_by)
-        await self.emit({"type": "bank_report", **entry})
+            await store.update(f"bank_reports/{report_id}", {"status": "failed"})
+        item["status"] = "delivered" if ok else "failed"
+        _jlog("bank_report", callId=self.call_id, bank=route["bankCode"], type=item["detailType"], status=item["status"],
+              confidence=outcome["combined"], calls=len(outcome["calls"]), routedBy=route["routedBy"])
+        await self.emit(self._event(item))
+
+    @staticmethod
+    def _public(item: dict) -> dict:
+        return {k: v for k, v in item.items() if k not in ("routeKnown", "finalChecked")}
+
+    def _event(self, item: dict) -> dict:
+        return {"type": "bank_report", **self._public(item)}
 
     def summary(self) -> list[dict]:
-        return [dict(e) for e in self.sent.values()]
+        return [self._public(item) for item in self.items.values()]

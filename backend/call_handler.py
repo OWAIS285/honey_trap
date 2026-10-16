@@ -275,7 +275,7 @@ class CallHandler:
         if detail and changed:
             self._spawn(store.put(f"calls/{self.call_id}/details/{detail['id']}", detail))
             await self._emit({"type": "detail", "detail": detail})
-            if detail["confirmed"]:
+            if detail["type"] in bank_reports.REPORTABLE or detail["type"] == "ifsc":
                 await self.bank.sweep(self.details, self.turns)
         return detail
 
@@ -319,7 +319,7 @@ class CallHandler:
             current["stage"] = self.classification["stage"]
         self.classification = current
         await self._emit({"type": "classification", **current})
-        self.bank.set_verdict(current["verdict"])
+        self.bank.set_verdict(current["verdict"], current["confidence"])
         await self.bank.sweep(self.details, self.turns)
         self._spawn(
             store.update(
@@ -431,6 +431,6 @@ class CallHandler:
         )
         jlog("INFO", "call_ended", callId=self.call_id, mode=self.mode, durationSec=duration, turns=len(self.turns),
              details=len(self.details), confirmed=confirmed, scamType=summary["scamType"], verdict=summary["verdict"],
-             redFlags=[f["signal"] for f in summary["redFlags"]], recordChecks=list(self.record_checks), bankReports=len(self.bank.sent),
+             redFlags=[f["signal"] for f in summary["redFlags"]], recordChecks=list(self.record_checks), bankReports=len(self.bank.items),
              latencyP50=p50, latencyP90=p90, estCostUsd=est_cost, reason=reason)
         return summary

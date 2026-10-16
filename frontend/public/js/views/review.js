@@ -4,7 +4,7 @@ import { api } from "../api.js";
 import { BRAND } from "../brand.js";
 import { backLink, errorState, pageHeader, skeletons, strainCard } from "../components.js";
 import { createAudioPlayer } from "../player.js";
-import { DELIVERY_LABELS, DETAIL_META, ROUTED_BY_LABELS, SIGNAL_LABELS, SOURCE_LABELS, downloadBlob, fmtClock, fmtDate, fmtDuration, h, humanize, icon, observeReveal, scamLabel, toast, verdictTitle } from "../util.js";
+import { DETAIL_META, ROUTED_BY_LABELS, bankItemState, pct, SIGNAL_LABELS, SOURCE_LABELS, downloadBlob, fmtClock, fmtDate, fmtDuration, h, humanize, icon, observeReveal, scamLabel, toast, verdictTitle } from "../util.js";
 
 export const DISCLAIMER =
   "Details were stated by an unverified caller during an automated decoy call and may be mis-heard or belong to an innocent third party. This pack is a lead for investigators, not a finding that any account is fraudulent.";
@@ -133,26 +133,31 @@ export function ReviewView({ id }) {
       ? h(
           "section",
           { class: "card evidence" },
-          h("div", { class: "card-h" }, icon("bank"), "Reported to banks"),
-          h("p", { class: "muted" }, "Each confirmed UPI ID or account number in this scam call was sent to the bank that can act on it, as a signed report in that bank's proxy inbox."),
+          h("div", { class: "card-h" }, icon("bank"), "Banks"),
+          h("p", { class: "muted" }, "UPI IDs and account numbers from this scam call. At 65% confidence or more a signed report went to the bank that can act on it; between 45% and 65% the detail is on the watchlist, and is reported if another call gives it again."),
           h(
             "div",
             { class: "ev-list" },
             bankReports.map((r) => {
               const meta = DETAIL_META[r.detailType] || { label: humanize(r.detailType), icon: "hash" };
+              const state = bankItemState(r);
+              const reported = r.stage === "reported";
               return h(
                 "article",
                 { class: "ev-row" },
                 h(
                   "div",
                   { class: "ev-head" },
-                  h("span", { class: "ev-type" }, icon("bank"), r.bankName),
-                  h("span", { class: `badge ${r.status === "delivered" ? "ok" : r.status === "failed" ? "bad" : "warn"}` }, DELIVERY_LABELS[r.status] || r.status),
+                  h("span", { class: "ev-type" }, icon(reported ? "bank" : "eye"), r.bankName || "Bank not known yet"),
+                  h("span", { class: `badge ${state.tone}` }, state.label),
+                  h("span", { class: "chip" }, `${pct(r.confidence)} confidence`),
+                  r.sightings > 1 ? h("span", { class: "chip danger" }, `${r.sightings} calls`) : null,
                   h("span", { class: "grow" }),
-                  h("a", { class: "chip action no-print", href: `#/banks/${r.bankCode}` }, "Open inbox"),
+                  reported && r.bankCode ? h("a", { class: "chip action no-print", href: `#/banks/${r.bankCode}` }, "Open inbox") : null,
                 ),
                 h("div", { class: "ev-value mono" }, `${meta.label}: ${r.value}`),
-                h("small", { class: "muted" }, `${ROUTED_BY_LABELS[r.routedBy] || r.routedBy}: ${r.reason}`),
+                r.reason ? h("small", { class: "muted" }, `${ROUTED_BY_LABELS[r.routedBy] || r.routedBy}: ${r.reason}`) : null,
+                reported ? null : h("small", { class: "muted" }, `This call alone gave ${pct(r.thisCall)}; it needs 65% to be reported.`),
               );
             }),
           ),

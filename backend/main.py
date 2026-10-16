@@ -173,6 +173,7 @@ async def _with_aggregates(reports: list[dict]) -> list[dict]:
         mule = await store.get(f"mule_accounts/{report.get('muleKey')}") or {}
         row = clean({k: v for k, v in report.items() if k != "payload"})
         row["sightings"] = mule.get("sightings", 1)
+        row["currentConfidence"] = mule.get("confidence", report.get("confidence"))
         row["bankStatus"] = mule.get("status", "reported")
         row["linkedDetails"] = (report.get("payload") or {}).get("linkedDetails", [])
         row["routingReason"] = (report.get("payload") or {}).get("subject", {}).get("routingReason", "")
@@ -199,6 +200,27 @@ async def bank_inbox_demo(code: str, request: Request) -> dict:
     reports = [r for r in await store.list_owned("bank_reports", owner, limit=300) if r.get("bankCode") == code]
     reports.sort(key=lambda r: r.get("sentAt", ""), reverse=True)
     return {"bank": {"code": code, "name": bank_registry.bank_name(code)}, "reports": await _with_aggregates(reports)}
+
+
+@app.get("/api/watchlist")
+async def watchlist(request: Request) -> dict:
+    """UPI IDs and accounts from this browser's scam calls, with their current confidence across every call."""
+    owner = owner_hash(require_client_id(request.headers.get("x-client-id")))
+    rows: dict[str, dict] = {}
+    for seen in await store.list_owned("watch_sightings", owner, limit=300):
+        row = rows.setdefault(seen["muleKey"], {"muleKey": seen["muleKey"], "type": seen.get("type"),
+                                                "value": seen.get("value"), "yourCalls": 0, "lastSeenAt": ""})
+        row["yourCalls"] += 1
+        row["lastSeenAt"] = max(row["lastSeenAt"], seen.get("seenAt", ""))
+    out = []
+    for row in rows.values():
+        mule = await store.get(f"mule_accounts/{row['muleKey']}") or {}
+        out.append({**row, "confidence": mule.get("confidence", 0.0), "sightings": mule.get("sightings", 0),
+                    "stage": mule.get("stage", "watching"), "bankCode": mule.get("bankCode"),
+                    "bankName": mule.get("bankName"), "routedBy": mule.get("routedBy")})
+    out.sort(key=lambda r: r["lastSeenAt"], reverse=True)
+    out.sort(key=lambda r: r["stage"] != "watching")
+    return {"items": out, "reportAt": config.BANK_REPORT_CONFIDENCE, "watchAt": config.BANK_WATCH_CONFIDENCE}
 
 
 @app.post("/api/banks/{code}/reports/{report_id}/decision")
@@ -243,8 +265,11 @@ async def bank_api_reports(code: str, request: Request, limit: int = 100) -> dic
 async def bank_api_mules(code: str, request: Request) -> dict:
     """Every payee detail reported to this bank, de-duplicated across calls, with how many calls gave it."""
     _bank_auth(code, request)
-    mules = [clean({k: v for k, v in m.items() if k != "callIds"}) | {"callCount": len(m.get("callIds", []))}
-             for m in await store.list_where("mule_accounts", "bankCode", code, limit=500)]
+    # A bank only ever sees identifiers that crossed the report threshold, never the watchlist.
+    hidden = ("calls", "reportedCalls", "callIds", "route")
+    mules = [clean({k: v for k, v in m.items() if k not in hidden}) | {"callCount": len(m.get("calls") or m.get("callIds") or [])}
+             for m in await store.list_where("mule_accounts", "bankCode", code, limit=500)
+             if m.get("stage", "reported") == "reported"]
     mules.sort(key=lambda m: (m.get("sightings", 0), m.get("lastSeenAt", "")), reverse=True)
     return {"bank": {"code": code, "name": bank_registry.bank_name(code)}, "muleAccounts": mules}
 
@@ -254,7 +279,7 @@ async def bank_api_status(code: str, mule_key: str, body: DecisionIn, request: R
     """The bank's decision on a reported account, visible on every later report of it."""
     _bank_auth(code, request)
     mule = await store.get(f"mule_accounts/{mule_key}")
-    if not mule or mule.get("bankCode") != code:
+    if not mule or mule.get("bankCode") != code or mule.get("stage", "reported") != "reported":
         raise HTTPException(404, "Mule account not found for this bank.")
     await store.update(f"mule_accounts/{mule_key}", {"status": body.decision, "statusNote": body.note,
                                                      "statusAt": analysis.now_iso()})

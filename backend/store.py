@@ -101,18 +101,20 @@ class Store:
         return [d.to_dict() async for d in query.stream()]
 
     @_safe(None)
-    async def record_sighting(self, path: str, data: dict, call_id: str) -> dict | None:
-        """Count one more call that gave this payee detail; returns the updated aggregate."""
-        from google.cloud import firestore
+    async def transact(self, path: str, step):
+        """Read-modify-write one document atomically. step(current or None) -> (new document, result)."""
+        from google.cloud.firestore import async_transactional
 
         ref = self.fs.document(path)
-        now = datetime.now(timezone.utc)
-        first = not (await ref.get()).exists
-        extra = {"firstSeenAt": now, "status": "reported"} if first else {}
-        await ref.set({**data, **extra, "lastSeenAt": now, "sightings": firestore.Increment(1),
-                       "callIds": firestore.ArrayUnion([call_id]), "expiresAt": expiry()}, merge=True)
-        snap = await ref.get()
-        return snap.to_dict() if snap.exists else None
+
+        @async_transactional
+        async def run(transaction):
+            snap = await ref.get(transaction=transaction)
+            new, result = step(snap.to_dict() if snap.exists else None)
+            transaction.set(ref, new)
+            return result
+
+        return await run(self.fs.transaction())
 
     @_safe(None)
     async def put_recording(self, call_id: str, data: bytes) -> str | None:

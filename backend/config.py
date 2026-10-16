@@ -42,3 +42,7 @@ BANK_WEBHOOK_BASE = os.getenv("BANK_WEBHOOK_BASE", "").strip().rstrip("/")
 # Signs every report and derives each bank's API key. Keep it in Secret Manager; without it reports are signed with a
 # per-process key and the bank API is switched off.
 BANK_SIGNING_SECRET = os.getenv("BANK_SIGNING_SECRET", "").strip()
+# Report a UPI ID or account to its bank at this confidence or more (this call plus every earlier call that gave it);
+# from the watch level up it is kept and matched against future calls; below it, ignored.
+BANK_REPORT_CONFIDENCE = float(os.getenv("BANK_REPORT_CONFIDENCE", "0.65"))
+BANK_WATCH_CONFIDENCE = float(os.getenv("BANK_WATCH_CONFIDENCE", "0.45"))

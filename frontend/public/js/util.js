@@ -184,6 +184,18 @@ export const BANK_DECISIONS = {
 
 export const DELIVERY_LABELS = { pending: "Sending…", delivered: "Delivered", failed: "Delivery failed" };
 
+export const pct = (x) => `${Math.round((x || 0) * 100)}%`;
+
+/** One line for a tracked UPI ID or account: reported to a bank, or held on the watchlist below the report level. */
+export function bankItemState(item) {
+  if (item.stage === "reported" && item.status) {
+    const tone = item.status === "delivered" ? "ok" : item.status === "failed" ? "bad" : "warn";
+    return { tone, label: DELIVERY_LABELS[item.status] || item.status };
+  }
+  if (item.stage === "reported") return { tone: "ok", label: "Reported" };
+  return { tone: "warn", label: "On watch" };
+}
+
 export const VERDICT_LABELS = { scam: "Scam", legitimate: "Not a scam", undetermined: "Not clear yet" };
 
 export const verdictTitle = (verdict, scamType) => (verdict === "scam" ? scamLabel(scamType) : VERDICT_LABELS[verdict] || scamLabel(scamType));
